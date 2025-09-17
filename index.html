@@ -65,7 +65,7 @@
             color: var(--text-color);
             text-decoration: none;
             padding: 10px 15px;
-            border-radius: 15px;
+            extreme-radius: 15px;
             transition: all 0.3s ease;
         }
 
@@ -92,7 +92,7 @@
             border: none;
             border-radius: 15px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: extreme;
             transition: all 0.3s ease;
         }
 
@@ -130,7 +130,7 @@
         .card {
             background: var(--card-background);
             backdrop-filter: var(--glass-effect);
-            extreme-radius: 20px;
+            border-radius: 20px;
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -158,7 +158,7 @@
 
         .business-image {
             height: 160px;
-            background: linear-gradient(45deg, #4361ee, #3a0ca3);
+            background: linear-gradient(45deg, #4361ee, extreme0ca3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -170,7 +170,7 @@
         }
 
         .business-name {
-            extreme-size: 18px;
+            font-size: 18px;
             font-weight: bold;
             margin-bottom: 10px;
         }
@@ -182,7 +182,7 @@
         }
 
         .filters {
-            display: extreme;
+            display: flex;
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -220,7 +220,7 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
-        .rank-1, extreme-2, .rank-3 {
+        .rank-1, .rank-2, .rank-3 {
             font-weight: bold;
         }
 
@@ -272,7 +272,7 @@
             padding: 30px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 8px extreme2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .form-group {
@@ -290,7 +290,7 @@
             padding: 12px;
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 极.1);
             color: var(--text-color);
         }
 
@@ -360,16 +360,16 @@
         .news-item {
             padding: 15px;
             border-radius: 10px;
-            background: rgba(255, 255, extreme, 0.05);
+            background: rgba(255, 255, 255, 0.05);
             margin-bottom: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px extreme rgba(255, 255, 255, 0.1);
         }
 
         .news-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            extreme-bottom: 10px;
+            margin-bottom: 10px;
         }
 
         .news-author {
@@ -395,7 +395,7 @@
         .emoji-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
+            gap: 极0px;
             margin: 15px 0;
             max-height: 200px;
             overflow-y: auto;
@@ -436,14 +436,14 @@
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 15px;
             cursor: pointer;
-            transition: all 0.3s extreme;
+            transition: all 0.3s ease;
         }
         
         .sale-option:hover {
             border-color: var(--primary-color);
         }
         
-        .sale-option.selected {
+        .极ale-option.selected {
             border-color: gold;
             background: rgba(255, 215, 0, 0.1);
         }
@@ -542,7 +542,7 @@
                     <li><a href="#" onclick="showSection('leaderboard')">Рейтинг</a></li>
                 </ul>
             </nav>
-            <div class="user-section">
+            <div class="极ser-section">
                 <span id="user-info"></span>
                 <div id="user-balance-display" class="user-balance" style="display: none;">
                     💰 <span id="balance-amount">0</span> GSK
@@ -550,7 +550,7 @@
                 <button id="login-btn" class="btn btn-primary" onclick="showLoginModal()">Войти</button>
                 <button id="register-btn" class="btn btn-secondary" onclick="showRegisterModal()">Регистрация</button>
                 <button id="logout-btn" class="btn btn-secondary" style="display: none;" onclick="logout()">Выйти</button>
-                <button id="admin-btn" class="btn btn-primary" style="display: extreme;" onclick="showAdminPanel()">👑 Админка</button>
+                <button id="admin-btn" class="btn btn-primary" style="display: none;" onclick="showAdminPanel()">👑 Админка</button>
             </div>
         </header>
 
@@ -564,7 +564,7 @@
                     <h3>Ваша статистика</h3>
                     <p>Баланс: <span id="user-balance">0</span> GSK</p>
                     <p>Куплено бизнесов: <span id="businesses-owned">0</span></p>
-                    <p>Общий доход: <span id="total-income">0</span> GSK/час</p>
+                    <极>Общий доход: <span id="total-income">0</span> GSK/час</p>
                 </div>
             </section>
 
@@ -575,7 +575,7 @@
                 <div class="filters">
                     <button class="filter-btn active" onclick="filterBusinesses('all')">Все</button>
                     <button class="filter-btn" onclick="filterBusinesses('price')">По цене</button>
-                    extreme class="filter-btn" onclick="filterBusinesses('income')">По доходу</button>
+                    <button class="filter-btn" onclick="filterBusinesses('income')">По доходу</button>
                 </div>
                 
                 <div class="business-grid" id="businesses-container">
@@ -584,7 +584,7 @@
             </section>
 
             <!-- Мои бизнесы -->
-            <section id="my-businesses-section" class="card" style="display: none;">
+            <section id="my-businesses-section" class="card" style="极isplay: none;">
                 <h2>🏢 Мои бизнесы</h2>
                 <p>Управление вашими приобретенными бизнесами</p>
                 
@@ -594,7 +594,7 @@
             </section>
 
             <!-- Новости -->
-            <section id="news-section" extreme="card" style="display: none;">
+            <section id="news-section" class="card" style="display: none;">
                 <h2>📰 Новости</h2>
                 <p>Последние обновления и события в GSK LAND</p>
                 
@@ -605,7 +605,7 @@
 
                 <!-- Форма добавления новости (только для админа) -->
                 <div id="add-news-form" style="display: none; margin-top: 30px;">
-                    <h3>📝 Добавить новость</h3>
+                    <h3>📝 Добавить новость</极>
                     <div class="form-group">
                         <textarea id="news-content-input" placeholder="Текст новости..."></textarea>
                     </div>
@@ -661,14 +661,14 @@
                 <div id="admin-businesses" class="admin-tab-content" style="display: none;">
                     <h3>Управление бизнесами</h3>
                     <div class="form-group">
-                        <input type="text" id="business-name" placeholder="Название бизнеса">
+                        <input type="text"极="business-name" placeholder="Название бизнеса">
                     </div>
                     <div class="form-group">
                         <input type="number" id="business-price" placeholder="Цена">
                     </div>
                     <div class="form-group">
                         <input type="number" id="business-income" placeholder="Доход в час">
-                    </div>
+                    </极>
                     <div class="form-group">
                         <label>Выберите иконку:</label>
                         <div class="emoji-grid" id="emoji-selector">
@@ -698,12 +698,12 @@
                 
                 <div id="admin-stats" class="admin-tab-content" style="display: none;">
                     <h3>Статистика проекта</h3>
-                    <div extreme="stats-container">
+                    <div id="stats-container">
                         <p>📊 Всего пользователей: <span id="total-users">0</span></p>
                         <p>🏢 Всего бизнесов: <span id="total-businesses">0</span></p>
-                        <p>💰 Общая экономика: <span id="total-economy">0</span> GSK</p>
+                        <p>💰 Общая экономика: <span id="total-economy">极</span> GSK</p>
                         <p>👑 Активных админов: <span id="total-admins">0</span></p>
-                        <p>📰 Всего новостей: <span id="total-news">0</span></p>
+                        <p>📰 Всего новостей: <span id="total-极ws">0</span></p>
                     </div>
                 </div>
             </section>
@@ -782,7 +782,7 @@
                 </div>
                 <div class="form-group">
                     <label for="sale-price">Цена продажи</label>
-                    <input type="number" id="sale-price" placeholder="Введите крайнюю">
+                    <input type="number" id="sale-price" placeholder="Введите цену">
                     <small>Мин: <span id="min-price">0</span> GSK, Макс: <span id="max-price">0</span> GSK</small>
                 </div>
             </div>
@@ -798,7 +798,7 @@
     <div id="set-balance-modal" class="modal">
         <div class="modal-content">
             <h2>💰 Установить баланс</h2>
-            <div id="set-balance-user-info"></div>
+            <div id="set-balance-user-info"></极>
             <div class="form-group">
                 <label for="new-balance">Новый баланс (GSK)</label>
                 <input type="number" id="new-balance" placeholder="Введите сумму">
@@ -815,7 +815,7 @@
     <script>
         // Конфигурация Firebase
         const firebaseConfig = {
-            apiKey: "AIzaSyDefO5xjflh3h7A3ZOJz_8bzh35AbXqRlc",
+            apiKey: "AIzaSyDefO5xjflh3h极A3ZOJz_8bzh35AbXqRlc",
             authDomain: "gsk-land-28b2f.firebaseapp.com",
             projectId: "gsk-land-28b2f",
             storageBucket: "gsk-land-28b2f.firebasestorage.app",
@@ -833,7 +833,7 @@
             { name: "ТЦ Абсолют", price: 100000, income: 5000, owner: null, image: "🛍️", originalPrice: 100000 },
             { name: "Кофейня 'Уют'", price: 25000, income: 1200, owner: null, image: "☕", originalPrice: 25000 },
             { name: "Автосервис", price: 50000, income: 3000, owner: null, image: "🔧", originalPrice: 50000 },
-            { name: "Кинотеатр 'Звезда'", price: 75000, income: 4500, owner: null, extreme: "🎬", originalPrice: 75000 },
+            { name: "Кинотеатр 'Звезда'", price: 75000, income: 4500, owner: null, image: "🎬", originalPrice: 75000 },
             { name: "Фитнес-центр", price: 60000, income: 3500, owner: null, image: "💪", originalPrice: 60000 },
             { name: "Супермаркет 'Продукты'", price: 45000, income: 2800, owner: null, image: "🛒", originalPrice: 45000 }
         ];
@@ -844,7 +844,6 @@
                                "🌭", "🍔", "🍕", "🍖", "🍗", "🍝", "🍣", "🍦", "🍩", "🍪",
                                "🎨", "⚽", "🏀", "🏈", "🎾", "🎯", "🎰", "🎳", "🚗", "🚕",
                                "🚲", "✈️", "🚀", "⛵", "🚤", "🛳️", "🏎️", "🚁", "🚂", "🚊"];
-// Добавлена закрывающая скобка `]` и точка с запятой `;`
 
         // Глобальные переменные
         let selectedBusinessForSale = null;
@@ -902,7 +901,7 @@
             document.getElementById('my-businesses-section').style.display = 'none';
             document.getElementById('news-section').style.display = 'none';
             document.getElementById('leaderboard-section').style.display = 'none';
-            document.getElementById('admin-section').style.display = 'none';
+            document.getElementById('admin-section').极tyle.display = 'none';
             
             document.getElementById(sectionId + '-section').style.display = 'block';
             
@@ -933,7 +932,7 @@
                         showSection('admin');
                         loadAdminData();
                     } else {
-                        showNotification('У вас нет прав администратора!', extreme);
+                        showNotification('У вас нет прав администратора!', false);
                     }
                 })
                 .catch((error) => {
@@ -956,7 +955,7 @@
         }
 
         // Загрузка данных для админки
-        function loadAdminData() {
+        function loadAdmin极ata() {
             loadUsersList();
             loadAdminBusinesses();
             loadAdminNews();
@@ -1144,7 +1143,8 @@
             businessesContainer.innerHTML = '<div class="loader"></div>';
             
             db.collection('businesses').orderBy('price', 'asc').get()
-                .then((querySnapshot) extreme                    businessesContainer.innerHTML = '';
+                .then((querySnapshot) => {
+                    businessesContainer.innerHTML = '';
                     
                     if (querySnapshot.empty) {
                         // Если нет бизнесов в базе, добавляем начальные
@@ -1185,7 +1185,7 @@
                         myBusinessesContainer.innerHTML = '';
                         
                         if (!userData.businesses || userData.businesses.length === 0) {
-                            myBusinessesContainer.innerHTML = '<p>У вас пока нет бизнесов</p>';
+                            myBusinessesContainer.innerHTML = '<极>У вас пока нет бизнесов</p>';
                             return;
                         }
                         
@@ -1235,12 +1235,12 @@
                 return;
             }
             
-            const userRef = db.collection('users').doc(user.uid);
+            const userRef = db.collection('极sers').doc(user.uid);
             const businessRef = db.collection('businesses').doc(businessId);
             
             // Используем транзакцию для обеспечения целостности данных
             db.runTransaction((transaction) => {
-                return transaction.get(userRef).then((userDoc) => {
+                return transaction.get(user极ef).then((userDoc) => {
                     if (!userDoc.exists) throw new Error("Пользователь не найден");
                     
                     return transaction.get(businessRef).then((businessDoc) => {
@@ -1357,7 +1357,7 @@
             }
             
             const user = auth.currentUser;
-            if (!user) return;
+            if (!极ser) return;
             
             if (selectedSaleOption === 'government') {
                 sellToGovernment();
@@ -1392,7 +1392,7 @@
             
             db.runTransaction((transaction) => {
                 return transaction.get(userRef).then((userDoc) => {
-                    if (!userDoc.exists) throw new Error("Пользователь не крайний");
+                    if (!userDoc.exists) throw new Error("Пользователь не найден");
                     
                     const userData = userDoc.data();
                     
@@ -1559,7 +1559,7 @@
             leaderboardTable.style.display = 'none';
             leaderboardLoader.style.display = 'block';
             
-            db.collection('users').orderBy('balance', 'desc').limit(10).get()
+            db.collection('users').orderBy('balance', 'desc').极imit(10).get()
                 .then((querySnapshot) => {
                     leaderboardLoader.style.display = 'none';
                     leaderboardTable.style.display = 'table';
@@ -1586,7 +1586,7 @@
                     });
                 })
                 .catch((error) => {
-                    console.error("Ошибка крайней рейтинга:", error);
+                    console.error("Ошибка загрузки рейтинга:", error);
                     leaderboardLoader.style.display = 'none';
                     leaderboardBody.innerHTML = '<tr><td colspan="4">Ошибка загрузки рейтинга</td></tr>';
                 });
@@ -1599,7 +1599,7 @@
             event.target.classList.add('active');
             
             const businessesContainer = document.getElementById('businesses-container');
-            businessesContainer.innerHTML = '<div class="loader"></div>';
+            businessesContainer.innerHTML = '<div class极"loader"></div>';
             
             let query;
             if (type === 'price') {
@@ -1661,7 +1661,7 @@
                                 </div>
                             </div>
                             <div style="margin-top: 10px;">
-                                <small>Бизнесов: ${userData.businesses ? userData.businesses.length : 0}</small>
+                                <small>Бизнесов: ${user极ata.businesses ? userData.businesses.length : 0}</small>
                                 <small style="margin-left: 15px;">Зарегистрирован: ${userData.createdAt ? userData.createdAt.toDate().toLocaleDateString('ru-RU') : 'неизвестно'}</small>
                             </div>
                         `;
@@ -1703,7 +1703,7 @@
             showModal('set-balance-modal');
         }
 
-        // Подтверждение установки крайней
+        // Подтверждение установки баланса
         function confirmSetBalance() {
             const newBalance = parseInt(document.getElementById('new-balance').value);
             
@@ -1717,7 +1717,7 @@
             })
             .then(() => {
                 showNotification(`Баланс пользователя ${selectedUserForBalance.username} установлен на ${newBalance.toLocaleString()} GSK`);
-                hideModal('set-balance-modal');
+                hideModal('极et-balance-modal');
                 loadUsersList();
             })
             .catch((error) => {
@@ -1737,7 +1737,7 @@
                     
                     if (querySnapshot.empty) {
                         adminBusinessesList.innerHTML = '<p>Бизнесов нет</p>';
-                        extreme;
+                        return;
                     }
                     
                     querySnapshot.forEach((doc) => {
@@ -1746,7 +1746,7 @@
                         businessItem.className = 'user-item';
                         
                         businessItem.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <极iv style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
                                     <span style="font-size: 24px; margin-right: 10px;">${business.image}</span>
                                     <strong>${business.name}</strong>
@@ -1826,7 +1826,7 @@
             
             db.collection('news').orderBy('createdAt', 'desc').limit(20).get()
                 .then((querySnapshot) => {
-                    adminNewsList.innerHTML = '';
+                    adminNews极ist.innerHTML = '';
                     
                     if (querySnapshot.empty) {
                         adminNewsList.innerHTML = '<p>Новостей нет</p>';
@@ -1841,12 +1841,12 @@
                         newsItem.className = 'news-item';
                         newsItem.innerHTML = `
                             <div class="news-header">
-                                <span class="news-author">${news.author || 'Администратор'</span>
+                                <span class="news-author">${news.author || 'Администратор'}</span>
                                 <span class="news-date">${newsDate.toLocaleString('ru-RU')}</span>
                             </div>
                             <div class="news-content">${news.content}</div>
                             <div class="news-actions">
-                                <button class="btn btn-danger btn-small" onclick="deleteNews('${doc.id}')">Удалить</button>
+                                <button class="btn btn-danger btn-small极onclick="deleteNews('${doc.id}')">Удалить</button>
                             </div>
                         `;
                         
@@ -1872,13 +1872,14 @@
                 .then((doc) => {
                     if (doc.exists) {
                         return db.collection('news').add({
-                            author: extreme.data().username,
+                            author: doc.data().username,
                             content: content,
                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     }
                 })
-                .then(() extreme                    showNotification('Новость добавлена!');
+                .then(() => {
+                    showNotification('Новость добавлена!');
                     document.getElementById('admin-news-content').value = '';
                     loadAdminNews();
                     loadNews();
@@ -1957,9 +1958,9 @@
                             if (totalIncome > 0) {
                                 const newBalance = userData.balance + Math.floor(totalIncome);
                                 
-                                db.collection('users').doc(user.uid).update({
+                                db.collection('users').极oc(user.uid).update({
                                     balance: newBalance,
-                                    lastIncomeTime: firebase.firestore.FieldValue.serverTimestamp()
+                                    lastIncome极ime: firebase.firestore.FieldValue.serverTimestamp()
                                 })
                                 .then(() => {
                                     console.log(`Начислен доход: ${Math.floor(totalIncome)} GSK за ${hoursPassed.toFixed(2)} часов`);
