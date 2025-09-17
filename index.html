@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,енно-scalable=no">
+    <title>SNXHA MUSIC | Студия звукозаписи</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #12c2e9;
+            --secondary: #ff575f;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --light: #ffffff;
+            --gray-light: #f8f9fa;
+            --text-dark: #333344;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Шапка и навигация */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(26, 26, 46, 0.9);
+            padding: 1rem 5%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .logo h1 {
+            color: var(--light);
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn {
+            background-color: transparent;
+            border: 1px solid var(--light);
+            color: var(--light);
+            padding: 0.5rem 1.5rem;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--primary);
+            color: var(--dark);
+        }
+        
+        /* Главный слайдер */
+        .hero-slider {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            width: 100%;
+            height: 100vh;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .slide-active {
+            opacity: 1;
+            animation-name: slide;
+            animation-duration: 6s;
+        }
+
+        .slide {
+            display: flex;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 85px);
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .slide-content {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            padding: 2rem;
+            background-size: cover;
+            background-position: center;
+            color: white;
+        }
+
+        @keyframes slide {
+            0% {opacity: 1}
+            100% {opacity: 0.85}
+        }
+        
+        /* Разделы страницы */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background-color: var(--primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            line-height: 1.6;
+        }
+        
+        /* О студии */
+        .about-section {
+            padding: 5rem 0;
+            background-color: var(--darker);
+        }
+
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .about-text {
+            flex: 1;
+        }
+
+        .about-image {
+            flex: 1;
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .about-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        /* Услуги */
+        .services-section {
+            padding: 6rem 0;
+            background-color: var(--dark);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background-color: rgba(255, 255, 255, 0.03);
+            padding: 2rem;
+            border-radius: 10px;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            cursor: pointer;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-icon i {
+            color: white;
+            font-size: 24px;
+        }
+        
+        /* Альбомы */
+        .albums-section {
+            padding: 6rem 0;
+            background-color: var(--darker);
+        }
+
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .album-card {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .album-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            z-index: 5;
+        }
+
+        .album-cover {
+            height: 300px;
+            width: 100%;
+            object-fit: cover;
+            transition: all 0.6s ease;
+        }
+
+        .album-card:hover .album-cover {
+            transform: scale(1.05);
+        }
+        
+        /* Контакты */
+        .contact-section {
+            padding: 6rem 0;
+            background-color: var(--dark);
+        }
+
+        .contact-container {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-form {
+            flex: 2;
+        }
+        
+        /* Футер */
+        footer {
+            background-color: var(--darker);
+            padding: 4rem 0 2rem;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-link {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: #767681;
+        }
+        
+        /* Медиа-запросы */
+        @media (max-width: 992px) {
+            .about-content, 
+            .contact-container,
+            .services-grid {
+                flex-direction: column-reverse;
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                display: none;
+            }
+            
+            .menu-toggle {
+                display: block;
+                color: var(--light);
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+
+            .about-image, 
+            .album-card,
+            .service-card {
+                width: 100%;
+            }
+
+            .slide-active {
+                animation-duration: 4s;
+            }
+        }
+        
+        /* Анимация для загрузки */
+        @keyframes fadeIn {
+            from {opacity: 0}
+            to {opacity: 1}
+        }
+
+        @keyframes slideInUp {
+            from {transform: translateY(20px); opacity: 0}
+            to {transform: translateY(0); opacity: 1}
+        }
+        
+        /* Классы для анимации */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.5s ease;
+        }
+
+        .fadeIn {
+            animation-name: fadeIn;
+            animation-duration: 1s;
+        }
+        
+        /* Кастомные медиа-запросы */
+        @media (min-width: 769px) and (max-width: 992px) {
+            .about-section, 
+            .services-section,
+            .albums-section {
+                padding: 4rem 0;
+            }
+        }
+
+        /* Добавляем Google Fonts для улучшения дизайна */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600&display=swap');
+    </style>
+</head>
+<body>
+
+    <!-- Шапка -->
+    <header class="fadeIn">
+        <div class="container nav-container">
+            <div class="logo fadeIn">
+                <h1>SNXHA<span>MUSIC</span></h1>
+            </div>
+            
+            <nav>
+                <ul class="nav-list">
+                    <li><a href="#home">Главная</a></li>
+                    <li><a href="#about">О нас</a></li>
+                    <li><a href="#services">Услуги</a></li>
+                    <li><a href="#albums">Альбомы</a></li>
+                    <li><a href="#contact" class="nav-btn">Контакты</a></li>
+                </ul>
+            </nav>
+
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Главный слайдер -->
+    <section id="home" class="hero-slider fadeIn">
+        <div class="slideshow-container">
+            <div class="slide slide-active animate-on-scroll">
+                <div class="slide-content" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/random/1600x900/?music-studio');">
+                    <h2 class="section-title">ПОЛУЧИТЕ МАКСИМАЛЬНОЕ КАЧЕСТВО ВАШЕГО ЗВУКА</h2>
+                    <p class="section-subtitle animate-on-scroll">Наша студия предлагает профессиональные условия для записи, мастеринга и продакшена музыки в любых жанрах и стилях.</p>
+                </div>
+            </div>
+            
+            <!-- Добавляем второй слайд -->
+            <div class="slide animate-on-scroll">
+                <div class="slide-content" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/random/1600x900/?band');">
+                    <h2 class="section-title" style="color: var(--secondary);">СОЗДАЙТЕ ИДЕАЛЬНУЮ АТМОСФЕРЕ В КОМНАТИ</h2>
+                </div>
+            </div>
+
+            <!-- Третий слайд -->
+            <div class="slide animate-on-scroll">
+                <div class="slide-content" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://source.unsplash.com/random/1600x900/?recording');">
+                    <h2 class="section-title">ВЫДАЮЩИЙСЯ ТЕХНИЧЕСКИЙ ЗАПАС</h2>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- О студии -->
+    <section id="about" class="about-section fadeIn">
+        <div class="container fadeIn">
+            <h2 class="section-title">О Нас</h2>
+            
+            <p class="section-subtitle">SNXHA Music — это современная музыкальная студия, объединяющая талантливых музыкантов и продвинутую технику для создания великолепных звуковых проектов.</p>
+            
+            <div class="about-content fadeIn">
+                <div class="about-image animate-on-scroll">
+                    <img src="https://source.unsplash.com/random/600x400/?music" alt="Музыкальная студия SNXHA Music" class="fadeIn">
+                </div>
+                
+                <p>Основанная в 2015 году, наша студия с тех пор стала известным центром для артистов всех жанров. Мы предлагаем профессиональные услуги по записи, звукозаписи и продакшну музыки на высочайшем уровне.</p>
+                
+                <div class="about-content">
+                    <h3>Наша миссия</h3>
+                    <p class="fadeIn">Создавать музыку, которая впечатляет. Мы стремимся помочь вам выразить ваш творческий потенциал и превратить ваши идеи в реальность с помощью профессиональной команды и оборудования.</p>
+                    
+                    <h3>История</h3>
+                    <p class="fadeIn">Наша студия продолжает развивать технические стандарты, предлагая своим клиентам неограниченные возможности для воплощения самых смелых музыкальных идей.</p>
+
+                    <h3>Команда</h3>
+                    <p class="fadeIn">Наши креативные команды состоят из опытных инженеров звукооперации, артистов и технологически грамотных людей с глубоким пониманием музыкального процесса.</p>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Услуги -->
+    <section id="services" class="services-section fadeIn">
+        <div class="container services-grid">
+            <h2 class="section-title">Услуги</h2>
+            
+            <p class="section-subtitle animate-on-scroll">Мы предлагаем широкий спектр услуг для музыкантов и звукозаписывающих проектов, от записи до финального мастеринга.</p>
+
+            <div class="services-grid fadeIn">
+                <!-- Карточки услуг -->
+                <div id="service1" class="service-card animate-on-scroll fadeIn">
+                    <div class="service-icon animate-on-scroll">
+                        <i class="fas fa-microphone-alt"></i>
+                    </div>
+                    <h3>Запись музыки</h3>
+                    <p class="section-subtitle">Профессиональная запись песен и инструментов с использованием высококачественных конденсаторных и кардиерных микрофонов.</p>
+                </div>
+
+                <div id="service2" class="service-card animate-on-scroll fadeIn">
+                    <div class="service-icon">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h3>Микшинг и балансировка</h3>
+                    <p>Настройка миксера, сведение каналов звука в профессиональные гармоничную и динамичную композицию.</p>
+                </div>
+
+                <div id="service3" class="service-card animate-on-scroll fadeIn">
+                    <div class="service-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3>Продакшн</h3>
+                    <p>Профессиональная обработка и монтаж музыки под ключ, создание уникальной звуковой идентичности вашего проекта.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Альбомы -->
+    <section id="albums" class="albums-section fadeIn">
+        <div class="container albums-section fadeIn">
+            <h2 class="section-title">Популярные альбомы</h2>
+            
+            <p class="section-subtitle">Вот некоторые из наших любимых проектов и рекомендации по работе с нашими услугами.</p>
+
+        </div>
+
+        <!-- Альбомы -->
+        <div class="album-grid fadeIn">
+            <!-- Карточка альбома 1 -->
+            <div class="album-card animate-on-scroll fadeIn" id="album1">
+                <img src="https://source.unsplash.com/random/300x300/?album-cover,black-and-white" alt="Album cover" class="album-cover album-cover-1">
+                <!-- Можно добавить детали альбома -->
+            </div>
+
+            <!-- Альбом 2 -->
+            <div class="album-card animate-on-scroll fadeIn">
+                <img src="https://source.unsplash.com/random/300x300/?vinyl" alt="Vinyl record" style="width:100%; height:150px; object-fit: cover;">
+            </div>
+
+            <!-- Альбом 3 -->
+            <div class="album-card animate-on-scroll fadeIn">
+                <img src="https://source.unsplash.com/random/300x300/?vinyl" alt="Vinyl record" style="width:auto; height:150px;">
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Контакты -->
+    <section id="contact" class="contact-section fadeIn">
+        <div class="container fadeIn">
+            <h2 class="section-title">Контакты</h2>
+            
+            <div class="contact-container fadeIn">
+                <div class="contact-info fadeIn">
+                    <h3>ДОКУМЕНТЫ</h3>
+                    
+                    <p class="animate-on-scroll">Наш адрес: Москва, ул. Техникум 10, Блок А, этаж 2</p>
+                    <p class="animate-on-scroll">Телефон для связи: +7 (495) 123-4567</p>
+                    <p class="animate-on-scroll">Электронная почта: info@snxha-music.com</p>
+                </div>
+
+                <form id="contact-form" action="#" method="POST">
+                    <input type="text" placeholder="Ваше имя" required style="width: 100%; padding: 15px; margin-bottom: 20px; background-color: rgba(255, 255, 255, 0.06); border: none;">
+                    <input type="email" placeholder="Ваш e-mail" required style="width: 100%; padding: 15px; margin-bottom: 20px; background-color: rgba(255, 255, 255, 0.03);">
+                    <textarea rows="4" placeholder="Сообщение..." style="width: 100%; padding: 15px; resize: vertical;"></textarea>
+                    <button type="submit" class="nav-btn fadeIn" style="background-color: var(--primary); color: white; border: none; padding: 12px 30px; font-family: 'Raleway', sans-serif;">Отправить</button>
+                </form>
+
+            </div>
+        </section>
+
+    <!-- Футер -->
+    <footer class="fadeIn">
+        <div class="container fadeIn">
+            <ul class="footer-links">
+                <li><a href="#" class="footer-link">На главную</a></li>
+                <li><a href="#about" class="footer-link">О нас</a></li>
+                <li><a href="#services" class="footer-link">Услуги</a></li>
+                <li><a href="#albums" class="footer-link">Альбомы</a></li>
+            </ul>
+
+        <!-- Добавляем JavaScript для простой навигации -->
+    <script>
+        // Код для простого скрипта навигации (JavaScript не включен, но можем добавить позже)
+        
+        // Для мобильного меню
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navList = document.querySelector('.nav-list');
+        const headerHeight = 70; // Высота шапки
+
+        if (window.innerWidth <= 768) {
+            menuToggle.addEventListener('click', () => {
+                // Переключаем меню
+                const expanded = menuToggle.classList.contains('expanded');
+                if (!expanded) {
+                    navList.style.display = 'block';
+                    menuToggle.innerHTML = '<i class="fas fa-times"></i>';
+                }
+            });
+        }
+
+        // Для плавной прокрутки
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if(targetElement !== null) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Закрываем мобильное меню, если оно открыто
+                    navList.style.display = 'none';
+                }
+            });
+        });
+
+    </script>
+    </script>
+
+        // Для обработки отправки формы (пока пустое)
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            alert("Спасибо! Ваше сообщение отправлено. Мы свяжемся с вами.");
+        });
+    </script>
+
+    // Закрываем меню на мобильной версии при скролле
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            navList.style.display = 'flex';
+            menuToggle.style.display = false; 
+        } else {
+            navList.style.display = 'none';
+        }
+    });
+        
+    </script>
+                    
+    // Дополнительные улучшения и стилизации могут быть добавлены позже.
+    </script>
+
+</script>
+
+    </body>
+  </html>
