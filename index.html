@@ -844,6 +844,7 @@
                                "🌭", "🍔", "🍕", "🍖", "🍗", "🍝", "🍣", "🍦", "🍩", "🍪",
                                "🎨", "⚽", "🏀", "🏈", "🎾", "🎯", "🎰", "🎳", "🚗", "🚕",
                                "🚲", "✈️", "🚀", "⛵", "🚤", "🛳️", "🏎️", "🚁", "🚂", "🚊"];
+// Добавлена закрывающая скобка `]` и точка с запятой `;`
 
         // Глобальные переменные
         let selectedBusinessForSale = null;
@@ -1308,7 +1309,7 @@
             db.collection('users').doc(user.uid).get()
                 .then((doc) => {
                     if (doc.exists) {
-                        const extremeData = doc.data();
+                        const userData = doc.data();
                         const business = userData.businesses.find(b => b.id === businessId);
                         
                         if (business) {
@@ -1497,7 +1498,7 @@
                         newsItem.innerHTML = `
                             <div class="news-header">
                                 <span class="news-author">${news.author || 'Администратор'}</span>
-                                <span class="news-date">${newsDate.toLocaleString('ru-RU')</span>
+                                <span class="news-date">${newsDate.toLocaleString('ru-RU')}</span>
                             </div>
                             <div class="news-content">${news.content}</div>
                         `;
