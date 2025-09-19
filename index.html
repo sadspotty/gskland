@@ -42,6 +42,13 @@
     @media (max-width:900px){.grid{grid-template-columns:1fr}}
     #hud{position:fixed;top:12px;left:50%;transform:translateX(-50%);height:56px;backdrop-filter:blur(10px);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:8px 16px;border:1px solid var(--glass-border);display:flex;align-items:center;gap:16px;z-index:1000;min-width:320px}
     .news-item{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.02);margin-bottom:8px}
+    .clicker-btn{padding:20px;font-size:18px;border-radius:15px;background:linear-gradient(90deg,#ff6b6b,#ff8e53);cursor:pointer;border:none;color:white;margin:10px 0}
+    .progress-bar{height:20px;background:rgba(255,255,255,0.1);border-radius:10px;margin:10px 0;overflow:hidden}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));border-radius:10px;transition:width 0.3s}
+    .achievement-card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));border:1px solid var(--glass-border);margin-bottom:8px}
+    .achievement-locked{opacity:0.6}
+    .admin-table{width:100%;border-collapse:collapse;margin-top:10px}
+    .admin-table th,.admin-table td{padding:8px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)}
   </style>
 </head>
 <body>
@@ -61,6 +68,10 @@
         <button class="nav-btn" data-view="shop">Магазин</button>
         <button class="nav-btn" data-view="my">Мои бизнесы</button>
         <button class="nav-btn" data-view="rating">Рейтинг</button>
+        <button class="nav-btn" data-view="clicker">Подработка</button>
+        <button class="nav-btn" data-view="quests">Задания</button>
+        <button class="nav-btn" data-view="achievements">Достижения</button>
+        <button class="nav-btn" data-view="promocodes">Промокоды</button>
         <button class="nav-btn" data-view="news">Новости</button>
         <button class="nav-btn hidden" id="nav-admin" data-view="admin">Админ</button>
       </nav>
@@ -71,7 +82,7 @@
         <section id="view-home">
           <div class="card">
             <h2>Добро пожаловать в GSK LAND</h2>
-            <p class="muted">Покупай реальные бизнесы в городе, собирай доход, продавай и поднимаься в рейтинге. Каждый бизнес уникален и может принадлежать только одному игроку.</p>
+            <p class="muted">Покупай реальные бизнесы в городе, собирай доход, продавай и поднимайся в рейтинге. Каждый бизнес уникален и может принадлежать только одному игроку.</p>
           </div>
 
           <div class="card" id="auth-area">
@@ -147,6 +158,38 @@
           <div id="rating-list" style="margin-top:12px"></div>
         </section>
 
+        <section id="view-clicker" class="hidden">
+          <h2>Подработка</h2>
+          <div class="card">
+            <p>Кликай на кнопку чтобы заработать деньги! Каждый клик = 5 ₽</p>
+            <button class="clicker-btn" id="clicker-button">КЛИКАЙ ЗА ДЕНЬГАМИ!</button>
+            <div class="flex" style="justify-content:space-between">
+              <div>Накоплено: <strong id="clicker-amount">0</strong> ₽</div>
+              <button class="btn" id="clicker-collect">Забрать</button>
+            </div>
+            <div class="muted small">Всего кликов: <span id="total-clicks">0</span></div>
+          </div>
+        </section>
+
+        <section id="view-quests" class="hidden">
+          <h2>Ежедневные задания</h2>
+          <div id="quests-list" style="margin-top:12px"></div>
+        </section>
+
+        <section id="view-achievements" class="hidden">
+          <h2>Достижения</h2>
+          <div id="achievements-list" style="margin-top:12px"></div>
+        </section>
+
+        <section id="view-promocodes" class="hidden">
+          <h2>Промокоды</h2>
+          <div class="card">
+            <input id="promocode-input" placeholder="Введите промокод" />
+            <div style="margin-top:8px"><button class="btn" id="promocode-activate">Активировать</button></div>
+          </div>
+          <div id="promocodes-list" style="margin-top:12px"></div>
+        </section>
+
         <section id="view-news" class="hidden">
           <h2>Новости</h2>
           <div id="news-list" style="margin-top:12px"></div>
@@ -160,6 +203,12 @@
 
         <section id="view-admin" class="hidden">
           <h2>Админ панель</h2>
+          
+          <div class="card">
+            <h3>Все игроки</h3>
+            <div id="admin-users-list"></div>
+          </div>
+
           <div class="card">
             <div class="flex" style="align-items:flex-start">
               <div style="flex:1">
@@ -171,14 +220,19 @@
                 <div style="margin-top:8px"><button class="btn" id="admin-create-biz">Создать</button></div>
               </div>
               <div style="width:1px;background:rgba(255,255,255,0.02);height:180px"></div>
-              <div style="width:320px">
-                <h4>Поиск игрока</h4>
-                <input id="admin-find-user" placeholder="Никнейм или email" />
-                <div style="margin-top:8px"><button class="btn" id="admin-find-btn">Найти</button></div>
-                <div id="admin-find-result" style="margin-top:8px"></div>
+              <div style="flex:1">
+                <h4>Управление промокодами</h4>
+                <input id="admin-promo-code" placeholder="Код промокода" />
+                <input id="admin-promo-amount" placeholder="Сумма" type="number" style="margin-top:8px" />
+                <input id="admin-promo-uses" placeholder="Количество использований" type="number" style="margin-top:8px" value="1" />
+                <div style="margin-top:8px">
+                  <button class="btn" id="admin-create-promo">Создать промокод</button>
+                  <button class="btn" style="background:rgba(200,60,60,0.9);margin-top:8px" id="admin-delete-promo">Удалить промокод</button>
+                </div>
               </div>
             </div>
           </div>
+
           <div id="admin-tables" style="margin-top:12px"></div>
         </section>
 
@@ -230,6 +284,10 @@
       shop: document.getElementById('view-shop'),
       my: document.getElementById('view-my'),
       rating: document.getElementById('view-rating'),
+      clicker: document.getElementById('view-clicker'),
+      quests: document.getElementById('view-quests'),
+      achievements: document.getElementById('view-achievements'),
+      promocodes: document.getElementById('view-promocodes'),
       news: document.getElementById('view-news'),
       admin: document.getElementById('view-admin')
     };
@@ -242,6 +300,14 @@
         const view = btn.dataset.view;
         Object.values(views).forEach(v => v.classList.add('hidden'));
         views[view].classList.remove('hidden');
+        
+        // Загружаем данные для конкретного раздела
+        if (view === 'rating') renderRating();
+        if (view === 'clicker') renderClicker();
+        if (view === 'quests') renderQuests();
+        if (view === 'achievements') renderAchievements();
+        if (view === 'promocodes') renderPromocodes();
+        if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) renderAdminUsers();
       });
     });
 
@@ -271,7 +337,17 @@
             username: user.displayName || '', 
             email: user.email || '', 
             balance: 10000,
-            codeword: document.getElementById('reg-codeword')?.value || ''
+            codeword: document.getElementById('reg-codeword')?.value || '',
+            totalClicks: 0,
+            clickerAmount: 0,
+            achievements: {
+              dailyQuest: false,
+              thousandClicks: false
+            },
+            questProgress: {
+              dailyClicks: 0
+            },
+            usedPromocodes: []
           };
           await userRef.set(newUserData);
           currentUserDoc = newUserData;
@@ -303,7 +379,7 @@
         currentUserDoc = null;
         document.getElementById('user-info').classList.add('hidden');
         document.getElementById('auth-forms').classList.remove('hidden');
-        document.getElementById('hud').classlassList.add('hidden');
+        document.getElementById('hud').classList.add('hidden');
         document.getElementById('nav-admin').classList.add('hidden');
         document.getElementById('news-admin').classList.add('hidden');
       }
@@ -311,7 +387,6 @@
       // Обновляем данные
       await renderShop();
       await renderMyBusinesses();
-      await renderRating();
     });
 
     // Регистрация
@@ -334,7 +409,18 @@
           username, 
           email, 
           balance: 10000,
-          codeword 
+          codeword,
+          totalClicks: 0,
+          clickerAmount: 0,
+          achievements: {
+            dailyQuest: false,
+            thousandClicks: false
+          },
+          questProgress: {
+            dailyClicks: 0
+          },
+          usedPromocodes: [],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         alert('Регистрация успешна! Добро пожаловать в GSK LAND!');
       } catch (e) {
@@ -696,6 +782,474 @@
       }
     });
 
+    // Рендер рейтинга
+    async function renderRating() {
+      const el = document.getElementById('rating-list');
+      el.innerHTML = '';
+      
+      try {
+        const snaps = await db.collection('users').orderBy('balance', 'desc').limit(100).get();
+        const users = [];
+        
+        snaps.forEach(doc => {
+          const userData = doc.data();
+          if (userData.username) {
+            users.push({
+              username: userData.username,
+              balance: userData.balance || 0,
+              email: userData.email || ''
+            });
+          }
+        });
+        
+        if (users.length === 0) {
+          el.innerHTML = '<div class="muted">Нет данных для рейтинга</div>';
+          return;
+        }
+        
+        users.forEach((user, index) => {
+          const div = document.createElement('div');
+          div.className = 'card';
+          div.innerHTML = `
+            <strong>#${index + 1} ${user.username}</strong>
+            <div class="muted small">Баланс: ${user.balance} ₽</div>
+            <div class="muted small">${user.email}</div>
+          `;
+          el.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки рейтинга:', error);
+        el.innerHTML = '<div class="muted">Ошибка загрузки рейтинга</div>';
+      }
+    }
+
+    // Кликер
+    async function renderClicker() {
+      if (!currentUser) return;
+      
+      document.getElementById('clicker-amount').innerText = currentUserDoc.clickerAmount || 0;
+      document.getElementById('total-clicks').innerText = currentUserDoc.totalClicks || 0;
+    }
+
+    document.getElementById('clicker-button').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      try {
+        const userRef = db.collection('users').doc(currentUser.uid);
+        await userRef.update({
+          clickerAmount: firebase.firestore.FieldValue.increment(5),
+          totalClicks: firebase.firestore.FieldValue.increment(1),
+          'questProgress.dailyClicks': firebase.firestore.FieldValue.increment(1)
+        });
+        
+        await refreshUserDoc();
+        await renderClicker();
+        await checkAchievements();
+        await checkQuests();
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
+
+    document.getElementById('clicker-collect').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      if (!currentUserDoc.clickerAmount || currentUserDoc.clickerAmount <= 0) {
+        alert('Нечего забирать');
+        return;
+      }
+      
+      try {
+        const userRef = db.collection('users').doc(currentUser.uid);
+        await userRef.update({
+          balance: firebase.firestore.FieldValue.increment(currentUserDoc.clickerAmount),
+          clickerAmount: 0
+        });
+        
+        alert(`Забрано ${currentUserDoc.clickerAmount} ₽!`);
+        await refreshUserDoc();
+        await renderClicker();
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
+
+    // Задания
+    async function renderQuests() {
+      const list = document.getElementById('quests-list');
+      list.innerHTML = '';
+      
+      if (!currentUser) {
+        list.innerHTML = '<div class="muted">Войдите чтобы увидеть задания</div>';
+        return;
+      }
+      
+      const progress = currentUserDoc.questProgress?.dailyClicks || 0;
+      const completed = currentUserDoc.achievements?.dailyQuest || false;
+      
+      const questCard = document.createElement('div');
+      questCard.className = 'card';
+      questCard.innerHTML = `
+        <h3>Ежедневное задание</h3>
+        <p>Сделайте 100 кликов в разделе "Подработка"</p>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+        </div>
+        <div class="muted small">Прогресс: ${progress}/100 кликов</div>
+        ${completed ? 
+          '<div class="btn" style="background:rgba(15,180,139,0.9);">Задание выполнено!</div>' : 
+          (progress >= 100 ? 
+            '<button class="btn" id="claim-quest">Забрать награду (10,000 ₽)</button>' : 
+            '<div class="muted">Задание еще не выполнено</div>'
+          )
+        }
+      `;
+      
+      list.appendChild(questCard);
+      
+      if (progress >= 100 && !completed) {
+        document.getElementById('claim-quest').addEventListener('click', async () => {
+          try {
+            const userRef = db.collection('users').doc(currentUser.uid);
+            await userRef.update({
+              balance: firebase.firestore.FieldValue.increment(10000),
+              'achievements.dailyQuest': true
+            });
+            
+            alert('Награда получена: 10,000 ₽!');
+            await refreshUserDoc();
+            await renderQuests();
+          } catch (err) {
+            alert('Ошибка: ' + err.message);
+          }
+        });
+      }
+    }
+
+    // Достижения
+    async function renderAchievements() {
+      const list = document.getElementById('achievements-list');
+      list.innerHTML = '';
+      
+      if (!currentUser) {
+        list.innerHTML = '<div class="muted">Войдите чтобы увидеть достижения</div>';
+        return;
+      }
+      
+      const totalClicks = currentUserDoc.totalClicks || 0;
+      const thousandCompleted = currentUserDoc.achievements?.thousandClicks || false;
+      
+      const achievements = [
+        {
+          id: 'thousandClicks',
+          title: 'Мастер кликов',
+          description: 'Сделайте 1000 кликов в разделе "Подработка"',
+          reward: '50,000 ₽',
+          progress: totalClicks,
+          target: 1000,
+          completed: thousandCompleted
+        }
+      ];
+      
+      achievements.forEach(achievement => {
+        const achievementCard = document.createElement('div');
+        achievementCard.className = `achievement-card ${achievement.completed ? '' : 'achievement-locked'}`;
+        achievementCard.innerHTML = `
+          <h3>${achievement.title}</h3>
+          <p>${achievement.description}</p>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${Math.min((achievement.progress / achievement.target) * 100, 100)}%"></div>
+          </div>
+          <div class="muted small">Прогресс: ${achievement.progress}/${achievement.target}</div>
+          <div class="muted small">Награда: ${achievement.reward}</div>
+          ${achievement.completed ? 
+            '<div class="btn" style="background:rgba(15,180,139,0.9);margin-top:8px">Достижение получено!</div>' : 
+            (achievement.progress >= achievement.target ? 
+              '<button class="btn" data-achievement="thousandClicks">Забрать награду</button>' : 
+              '<div class="muted">Достижение еще не получено</div>'
+            )
+          }
+        `;
+        
+        list.appendChild(achievementCard);
+      });
+      
+      // Обработка получения награды
+      document.querySelectorAll('[data-achievement]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const achievementId = btn.dataset.achievement;
+          
+          if (achievementId === 'thousandClicks') {
+            try {
+              const userRef = db.collection('users').doc(currentUser.uid);
+              await userRef.update({
+                balance: firebase.firestore.FieldValue.increment(50000),
+                'achievements.thousandClicks': true
+              });
+              
+              alert('Награда получена: 50,000 ₽!');
+              await refreshUserDoc();
+              await renderAchievements();
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          }
+        });
+      });
+    }
+
+    // Промокоды
+    async function renderPromocodes() {
+      const list = document.getElementById('promocodes-list');
+      list.innerHTML = '';
+      
+      if (!currentUser) {
+        list.innerHTML = '<div class="muted">Войдите чтобы использовать промокоды</div>';
+        return;
+      }
+      
+      try {
+        const snaps = await db.collection('promocodes').get();
+        if (!snaps.empty) {
+          const availablePromos = document.createElement('div');
+          availablePromos.className = 'card';
+          availablePromos.innerHTML = '<h3>Доступные промокоды</h3>';
+          
+          snaps.forEach(doc => {
+            const promo = doc.data();
+            const used = currentUserDoc.usedPromocodes?.includes(doc.id) || false;
+            
+            const promoEl = document.createElement('div');
+            promoEl.className = `muted small ${used ? 'achievement-locked' : ''}`;
+            promoEl.innerHTML = `
+              <strong>${promo.code}</strong> - ${promo.amount} ₽
+              ${used ? '(использован)' : ''}
+            `;
+            availablePromos.appendChild(promoEl);
+          });
+          
+          list.appendChild(availablePromos);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки промокодов:', error);
+      }
+    }
+
+    document.getElementById('promocode-activate').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      const code = document.getElementById('promocode-input').value.trim().toUpperCase();
+      
+      if (!code) {
+        alert('Введите промокод');
+        return;
+      }
+      
+      try {
+        const promoSnap = await db.collection('promocodes').doc(code).get();
+        
+        if (!promoSnap.exists) {
+          alert('Промокод не найден');
+          return;
+        }
+        
+        const promo = promoSnap.data();
+        
+        if (currentUserDoc.usedPromocodes?.includes(code)) {
+          alert('Вы уже использовали этот промокод');
+          return;
+        }
+        
+        if (promo.uses <= 0) {
+          alert('Промокод больше не действителен');
+          return;
+        }
+        
+        // Активируем промокод
+        const userRef = db.collection('users').doc(currentUser.uid);
+        const promoRef = db.collection('promocodes').doc(code);
+        
+        await db.runTransaction(async (tx) => {
+          const userDoc = await tx.get(userRef);
+          const promoDoc = await tx.get(promoRef);
+          
+          if (!userDoc.exists || !promoDoc.exists) throw new Error('Ошибка активации');
+          
+          const userData = userDoc.data();
+          const promoData = promoDoc.data();
+          
+          if (userData.usedPromocodes?.includes(code)) throw new Error('Промокод уже использован');
+          if (promoData.uses <= 0) throw new Error('Промокод не действителен');
+          
+          tx.update(userRef, {
+            balance: firebase.firestore.FieldValue.increment(promoData.amount),
+            usedPromocodes: firebase.firestore.FieldValue.arrayUnion(code)
+          });
+          
+          tx.update(promoRef, {
+            uses: firebase.firestore.FieldValue.increment(-1),
+            usedBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+          });
+        });
+        
+        alert(`Промокод активирован! Получено ${promo.amount} ₽`);
+        document.getElementById('promocode-input').value = '';
+        await refreshUserDoc();
+        await renderPromocodes();
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
+
+    // Админ: создание промокода
+    document.getElementById('admin-create-promo').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
+        alert('Доступно только администратору');
+        return;
+      }
+      
+      const code = document.getElementById('admin-promo-code').value.trim().toUpperCase();
+      const amount = parseInt(document.getElementById('admin-promo-amount').value);
+      const uses = parseInt(document.getElementById('admin-promo-uses').value);
+      
+      if (!code || isNaN(amount) || isNaN(uses) || amount <= 0 || uses <= 0) {
+        alert('Заполните все поля корректно');
+        return;
+      }
+      
+      try {
+        await db.collection('promocodes').doc(code).set({
+          code: code,
+          amount: amount,
+          uses: uses,
+          createdBy: currentUser.uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          usedBy: []
+        });
+        
+        alert('Промокод создан!');
+        document.getElementById('admin-promo-code').value = '';
+        document.getElementById('admin-promo-amount').value = '';
+        document.getElementById('admin-promo-uses').value = '1';
+      } catch (err) {
+        alert('Ошибка создания: ' + err.message);
+      }
+    });
+
+    // Админ: удаление промокода
+    document.getElementById('admin-delete-promo').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
+        alert('Доступно только администратору');
+        return;
+      }
+      
+      const code = document.getElementById('admin-promo-code').value.trim().toUpperCase();
+      
+      if (!code) {
+        alert('Введите код промокода для удаления');
+        return;
+      }
+      
+      if (!confirm(`Удалить промокод ${code}?`)) return;
+      
+      try {
+        await db.collection('promocodes').doc(code).delete();
+        alert('Промокод удален!');
+        document.getElementById('admin-promo-code').value = '';
+      } catch (err) {
+        alert('Ошибка удаления: ' + err.message);
+      }
+    });
+
+    // Админ: список всех игроков
+    async function renderAdminUsers() {
+      const list = document.getElementById('admin-users-list');
+      list.innerHTML = '';
+      
+      try {
+        const snaps = await db.collection('users').get();
+        
+        if (snaps.empty) {
+          list.innerHTML = '<div class="muted">Нет зарегистрированных игроков</div>';
+          return;
+        }
+        
+        const table = document.createElement('table');
+        table.className = 'admin-table';
+        table.innerHTML = `
+          <tr>
+            <th>Никнейм</th>
+            <th>Email</th>
+            <th>Пароль</th>
+            <th>Кодовое слово</th>
+            <th>Баланс</th>
+            <th>Кликов</th>
+          </tr>
+        `;
+        
+        snaps.forEach(doc => {
+          const user = doc.data();
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${user.username || 'Не указан'}</td>
+            <td>${user.email || 'Не указан'}</td>
+            <td>${user.password ? '******' : 'Не указан'}</td>
+            <td>${user.codeword || 'Не указан'}</td>
+            <td>${user.balance || 0} ₽</td>
+            <td>${user.totalClicks || 0}</td>
+          `;
+          table.appendChild(row);
+        });
+        
+        list.appendChild(table);
+      } catch (error) {
+        console.error('Ошибка загрузки пользователей:', error);
+        list.innerHTML = '<div class="muted">Ошибка загрузки пользователей</div>';
+      }
+    }
+
+    // Проверка достижений
+    async function checkAchievements() {
+      if (!currentUser) return;
+      
+      const totalClicks = currentUserDoc.totalClicks || 0;
+      
+      if (totalClicks >= 1000 && !currentUserDoc.achievements?.thousandClicks) {
+        // Достижение автоматически выдается при достижении условия
+        try {
+          const userRef = db.collection('users').doc(currentUser.uid);
+          await userRef.update({
+            'achievements.thousandClicks': true
+          });
+          await refreshUserDoc();
+        } catch (err) {
+          console.error('Ошибка выдачи достижения:', err);
+        }
+      }
+    }
+
+    // Проверка заданий
+    async function checkQuests() {
+      if (!currentUser) return;
+      
+      const dailyClicks = currentUserDoc.questProgress?.dailyClicks || 0;
+      
+      if (dailyClicks >= 100 && !currentUserDoc.achievements?.dailyQuest) {
+        // Задание выполнено, но награда еще не получена
+        await refreshUserDoc();
+        await renderQuests();
+      }
+    }
+
     // Уведомления о сделках
     db.collection('deals').where('state', '==', 'pending').onSnapshot(async (snap) => {
       const notifications = document.getElementById('notifications');
@@ -766,7 +1320,7 @@
                 // Меняем владельца бизнеса
                 tx.update(bizRef, { 
                   ownerUid: currentUser.uid,
-                  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp()
+                  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
                 });
                 
                 // Обновляем статус сделки
@@ -795,45 +1349,6 @@
         }
       });
     });
-
-    // Рендер рейтинга
-    async function renderRating() {
-      const el = document.getElementById('rating-list');
-      el.innerHTML = '';
-      
-      try {
-        const snaps = await db.collection('users').get();
-        const users = [];
-        
-        snaps.forEach(doc => {
-          const userData = doc.data();
-          users.push({
-            username: userData.username || 'Без имени',
-            balance: userData.balance || 0
-          });
-        });
-        
-        users.sort((a, b) => b.balance - a.balance);
-        
-        if (users.length === 0) {
-          el.innerHTML = '<div class="muted">Нет данных для рейтинга</div>';
-          return;
-        }
-        
-        users.slice(0, 20).forEach((user, index) => {
-          const div = document.createElement('div');
-          div.className = 'card';
-          div.innerHTML = `
-            <strong>#${index + 1} ${user.username}</strong>
-            <div class="muted small">Баланс: ${user.balance} ₽</div>
-          `;
-          el.appendChild(div);
-        });
-      } catch (error) {
-        console.error('Ошибка загрузки рейтинга:', error);
-        el.innerHTML = '<div class="muted">Ошибка загрузки рейтинга</div>';
-      }
-    }
 
     // Добавление новостей
     document.getElementById('news-add').addEventListener('click', async () => {
@@ -1033,65 +1548,6 @@
         await renderShop();
       } catch (err) {
         alert('Ошибка создания: ' + err.message);
-      }
-    });
-
-    // Админ: поиск пользователя
-    document.getElementById('admin-find-btn').addEventListener('click', async () => {
-      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
-        alert('Доступно только администратору');
-        return;
-      }
-      
-      const query = document.getElementById('admin-find-user').value.trim();
-      
-      if (!query) {
-        alert('Введите никнейм или email');
-        return;
-      }
-      
-      const resultEl = document.getElementById('admin-find-result');
-      resultEl.innerHTML = '';
-      
-      try {
-        // Поиск по username
-        const usernameSnap = await db.collection('users').where('username', '==', query).get();
-        
-        if (!usernameSnap.empty) {
-          const userDoc = usernameSnap.docs[0];
-          const userData = userDoc.data();
-          
-          resultEl.innerHTML = `
-            Найден пользователь:<br>
-            Никнейм: ${userData.username}<br>
-            Email: ${userData.email || 'не указан'}<br>
-            Баланс: ${userData.balance || 0} ₽
-          `;
-          
-          return;
-        }
-        
-        // Поиск по email
-        const emailSnap = await db.collection('users').where('email', '==', query).get();
-        
-        if (!emailSnap.empty) {
-          const userDoc = emailSnap.docs[0];
-          const userData = userDoc.data();
-          
-          resultEl.innerHTML = `
-            Найден пользователь:<br>
-            Никнейм: ${userData.username}<br>
-            Email: ${userData.email || 'не указан'}<br>
-            Баланс: ${userData.balance || 0} ₽
-          `;
-          
-          return;
-        }
-        
-        resultEl.innerHTML = 'Пользователь не найден';
-      } catch (err) {
-        console.error('Ошибка поиска:', err);
-        resultEl.innerHTML = 'Ошибка поиска';
       }
     });
 
