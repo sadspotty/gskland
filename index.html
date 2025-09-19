@@ -759,67 +759,67 @@
     }
 
     // Модальное окно продажи
-    document.getElementById('sell-cancel').addEventListener('click', () => {
-      document.getElementById('sell-modal').classList.add('hidden');
-      currentSellBizId = null;
-    });
+   // document.getElementById('sell-cancel').addEventListener('click', () => {
+   //   document.getElementById('sell-modal').classList.add('hidden');
+   //   currentSellBizId = null;
+  //  });
 
-    document.getElementById('sell-confirm').addEventListener('click', async () => {
-      if (!currentSellBizId) return;
+  //  document.getElementById('sell-confirm').addEventListener('click', async () => {
+  //    if (!currentSellBizId) return;
+  //    
+  //    const username = document.getElementById('sell-username').value.trim();
+  //    const price = parseInt(document.getElementById('sell-price').value);
+  //    
+  ///    if (!username) {
+  //      alert('Введите никнейм игрока');
+  //      return;
+   //   }
+   //   
+   //   const bizRef = db.collection('businesses').doc(currentSellBizId);
+    //  const bizDoc = await bizRef.get();
       
-      const username = document.getElementById('sell-username').value.trim();
-      const price = parseInt(document.getElementById('sell-price').value);
+    //  if (!bizDoc.exists) {
+    //    alert('Бизнес не найден');
+    //    return;
+    //  }
       
-      if (!username) {
-        alert('Введите никнейм игрока');
-        return;
-      }
+    //  const bizData = bizDoc.data();
+    //  const minPrice = Math.floor(bizData.price * 0.5);
+    //  const maxPrice = Math.floor(bizData.price * 2);
       
-      const bizRef = db.collection('businesses').doc(currentSellBizId);
-      const bizDoc = await bizRef.get();
+     // if (isNaN(price) || price < minPrice || price > maxPrice) {
+     //   alert(`Цена должна быть от ${minPrice} до ${maxPrice} ₽`);
+     //   return;
+     // }
       
-      if (!bizDoc.exists) {
-        alert('Бизнес не найден');
-        return;
-      }
-      
-      const bizData = bizDoc.data();
-      const minPrice = Math.floor(bizData.price * 0.5);
-      const maxPrice = Math.floor(bizData.price * 2);
-      
-      if (isNaN(price) || price < minPrice || price > maxPrice) {
-        alert(`Цена должна быть от ${minPrice} до ${maxPrice} ₽`);
-        return;
-      }
-      
-      try {
-        const usersSnap = await db.collection('users').where('username', '==', username).get();
+    //  try {
+    //    const usersSnap = await db.collection('users').where('username', '==', username).get();
         
-        if (usersSnap.empty) {
-          alert('Пользователь не найден');
-          return;
-        }
+    //    if (usersSnap.empty) {
+    //      alert('Пользователь не найден');
+    //      return;
+    //    }
         
-        const targetUser = usersSnap.docs[0];
+     //   const targetUser = usersSnap.docs[0];
         
-        await db.collection('deals').add({
-          fromUid: currentUser.uid,
-          toUid: targetUser.id,
-          bizId: currentSellBizId,
-          price: price,
-          state: 'pending',
+    //    await db.collection('deals').add({
+    //      fromUid: currentUser.uid,
+     //     toUid: targetUser.id,
+      //    bizId: currentSellBizId,
+     //     price: price,
+      //    state: 'pending',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+     //   });
         
-        alert('Предложение отправлено!');
-        document.getElementById('sell-modal').classList.add('hidden');
-        currentSellBizId = null;
-        document.getElementById('sell-username').value = '';
-        document.getElementById('sell-price').value = '';
-      } catch (err) {
-        alert('Ошибка: ' + err.message);
-      }
-    });
+      //  alert('Предложение отправлено!');
+       // document.getElementById('sell-modal').classList.add('hidden');
+       // currentSellBizId = null;
+       // document.getElementById('sell-username').value = '';
+     //   document.getElementById('sell-price').value = '';
+    //  } catch (err) {
+    //    alert('Ошибка: ' + err.message);
+   //   }
+   // });
 
     // Собрать доход со всех бизнесов
     document.getElementById('collect-all').addEventListener('click', async () => {
