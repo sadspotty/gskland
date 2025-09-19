@@ -71,7 +71,7 @@
         <section id="view-home">
           <div class="card">
             <h2>Добро пожаловать в GSK LAND</h2>
-            <p class="muted">Покупай реальные бизнесы в городе, собирай доход, продавай и поднимайся в рейтинге. Каждый бизнес уникален и может принадлежать только одному игроку.</p>
+            <p class="muted">Покупай реальные бизнесы в городе, собирай доход, продавай и поднимаься в рейтинге. Каждый бизнес уникален и может принадлежать только одному игроку.</p>
           </div>
 
           <div class="card" id="auth-area">
@@ -207,19 +207,23 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script>
-    // === Вставьте свой firebaseConfig ===
+    // === ТВОИ КЛЮЧИ FIREBASE ===
     const firebaseConfig = {
-      apiKey: "REPLACE_WITH_YOUR_API_KEY",
-      authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
-      projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+      apiKey: "AIzaSyAZPTcPsHVAw1RiuOUhM9IXZTSWJdRAW-c",
+      authDomain: "gskland2.firebaseapp.com",
+      projectId: "gskland2",
+      storageBucket: "gskland2.firebasestorage.app",
+      messagingSenderId: "615778317319",
+      appId: "1:615778317319:web:d875f784f280f5758926a2",
+      measurementId: "G-GPWV7RJK8X"
     };
+    
+    // Инициализация Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Collections used: users, businesses, deals, news
-
-    // UI refs
+    // UI элементы
     const navButtons = document.querySelectorAll('.nav-btn');
     const views = {
       home: document.getElementById('view-home'),
@@ -229,46 +233,65 @@
       news: document.getElementById('view-news'),
       admin: document.getElementById('view-admin')
     };
-    navButtons.forEach(btn=>btn.addEventListener('click',()=>{
-      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      const view = btn.dataset.view;
-      Object.values(views).forEach(v=>v.classList.add('hidden'));
-      views[view].classList.remove('hidden');
-    }));
+    
+    // Навигация
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.view;
+        Object.values(views).forEach(v => v.classList.add('hidden'));
+        views[view].classList.remove('hidden');
+      });
+    });
 
-    // Admin rule: username === 'Spotty' OR email === 'sad.spotty@gmail.com'
-    function isAdminUser(userDoc, user){
-      if(!user) return false;
+    // Проверка админских прав
+    function isAdminUser(userDoc, user) {
+      if (!user) return false;
       const email = (user && user.email) ? user.email.toLowerCase() : '';
-      const username = (userDoc && userDoc.username) ? userDoc.username : (user.displayName||'');
+      const username = (userDoc && userDoc.username) ? userDoc.username : (user.displayName || '');
       return username === 'Spotty' || email === 'sad.spotty@gmail.com';
     }
 
-    let currentUser = null; // firebase auth user
-    let currentUserDoc = null; // firestore users doc (object with fields)
+    let currentUser = null;
+    let currentUserDoc = null;
 
-    // Auth state
-    auth.onAuthStateChanged(async (user)=>{
+    // Отслеживание состояния аутентификации
+    auth.onAuthStateChanged(async (user) => {
       currentUser = user;
-      if(user){
-        const uref = db.collection('users').doc(user.uid);
-        const snap = await uref.get();
-        if(snap.exists){ currentUserDoc = snap.data(); }
-        else { const newDoc = { username: user.displayName||'', email:user.email||'', balance:0 }; await uref.set(newDoc); currentUserDoc = newDoc; }
-        // UI
+      if (user) {
+        const userRef = db.collection('users').doc(user.uid);
+        const userSnap = await userRef.get();
+        
+        if (userSnap.exists) {
+          currentUserDoc = userSnap.data();
+        } else {
+          // Создаем нового пользователя
+          const newUserData = { 
+            username: user.displayName || '', 
+            email: user.email || '', 
+            balance: 10000,
+            codeword: document.getElementById('reg-codeword')?.value || ''
+          };
+          await userRef.set(newUserData);
+          currentUserDoc = newUserData;
+        }
+        
+        // Обновляем UI
         document.getElementById('user-info').classList.remove('hidden');
         document.getElementById('auth-forms').classList.add('hidden');
         document.getElementById('display-name').innerText = currentUserDoc.username || user.displayName || 'Игрок';
         document.getElementById('display-email').innerText = user.email || '';
         document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
-        // HUD
+        
+        // Обновляем HUD
         document.getElementById('hud').classList.remove('hidden');
         document.getElementById('hud-username').innerText = currentUserDoc.username || user.displayName || 'Игрок';
         document.getElementById('hud-email').innerText = user.email || '';
         document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
-        // admin nav
-        if(isAdminUser(currentUserDoc, user)){
+        
+        // Проверяем админские права
+        if (isAdminUser(currentUserDoc, user)) {
           document.getElementById('nav-admin').classList.remove('hidden');
           document.getElementById('news-admin').classList.remove('hidden');
         } else {
@@ -276,325 +299,846 @@
           document.getElementById('news-admin').classList.add('hidden');
         }
       } else {
+        // Пользователь не авторизован
         currentUserDoc = null;
         document.getElementById('user-info').classList.add('hidden');
         document.getElementById('auth-forms').classList.remove('hidden');
-        document.getElementById('hud').classList.add('hidden');
+        document.getElementById('hud').classlassList.add('hidden');
         document.getElementById('nav-admin').classList.add('hidden');
         document.getElementById('news-admin').classList.add('hidden');
       }
+      
+      // Обновляем данные
       await renderShop();
       await renderMyBusinesses();
       await renderRating();
     });
 
-    // Register
-    document.getElementById('btn-register').addEventListener('click', async ()=>{
+    // Регистрация
+    document.getElementById('btn-register').addEventListener('click', async () => {
       const username = document.getElementById('reg-username').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const pass = document.getElementById('reg-pass').value;
       const pass2 = document.getElementById('reg-pass2').value;
       const codeword = document.getElementById('reg-codeword').value.trim();
-      if(!username || !email || !pass || pass!==pass2 || !codeword){ alert('Проверьте данные регистрации'); return; }
-      try{
+      
+      if (!username || !email || !pass || pass !== pass2 || !codeword) {
+        alert('Проверьте данные регистрации');
+        return;
+      }
+      
+      try {
         const cred = await auth.createUserWithEmailAndPassword(email, pass);
         await cred.user.updateProfile({ displayName: username });
-        await db.collection('users').doc(cred.user.uid).set({ username, email, balance:0, codeword });
-        alert('Регистрация успешна');
-      }catch(e){ alert(e.message); }
+        await db.collection('users').doc(cred.user.uid).set({ 
+          username, 
+          email, 
+          balance: 10000,
+          codeword 
+        });
+        alert('Регистрация успешна! Добро пожаловать в GSK LAND!');
+      } catch (e) {
+        alert('Ошибка регистрации: ' + e.message);
+      }
     });
 
-    // Login / Logout
-    document.getElementById('btn-login').addEventListener('click', async ()=>{
+    // Вход
+    document.getElementById('btn-login').addEventListener('click', async () => {
       const email = document.getElementById('login-email').value.trim();
       const pass = document.getElementById('login-pass').value;
-      try{ await auth.signInWithEmailAndPassword(email, pass); }catch(e){ alert(e.message); }
-    });
-    document.getElementById('btn-logout').addEventListener('click', ()=>auth.signOut());
-
-    // ====== Shop rendering and buy logic ======
-    async function renderShop(){
-      const list = document.getElementById('shop-list'); list.innerHTML='';
-      const snaps = await db.collection('businesses').orderBy('name').get();
-      snaps.forEach(doc=>{
-        const b = doc.data(); b.id = doc.id;
-        const el = document.createElement('div'); el.className='biz-card';
-        const ownerText = b.ownerUid ? '<div class="muted small">Занят</div>' : `<button class="btn buy-btn" data-id="${b.id}">Купить</button>`;
-        el.innerHTML = `
-          <div style="display:flex;gap:12px;align-items:center">
-            <img src="${b.icon||'https://via.placeholder.com/64/0fb48b/ffffff?text=B'}" width="64" height="64" style="border-radius:8px;object-fit:cover" />
-            <div style="flex:1">
-              <strong>${b.name}</strong>
-              <div class="muted small">Доход/ч: ${b.incomePerHour} • Цена: ${b.price}</div>
-            </div>
-            <div>${ownerText}</div>
-          </div>
-        `;
-        list.appendChild(el);
-      });
-      document.querySelectorAll('.buy-btn').forEach(btn=>btn.addEventListener('click', async (e)=>{
-        const id = e.target.dataset.id;
-        if(!currentUser){ alert('Войдите'); return; }
-        const docRef = db.collection('businesses').doc(id);
-        try{
-          await db.runTransaction(async (tx)=>{
-            const d = await tx.get(docRef);
-            if(!d.exists) throw new Error('Бизнес не найден');
-            const data = d.data();
-            if(data.ownerUid) throw new Error('Бизнес уже куплен');
-            const uref = db.collection('users').doc(currentUser.uid);
-            const usnap = await tx.get(uref);
-            const userData = usnap.data();
-            if(userData.balance < data.price) throw new Error('Недостаточно средств');
-            tx.update(uref, { balance: firebase.firestore.FieldValue.increment(-data.price) });
-            tx.update(docRef, { ownerUid: currentUser.uid, lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() });
-          });
-          alert('Покупка успешна');
-          await refreshUserDoc();
-          await renderShop(); await renderMyBusinesses(); await renderRating();
-        }catch(err){ alert(err.message||err); }
-      }));
-    }
-
-    // ====== My businesses & collect income logic ======
-    async function renderMyBusinesses(){
-      const list = document.getElementById('my-list'); list.innerHTML='';
-      if(!currentUser){ list.innerHTML='<div class="muted">Войдите чтобы увидеть свои бизнесы</div>'; return; }
-      const snaps = await db.collection('businesses').where('ownerUid','==',currentUser.uid).get();
-      if(snaps.empty){ list.innerHTML='<div class="muted">У вас нет бизнесов</div>'; return; }
-      snaps.forEach(doc=>{
-        const b = doc.data(); b.id = doc.id;
-        const last = b.lastCollectedAt ? b.lastCollectedAt.toDate() : new Date();
-        const now = new Date();
-        const ms = now - last;
-        const hours = ms / (1000*60*60);
-        const pending = Math.floor(b.incomePerHour * hours);
-        const el = document.createElement('div'); el.className='biz-card';
-        el.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <strong>${b.name}</strong>
-              <div class="muted small">Доход/ч: ${b.incomePerHour} • Накоплено: ${pending} ₽</div>
-            </div>
-            <div class="flex">
-              <button class="btn collect-btn" data-id="${b.id}">Собрать</button>
-              <button class="btn sell-gov" data-id="${b.id}" style="background:rgba(200,60,60,0.9);margin-left:6px">Продать гос.</button>
-              <button class="btn sell-player" data-id="${b.id}" style="background:rgba(120,120,120,0.9);margin-left:6px">Продать игроку</button>
-            </div>
-          </div>
-        `;
-        list.appendChild(el);
-      });
-
-      document.querySelectorAll('.collect-btn').forEach(btn=>btn.addEventListener('click', async (e)=>{
-        const id = e.target.dataset.id;
-        if(!currentUser) return alert('Войдите');
-        const bizRef = db.collection('businesses').doc(id);
-        try{
-          await db.runTransaction(async tx=>{
-            const snap = await tx.get(bizRef);
-            if(!snap.exists) throw new Error('Бизнес не найден');
-            const b = snap.data();
-            if(b.ownerUid !== currentUser.uid) throw new Error('Вы не владелец');
-            const last = b.lastCollectedAt ? b.lastCollectedAt.toDate() : new Date();
-            const now = new Date();
-            const ms = now - last;
-            const hours = ms / (1000*60*60);
-            const amount = Math.floor(b.incomePerHour * hours);
-            if(amount <= 0) throw new Error('Нет накопленного дохода');
-            const uref = db.collection('users').doc(currentUser.uid);
-            tx.update(uref, { balance: firebase.firestore.FieldValue.increment(amount) });
-            tx.update(bizRef, { lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() });
-          });
-          alert('Доход собран');
-          await refreshUserDoc();
-          await renderMyBusinesses(); renderShop(); renderRating();
-        }catch(err){ alert(err.message||err); }
-      }));
-
-      document.querySelectorAll('.sell-gov').forEach(btn=>btn.addEventListener('click', async e=>{
-        const id = e.target.dataset.id;
-        if(!confirm('Продать государству? Вы получите 70% от цены.')) return;
-        const bizRef = db.collection('businesses').doc(id);
-        try{
-          await db.runTransaction(async tx=>{
-            const snap = await tx.get(bizRef);
-            if(!snap.exists) throw new Error('Не найден');
-            const b = snap.data();
-            if(b.ownerUid !== currentUser.uid) throw new Error('Вы не владелец');
-            const price = Math.floor(b.price * 0.7);
-            const uref = db.collection('users').doc(currentUser.uid);
-            tx.update(uref, { balance: firebase.firestore.FieldValue.increment(price) });
-            tx.update(bizRef, { ownerUid: null, lastCollectedAt: null });
-          });
-          alert('Продано государству');
-          await refreshUserDoc(); renderShop(); renderMyBusinesses(); renderRating();
-        }catch(err){ alert(err.message||err); }
-      }));
-
-      document.querySelectorAll('.sell-player').forEach(btn=>btn.addEventListener('click', async e=>{
-        const id = e.target.dataset.id;
-        const bizRef = db.collection('businesses').doc(id);
-        const snap = await bizRef.get(); if(!snap.exists) return alert('Не найден');
-        const b = snap.data(); const minP = Math.floor(b.price*0.5); const maxP = Math.floor(b.price*2);
-        const target = prompt(`Укажите никнейм игрока для продажи (минимум ${minP}, максимум ${maxP})`);
-        if(!target) return;
-        const usersSnap = await db.collection('users').where('username','==',target).get(); if(usersSnap.empty) return alert('Пользователь не найден');
-        const targetDoc = usersSnap.docs[0]; let price = parseInt(prompt('Укажите цену продажи', String(minP)));
-        if(isNaN(price) || price<minP || price>maxP) return alert('Цена вне диапазона');
-        await db.collection('deals').add({ fromUid: currentUser.uid, toUid: targetDoc.id, bizId: id, price, state:'pending', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-        alert('Предложение отправлено');
-      }));
-    }
-
-    // Collect all
-    document.getElementById('collect-all').addEventListener('click', async ()=>{
-      if(!currentUser) return alert('Войдите');
-      const snaps = await db.collection('businesses').where('ownerUid','==',currentUser.uid).get();
-      let total = 0;
-      const batch = db.batch();
-      for(const doc of snaps.docs){
-        const b = doc.data(); const last = b.lastCollectedAt ? b.lastCollectedAt.toDate() : new Date();
-        const hours = (new Date() - last) / (1000*60*60);
-        const amount = Math.floor(b.incomePerHour * hours);
-        if(amount>0){
-          total += amount;
-          batch.update(db.collection('businesses').doc(doc.id), { lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        }
+      
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+      } catch (e) {
+        alert('Ошибка входа: ' + e.message);
       }
-      if(total<=0) return alert('Нет накопленного дохода');
-      const uref = db.collection('users').doc(currentUser.uid);
-      batch.update(uref, { balance: firebase.firestore.FieldValue.increment(total) });
-      await batch.commit();
-      alert('Собрано: ' + total);
-      await refreshUserDoc(); renderMyBusinesses(); renderShop(); renderRating();
     });
 
-    // ====== Deals notifications and accept/reject ======
-    db.collection('deals').where('state','==','pending').onSnapshot(async snap=>{
-      const noti = document.getElementById('notifications'); noti.innerHTML='';
-      if(!currentUser) return;
-      for(const doc of snap.docs){
-        const d = doc.data(); d.id = doc.id;
-        if(d.toUid === currentUser.uid){
-          const sellerSnap = await db.collection('users').doc(d.fromUid).get();
-          const bizSnap = await db.collection('businesses').doc(d.bizId).get();
-          const seller = sellerSnap.data(); const biz = bizSnap.data();
-          const el = document.createElement('div'); el.className='muted small';
-          el.innerHTML = `Предложение от ${seller.username}: ${biz.name} — цена ${d.price} <button class="btn" data-id="${d.id}">Принять</button> <button class="btn" data-rej="${d.id}" style="background:rgba(120,120,120,0.9);">Отклонить</button>`;
-          noti.appendChild(el);
-          el.querySelector('[data-id]').addEventListener('click', async ()=>{
-            try{
-              await db.runTransaction(async tx=>{
-                const dealRef = db.collection('deals').doc(d.id);
-                const dealSnap = await tx.get(dealRef); if(!dealSnap.exists) throw new Error('Сделка не найдена');
-                const deal = dealSnap.data();
-                const buyerRef = db.collection('users').doc(currentUser.uid);
-                const sellerRef = db.collection('users').doc(deal.fromUid);
-                const bizRef = db.collection('businesses').doc(deal.bizId);
-                const buyerSnap = await tx.get(buyerRef); const sellerSnap = await tx.get(sellerRef); const bizSnap = await tx.get(bizRef);
-                if(buyerSnap.data().balance < deal.price) throw new Error('Недостаточно средств');
-                tx.update(buyerRef, { balance: firebase.firestore.FieldValue.increment(-deal.price) });
-                tx.update(sellerRef, { balance: firebase.firestore.FieldValue.increment(deal.price) });
-                tx.update(bizRef, { ownerUid: currentUser.uid, lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() });
-                tx.update(dealRef, { state:'accepted' });
+    // Выход
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      auth.signOut();
+    });
+
+    // Рендер магазина
+    async function renderShop() {
+      const list = document.getElementById('shop-list');
+      list.innerHTML = '';
+      
+      try {
+        const snaps = await db.collection('businesses').orderBy('name').get();
+        
+        if (snaps.empty) {
+          list.innerHTML = '<div class="muted">Нет доступных бизнесов</div>';
+          return;
+        }
+        
+        snaps.forEach(doc => {
+          const biz = doc.data();
+          biz.id = doc.id;
+          
+          const el = document.createElement('div');
+          el.className = 'biz-card';
+          
+          const ownerText = biz.ownerUid ? 
+            '<div class="muted small">Занят</div>' : 
+            `<button class="btn buy-btn" data-id="${biz.id}">Купить</button>`;
+          
+          el.innerHTML = `
+            <div style="display:flex;gap:12px;align-items:center">
+              <img src="${biz.icon || 'https://via.placeholder.com/64/0fb48b/ffffff?text=B'}" width="64" height="64" style="border-radius:8px;object-fit:cover" />
+              <div style="flex:1">
+                <strong>${biz.name}</strong>
+                <div class="muted small">Доход/ч: ${biz.incomePerHour} • Цена: ${biz.price} ₽</div>
+              </div>
+              <div>${ownerText}</div>
+            </div>
+          `;
+          
+          list.appendChild(el);
+        });
+        
+        // Обработка покупки
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            
+            if (!currentUser) {
+              alert('Войдите в систему');
+              return;
+            }
+            
+            const bizRef = db.collection('businesses').doc(id);
+            
+            try {
+              await db.runTransaction(async (tx) => {
+                const bizDoc = await tx.get(bizRef);
+                
+                if (!bizDoc.exists) throw new Error('Бизнес не найден');
+                
+                const bizData = bizDoc.data();
+                
+                if (bizData.ownerUid) throw new Error('Бизнес уже куплен');
+                
+                const userRef = db.collection('users').doc(currentUser.uid);
+                const userDoc = await tx.get(userRef);
+                const userData = userDoc.data();
+                
+                if (userData.balance < bizData.price) throw new Error('Недостаточно средств');
+                
+                // Обновляем баланс пользователя
+                tx.update(userRef, { 
+                  balance: firebase.firestore.FieldValue.increment(-bizData.price) 
+                });
+                
+                // Назначаем владельца бизнеса
+                tx.update(bizRef, { 
+                  ownerUid: currentUser.uid, 
+                  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                });
               });
-              alert('Сделка принята'); refreshUserDoc(); renderShop(); renderMyBusinesses(); renderRating();
-            }catch(err){ alert(err.message||err); }
+              
+              alert('Покупка успешна!');
+              await refreshUserDoc();
+              await renderShop();
+              await renderMyBusinesses();
+              await renderRating();
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
           });
-          el.querySelector('[data-rej]').addEventListener('click', async ()=>{ await db.collection('deals').doc(d.id).update({ state:'rejected' }); alert('Отклонено'); });
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки магазина:', error);
+        list.innerHTML = '<div class="muted">Ошибка загрузки магазина</div>';
+      }
+    }
+
+    // Рендер моих бизнесов
+    async function renderMyBusinesses() {
+      const list = document.getElementById('my-list');
+      list.innerHTML = '';
+      
+      if (!currentUser) {
+        list.innerHTML = '<div class="muted">Войдите чтобы увидеть свои бизнесы</div>';
+        return;
+      }
+      
+      try {
+        const snaps = await db.collection('businesses').where('ownerUid', '==', currentUser.uid).get();
+        
+        if (snaps.empty) {
+          list.innerHTML = '<div class="muted">У вас нет бизнесов</div>';
+          return;
         }
+        
+        snaps.forEach(doc => {
+          const biz = doc.data();
+          biz.id = doc.id;
+          
+          const lastCollected = biz.lastCollectedAt ? biz.lastCollectedAt.toDate() : new Date();
+          const now = new Date();
+          const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
+          const pendingIncome = Math.floor(biz.incomePerHour * hoursPassed);
+          
+          const el = document.createElement('div');
+          el.className = 'biz-card';
+          
+          el.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <strong>${biz.name}</strong>
+                <div class="muted small">Доход/ч: ${biz.incomePerHour} • Накоплено: ${pendingIncome} ₽</div>
+              </div>
+              <div class="flex">
+                <button class="btn collect-btn" data-id="${biz.id}">Собрать</button>
+                <button class="btn sell-gov" data-id="${biz.id}" style="background:rgba(200,60,60,0.9);margin-left:6px">Продать гос.</button>
+                <button class="btn sell-player" data-id="${biz.id}" style="background:rgba(120,120,120,0.9);margin-left:6px">Продать игроку</button>
+              </div>
+            </div>
+          `;
+          
+          list.appendChild(el);
+        });
+        
+        // Обработка сбора дохода
+        document.querySelectorAll('.collect-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            
+            if (!currentUser) {
+              alert('Войдите в систему');
+              return;
+            }
+            
+            const bizRef = db.collection('businesses').doc(id);
+            
+            try {
+              await db.runTransaction(async (tx) => {
+                const bizDoc = await tx.get(bizRef);
+                
+                if (!bizDoc.exists) throw new Error('Бизнес не найден');
+                
+                const bizData = bizDoc.data();
+                
+                if (bizData.ownerUid !== currentUser.uid) throw new Error('Вы не владелец этого бизнеса');
+                
+                const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : new Date();
+                const now = new Date();
+                const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
+                const income = Math.floor(bizData.incomePerHour * hoursPassed);
+                
+                if (income <= 0) throw new Error('Нет накопленного дохода');
+                
+                const userRef = db.collection('users').doc(currentUser.uid);
+                
+                tx.update(userRef, { 
+                  balance: firebase.firestore.FieldValue.increment(income) 
+                });
+                
+                tx.update(bizRef, { 
+                  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                });
+              });
+              
+              alert('Доход собран!');
+              await refreshUserDoc();
+              await renderMyBusinesses();
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          });
+        });
+        
+        // Обработка продажи государству
+        document.querySelectorAll('.sell-gov').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            
+            if (!confirm('Продать государству? Вы получите 70% от цены.')) return;
+            
+            const bizRef = db.collection('businesses').doc(id);
+            
+            try {
+              await db.runTransaction(async (tx) => {
+                const bizDoc = await tx.get(bizRef);
+                
+                if (!bizDoc.exists) throw new Error('Бизнес не найден');
+                
+                const bizData = bizDoc.data();
+                
+                if (bizData.ownerUid !== currentUser.uid) throw new Error('Вы не владелец этого бизнеса');
+                
+                const salePrice = Math.floor(bizData.price * 0.7);
+                const userRef = db.collection('users').doc(currentUser.uid);
+                
+                tx.update(userRef, { 
+                  balance: firebase.firestore.FieldValue.increment(salePrice) 
+                });
+                
+                tx.update(bizRef, { 
+                  ownerUid: null, 
+                  lastCollectedAt: null 
+                });
+              });
+              
+              alert('Бизнес продан государству!');
+              await refreshUserDoc();
+              await renderShop();
+              await renderMyBusinesses();
+              await renderRating();
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          });
+        });
+        
+        // Обработка продажи игроку
+        document.querySelectorAll('.sell-player').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            
+            const bizRef = db.collection('businesses').doc(id);
+            const bizDoc = await bizRef.get();
+            
+            if (!bizDoc.exists) {
+              alert('Бизнес не найден');
+              return;
+            }
+            
+            const bizData = bizDoc.data();
+            const minPrice = Math.floor(bizData.price * 0.5);
+            const maxPrice = Math.floor(bizData.price * 2);
+            
+            const targetUsername = prompt(`Укажите никнейм игрока для продажи (цена от ${minPrice} до ${maxPrice} ₽)`);
+            
+            if (!targetUsername) return;
+            
+            try {
+              const usersSnap = await db.collection('users').where('username', '==', targetUsername).get();
+              
+              if (usersSnap.empty) {
+                alert('Пользователь не найден');
+                return;
+              }
+              
+              const targetUser = usersSnap.docs[0];
+              const price = parseInt(prompt('Укажите цену продажи', String(minPrice)));
+              
+              if (isNaN(price) || price < minPrice || price > maxPrice) {
+                alert(`Цена должна быть от ${minPrice} до ${maxPrice} ₽`);
+                return;
+              }
+              
+              await db.collection('deals').add({
+                fromUid: currentUser.uid,
+                toUid: targetUser.id,
+                bizId: id,
+                price: price,
+                state: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+              
+              alert('Предложение отправлено!');
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          });
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки бизнесов:', error);
+        list.innerHTML = '<div class="muted">Ошибка загрузки бизнесов</div>';
+      }
+    }
+
+    // Собрать доход со всех бизнесов
+    document.getElementById('collect-all').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      try {
+        const snaps = await db.collection('businesses').where('ownerUid', '==', currentUser.uid).get();
+        let totalIncome = 0;
+        const batch = db.batch();
+        const userRef = db.collection('users').doc(currentUser.uid);
+        
+        snaps.forEach(doc => {
+          const bizData = doc.data();
+          const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : new Date();
+          const now = new Date();
+          const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
+          const income = Math.floor(bizData.incomePerHour * hoursPassed);
+          
+          if (income > 0) {
+            totalIncome += income;
+            batch.update(doc.ref, { 
+              lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+            });
+          }
+        });
+        
+        if (totalIncome <= 0) {
+          alert('Нет накопленного дохода');
+          return;
+        }
+        
+        batch.update(userRef, { 
+          balance: firebase.firestore.FieldValue.increment(totalIncome) 
+        });
+        
+        await batch.commit();
+        alert(`Собрано: ${totalIncome} ₽`);
+        await refreshUserDoc();
+        await renderMyBusinesses();
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
       }
     });
 
-    // ====== Rating ======
-    async function renderRating(){
-      const el = document.getElementById('rating-list'); el.innerHTML='';
-      const snaps = await db.collection('users').get();
-      const arr = [];
-      snaps.forEach(s=>{ const d=s.data(); arr.push({ username:d.username, balance:d.balance||0 }); });
-      arr.sort((a,b)=>b.balance-a.balance);
-      arr.slice(0,20).forEach((u,i)=>{
-        const div = document.createElement('div'); div.className='card'; div.innerHTML = `<strong>#${i+1} ${u.username}</strong><div class="muted small">Баланс: ${u.balance}</div>`; el.appendChild(div);
+    // Уведомления о сделках
+    db.collection('deals').where('state', '==', 'pending').onSnapshot(async (snap) => {
+      const notifications = document.getElementById('notifications');
+      notifications.innerHTML = '';
+      
+      if (!currentUser) return;
+      
+      snap.forEach(async (doc) => {
+        const deal = doc.data();
+        deal.id = doc.id;
+        
+        if (deal.toUid === currentUser.uid) {
+          const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
+          const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
+          
+          if (!sellerSnap.exists || !bizSnap.exists) return;
+          
+          const seller = sellerSnap.data();
+          const biz = bizSnap.data();
+          
+          const el = document.createElement('div');
+          el.className = 'muted small';
+          el.innerHTML = `
+            Предложение от ${seller.username}: ${biz.name} — цена ${deal.price} ₽
+            <button class="btn" data-id="${deal.id}">Принять</button>
+            <button class="btn" data-rej="${deal.id}" style="background:rgba(120,120,120,0.9);">Отклонить</button>
+          `;
+          
+          notifications.appendChild(el);
+          
+          // Обработка принятия сделки
+          el.querySelector('[data-id]').addEventListener('click', async () => {
+            try {
+              await db.runTransaction(async (tx) => {
+                const dealRef = db.collection('deals').doc(deal.id);
+                const dealDoc = await tx.get(dealRef);
+                
+                if (!dealDoc.exists) throw new Error('Сделка не найдена');
+                
+                const dealData = dealDoc.data();
+                
+                if (dealData.state !== 'pending') throw new Error('Сделка уже обработана');
+                
+                const buyerRef = db.collection('users').doc(currentUser.uid);
+                const sellerRef = db.collection('users').doc(dealData.fromUid);
+                const bizRef = db.collection('businesses').doc(dealData.bizId);
+                
+                const buyerDoc = await tx.get(buyerRef);
+                const sellerDoc = await tx.get(sellerRef);
+                const bizDoc = await tx.get(bizRef);
+                
+                const buyerData = buyerDoc.data();
+                const sellerData = sellerDoc.data();
+                const bizData = bizDoc.data();
+                
+                if (buyerData.balance < dealData.price) throw new Error('Недостаточно средств');
+                if (bizData.ownerUid !== dealData.fromUid) throw new Error('Бизнес уже продан');
+                
+                // Обновляем балансы
+                tx.update(buyerRef, { 
+                  balance: firebase.firestore.FieldValue.increment(-dealData.price) 
+                });
+                
+                tx.update(sellerRef, { 
+                  balance: firebase.firestore.FieldValue.increment(dealData.price) 
+                });
+                
+                // Меняем владельца бизнеса
+                tx.update(bizRef, { 
+                  ownerUid: currentUser.uid,
+                  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Обновляем статус сделки
+                tx.update(dealRef, { state: 'accepted' });
+              });
+              
+              alert('Сделка принята!');
+              await refreshUserDoc();
+              await renderShop();
+              await renderMyBusinesses();
+              await renderRating();
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          });
+          
+          // Обработка отклонения сделки
+          el.querySelector('[data-rej]').addEventListener('click', async () => {
+            try {
+              await db.collection('deals').doc(deal.id).update({ state: 'rejected' });
+              alert('Сделка отклонена');
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          });
+        }
       });
+    });
+
+    // Рендер рейтинга
+    async function renderRating() {
+      const el = document.getElementById('rating-list');
+      el.innerHTML = '';
+      
+      try {
+        const snaps = await db.collection('users').get();
+        const users = [];
+        
+        snaps.forEach(doc => {
+          const userData = doc.data();
+          users.push({
+            username: userData.username || 'Без имени',
+            balance: userData.balance || 0
+          });
+        });
+        
+        users.sort((a, b) => b.balance - a.balance);
+        
+        if (users.length === 0) {
+          el.innerHTML = '<div class="muted">Нет данных для рейтинга</div>';
+          return;
+        }
+        
+        users.slice(0, 20).forEach((user, index) => {
+          const div = document.createElement('div');
+          div.className = 'card';
+          div.innerHTML = `
+            <strong>#${index + 1} ${user.username}</strong>
+            <div class="muted small">Баланс: ${user.balance} ₽</div>
+          `;
+          el.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки рейтинга:', error);
+        el.innerHTML = '<div class="muted">Ошибка загрузки рейтинга</div>';
+      }
     }
 
-    // ====== News: admin publish + realtime list ======
-    document.getElementById('news-add').addEventListener('click', async ()=>{
-      if(!currentUser) return alert('Войдите');
-      if(!isAdminUser(currentUserDoc, currentUser)) return alert('Только админ может публиковать');
+    // Добавление новостей
+    document.getElementById('news-add').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      if (!isAdminUser(currentUserDoc, currentUser)) {
+        alert('Только администратор может публиковать новости');
+        return;
+      }
+      
       const title = document.getElementById('news-title').value.trim();
       const content = document.getElementById('news-content').value.trim();
-      if(!title || !content) return alert('Заполните заголовок и текст');
-      await db.collection('news').add({ title, content, author: currentUserDoc.username || currentUser.email || 'admin', timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-      document.getElementById('news-title').value=''; document.getElementById('news-content').value='';
-      alert('Новость опубликована');
+      
+      if (!title || !content) {
+        alert('Заполните заголовок и текст новости');
+        return;
+      }
+      
+      try {
+        await db.collection('news').add({
+          title,
+          content,
+          author: currentUserDoc.username || currentUser.email || 'admin',
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        document.getElementById('news-title').value = '';
+        document.getElementById('news-content').value = '';
+        alert('Новость опубликована');
+      } catch (err) {
+        alert('Ошибка публикации: ' + err.message);
+      }
     });
 
-    db.collection('news').orderBy('timestamp','desc').onSnapshot(snap=>{
-      const el = document.getElementById('news-list'); el.innerHTML='';
-      snap.forEach(doc=>{
-        const n = doc.data(); const time = n.timestamp ? n.timestamp.toDate().toLocaleString() : '';
-        const div = document.createElement('div'); div.className='news-item';
-        div.innerHTML = `<strong>${n.title}</strong><div class="muted small">${n.author} • ${time}</div><div style="margin-top:8px">${n.content}</div>`;
+    // Отслеживание новостей в реальном времени
+    db.collection('news').orderBy('timestamp', 'desc').onSnapshot((snap) => {
+      const el = document.getElementById('news-list');
+      el.innerHTML = '';
+      
+      snap.forEach((doc) => {
+        const news = doc.data();
+        const time = news.timestamp ? news.timestamp.toDate().toLocaleString() : '';
+        
+        const div = document.createElement('div');
+        div.className = 'news-item';
+        div.innerHTML = `
+          <strong>${news.title}</strong>
+          <div class="muted small">${news.author} • ${time}</div>
+          <div style="margin-top:8px">${news.content}</div>
+        `;
+        
         el.appendChild(div);
       });
     });
 
-    // ====== Search business ======
-    document.getElementById('search-btn').addEventListener('click', async ()=>{
-      const q = document.getElementById('search-biz').value.trim().toLowerCase();
-      const list = document.getElementById('shop-list'); list.innerHTML='';
-      const snaps = await db.collection('businesses').get();
-      snaps.forEach(doc=>{ const b=doc.data(); if(b.name.toLowerCase().includes(q)){
-        const el=document.createElement('div'); el.className='biz-card'; el.innerHTML=`<strong>${b.name}</strong><div class="muted small">Цена: ${b.price}</div>`; list.appendChild(el);
-      }});
+    // Поиск бизнеса
+    document.getElementById('search-btn').addEventListener('click', async () => {
+      const query = document.getElementById('search-biz').value.trim().toLowerCase();
+      
+      if (!query) {
+        await renderShop();
+        return;
+      }
+      
+      const list = document.getElementById('shop-list');
+      list.innerHTML = '';
+      
+      try {
+        const snaps = await db.collection('businesses').get();
+        let found = false;
+        
+        snaps.forEach(doc => {
+          const biz = doc.data();
+          biz.id = doc.id;
+          
+          if (biz.name.toLowerCase().includes(query)) {
+            found = true;
+            
+            const el = document.createElement('div');
+            el.className = 'biz-card';
+            
+            const ownerText = biz.ownerUid ? 
+              '<div class="muted small">Занят</div>' : 
+              `<button class="btn buy-btn" data-id="${biz.id}">Купить</button>`;
+            
+            el.innerHTML = `
+              <div style="display:flex;gap:12px;align-items:center">
+                <img src="${biz.icon || 'https://via.placeholder.com/64/0fb48b/ffffff?text=B'}" width="64" height="64" style="border-radius:8px;object-fit:cover" />
+                <div style="flex:1">
+                  <strong>${biz.name}</strong>
+                  <div class="muted small">Доход/ч: ${biz.incomePerHour} • Цена: ${biz.price} ₽</div>
+                </div>
+                <div>${ownerText}</div>
+              </div>
+            `;
+            
+            list.appendChild(el);
+          }
+        });
+        
+        if (!found) {
+          list.innerHTML = '<div class="muted">Бизнесы не найдены</div>';
+        } else {
+          // Добавляем обработчики для кнопок покупки
+          document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const id = e.target.dataset.id;
+              
+              if (!currentUser) {
+                alert('Войдите в систему');
+                return;
+              }
+              
+              const bizRef = db.collection('businesses').doc(id);
+              
+              try {
+                await db.runTransaction(async (tx) => {
+                  const bizDoc = await tx.get(bizRef);
+                  
+                  if (!bizDoc.exists) throw new Error('Бизнес не найден');
+                  
+                  const bizData = bizDoc.data();
+                  
+                  if (bizData.ownerUid) throw new Error('Бизнес уже куплен');
+                  
+                  const userRef = db.collection('users').doc(currentUser.uid);
+                  const userDoc = await tx.get(userRef);
+                  const userData = userDoc.data();
+                  
+                  if (userData.balance < bizData.price) throw new Error('Недостаточно средств');
+                  
+                  tx.update(userRef, { 
+                    balance: firebase.firestore.FieldValue.increment(-bizData.price) 
+                  });
+                  
+                  tx.update(bizRef, { 
+                    ownerUid: currentUser.uid, 
+                    lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                  });
+                });
+                
+                alert('Покупка успешна!');
+                await refreshUserDoc();
+                await renderShop();
+                await renderMyBusinesses();
+                await renderRating();
+              } catch (err) {
+                alert('Ошибка: ' + err.message);
+              }
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Ошибка поиска:', error);
+        list.innerHTML = '<div class="muted">Ошибка поиска</div>';
+      }
     });
 
-    // ====== Admin actions ======
-    document.getElementById('admin-create-biz').addEventListener('click', async ()=>{
-      if(!currentUser || !isAdminUser(currentUserDoc, currentUser)) return alert('Доступно только админу');
+    // Админ: создание бизнеса
+    document.getElementById('admin-create-biz').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
+        alert('Доступно только администратору');
+        return;
+      }
+      
       const name = document.getElementById('admin-biz-name').value.trim();
       const price = parseInt(document.getElementById('admin-biz-price').value);
       const income = parseInt(document.getElementById('admin-biz-income').value);
       const icon = document.getElementById('admin-biz-icon').value.trim();
-      if(!name || isNaN(price) || isNaN(income)) return alert('Заполните поля корректно');
-      await db.collection('businesses').add({ name, price, incomePerHour: income, ownerUid: null, icon: icon||'', lastCollectedAt: null });
-      alert('Бизнес создан'); document.getElementById('admin-biz-name').value=''; document.getElementById('admin-biz-price').value=''; document.getElementById('admin-biz-income').value='';
-      await renderShop();
+      
+      if (!name || isNaN(price) || isNaN(income) || price <= 0 || income <= 0) {
+        alert('Заполните все поля корректно');
+        return;
+      }
+      
+      try {
+        await db.collection('businesses').add({
+          name,
+          price,
+          incomePerHour: income,
+          ownerUid: null,
+          icon: icon || '',
+          lastCollectedAt: null
+        });
+        
+        alert('Бизнес создан');
+        
+        // Очищаем поля
+        document.getElementById('admin-biz-name').value = '';
+        document.getElementById('admin-biz-price').value = '';
+        document.getElementById('admin-biz-income').value = '';
+        document.getElementById('admin-biz-icon').value = '';
+        
+        await renderShop();
+      } catch (err) {
+        alert('Ошибка создания: ' + err.message);
+      }
     });
 
-    document.getElementById('admin-find-btn').addEventListener('click', async ()=>{
-      if(!currentUser || !isAdminUser(currentUserDoc, currentUser)) return alert('Доступно только админу');
-      const q = document.getElementById('admin-find-user').value.trim(); if(!q) return;
-      const snaps = await db.collection('users').where('username','==',q).get();
-      const out = document.getElementById('admin-find-result'); out.innerHTML='';
-      if(snaps.empty){ out.innerText='Не найден'; return; }
-      const d = snaps.docs[0].data(); out.innerText = `Найден: ${d.username} • ${d.email} • Баланс: ${d.balance}`;
+    // Админ: поиск пользователя
+    document.getElementById('admin-find-btn').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
+        alert('Доступно только администратору');
+        return;
+      }
+      
+      const query = document.getElementById('admin-find-user').value.trim();
+      
+      if (!query) {
+        alert('Введите никнейм или email');
+        return;
+      }
+      
+      const resultEl = document.getElementById('admin-find-result');
+      resultEl.innerHTML = '';
+      
+      try {
+        // Поиск по username
+        const usernameSnap = await db.collection('users').where('username', '==', query).get();
+        
+        if (!usernameSnap.empty) {
+          const userDoc = usernameSnap.docs[0];
+          const userData = userDoc.data();
+          
+          resultEl.innerHTML = `
+            Найден пользователь:<br>
+            Никнейм: ${userData.username}<br>
+            Email: ${userData.email || 'не указан'}<br>
+            Баланс: ${userData.balance || 0} ₽
+          `;
+          
+          return;
+        }
+        
+        // Поиск по email
+        const emailSnap = await db.collection('users').where('email', '==', query).get();
+        
+        if (!emailSnap.empty) {
+          const userDoc = emailSnap.docs[0];
+          const userData = userDoc.data();
+          
+          resultEl.innerHTML = `
+            Найден пользователь:<br>
+            Никнейм: ${userData.username}<br>
+            Email: ${userData.email || 'не указан'}<br>
+            Баланс: ${userData.balance || 0} ₽
+          `;
+          
+          return;
+        }
+        
+        resultEl.innerHTML = 'Пользователь не найден';
+      } catch (err) {
+        console.error('Ошибка поиска:', err);
+        resultEl.innerHTML = 'Ошибка поиска';
+      }
     });
 
-    // ====== Deals clean-up listener (optional) ======
-    // (handled above in onSnapshot)
-
-    // ====== Utility: refresh user doc from firestore ======
-    async function refreshUserDoc(){
-      if(!currentUser) return;
-      const snap = await db.collection('users').doc(currentUser.uid).get();
-      if(snap.exists){ currentUserDoc = snap.data(); document.getElementById('balance').innerText = String(currentUserDoc.balance||0); document.getElementById('hud-balance').innerText = String(currentUserDoc.balance||0); }
+    // Обновление данных пользователя
+    async function refreshUserDoc() {
+      if (!currentUser) return;
+      
+      try {
+        const userSnap = await db.collection('users').doc(currentUser.uid).get();
+        
+        if (userSnap.exists) {
+          currentUserDoc = userSnap.data();
+          
+          // Обновляем UI
+          document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
+          document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
+        }
+      } catch (error) {
+        console.error('Ошибка обновления данных пользователя:', error);
+      }
     }
 
-    // ====== Initial demo businesses if none exist (only create if empty) ======
-    (async function ensureDemo(){
-      const snap = await db.collection('businesses').limit(1).get();
-      if(snap.empty){
-        await db.collection('businesses').add({ name:'Магазин "У дома"', price:5000, incomePerHour:50, ownerUid:null, icon:'', lastCollectedAt:null });
-        await db.collection('businesses').add({ name:'Кинотеатр "Галактика"', price:20000, incomePerHour:300, ownerUid:null, icon:'', lastCollectedAt:null });
-        await db.collection('businesses').add({ name:'Кафе "Бочка"', price:8000, incomePerHour:80, ownerUid:null, icon:'', lastCollectedAt:null });
+    // Создание демо-бизнесов при первом запуске
+    (async function ensureDemoBusinesses() {
+      try {
+        const bizSnap = await db.collection('businesses').limit(1).get();
+        
+        if (bizSnap.empty) {
+          // Создаем демо-бизнесы
+          const demoBusinesses = [
+            { name: 'Магазин "У дома"', price: 5000, incomePerHour: 50, ownerUid: null, icon: '', lastCollectedAt: null },
+            { name: 'Кинотеатр "Галактика"', price: 20000, incomePerHour: 300, ownerUid: null, icon: '', lastCollectedAt: null },
+            { name: 'Кафе "Бочка"', price: 8000, incomePerHour: 80, ownerUid: null, icon: '', lastCollectedAt: null },
+            { name: 'Автосервис', price: 15000, incomePerHour: 150, ownerUid: null, icon: '', lastCollectedAt: null },
+            { name: 'Салон красоты', price: 12000, incomePerHour: 120, ownerUid: null, icon: '', lastCollectedAt: null }
+          ];
+          
+          for (const biz of demoBusinesses) {
+            await db.collection('businesses').add(biz);
+          }
+          
+          console.log('Демо-бизнесы созданы');
+        }
+      } catch (error) {
+        console.error('Ошибка создания демо-бизнесов:', error);
       }
-      await renderShop(); await renderRating();
     })();
-
   </script>
 </body>
 </html>
-
