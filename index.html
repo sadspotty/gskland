@@ -37,7 +37,7 @@
     .small{font-size:13px}
     .flex{display:flex;gap:8px;align-items:center}
     .right{justify-content:flex-end}
-    .hidden{display:none}
+    .hidden{display:none !important}
     footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
     @media (max-width:900px){.grid{grid-template-columns:1fr}}
     #hud{position:fixed;top:12px;left:50%;transform:translateX(-50%);height:56px;backdrop-filter:blur(10px);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:8px 16px;border:1px solid var(--glass-border);display:flex;align-items:center;gap:16px;z-index:1000;min-width:320px}
@@ -62,7 +62,7 @@
     <div style="margin-left:auto">Баланс: <strong id="hud-balance">0</strong> ₽</div>
   </div>
 
-  <div id="sell-modal" class="modal hidden">
+  <div id="sell-modal" class="hidden modal">
     <div class="modal-content">
       <h3>Продажа бизнеса игроку</h3>
       <input id="sell-username" placeholder="Никнейм игрока" style="margin-top:12px" />
@@ -538,7 +538,7 @@
         // Обработка покупки
         document.querySelectorAll('.buy-btn').forEach(btn => {
           btn.addEventListener('click', async (e) => {
-            const id = e.target.dataset.id;
+            const id = e.currentTarget.dataset.id;
             
             if (!currentUser) {
               alert('Войдите в систему');
@@ -733,7 +733,7 @@
         // Обработка продажи игроку
         document.querySelectorAll('.sell-player').forEach(btn => {
           btn.addEventListener('click', async (e) => {
-            const id = e.target.dataset.id;
+            const id = e.currentTarget.dataset.id;
             currentSellBizId = id;
             
             const bizRef = db.collection('businesses').doc(id);
@@ -759,67 +759,67 @@
     }
 
     // Модальное окно продажи
-   // document.getElementById('sell-cancel').addEventListener('click', () => {
-   //   document.getElementById('sell-modal').classList.add('hidden');
-   //   currentSellBizId = null;
-  //  });
+    document.getElementById('sell-cancel').addEventListener('click', () => {
+      document.getElementById('sell-modal').classList.add('hidden');
+      currentSellBizId = null;
+    });
 
-  //  document.getElementById('sell-confirm').addEventListener('click', async () => {
-  //    if (!currentSellBizId) return;
-  //    
-  //    const username = document.getElementById('sell-username').value.trim();
-  //    const price = parseInt(document.getElementById('sell-price').value);
-  //    
-  ///    if (!username) {
-  //      alert('Введите никнейм игрока');
-  //      return;
-   //   }
-   //   
-   //   const bizRef = db.collection('businesses').doc(currentSellBizId);
-    //  const bizDoc = await bizRef.get();
+    document.getElementById('sell-confirm').addEventListener('click', async () => {
+      if (!currentSellBizId) return;
       
-    //  if (!bizDoc.exists) {
-    //    alert('Бизнес не найден');
-    //    return;
-    //  }
+      const username = document.getElementById('sell-username').value.trim();
+      const price = parseInt(document.getElementById('sell-price').value);
       
-    //  const bizData = bizDoc.data();
-    //  const minPrice = Math.floor(bizData.price * 0.5);
-    //  const maxPrice = Math.floor(bizData.price * 2);
+      if (!username) {
+        alert('Введите никнейм игрока');
+        return;
+      }
       
-     // if (isNaN(price) || price < minPrice || price > maxPrice) {
-     //   alert(`Цена должна быть от ${minPrice} до ${maxPrice} ₽`);
-     //   return;
-     // }
+      const bizRef = db.collection('businesses').doc(currentSellBizId);
+      const bizDoc = await bizRef.get();
       
-    //  try {
-    //    const usersSnap = await db.collection('users').where('username', '==', username).get();
+      if (!bizDoc.exists) {
+        alert('Бизнес не найден');
+        return;
+      }
+      
+      const bizData = bizDoc.data();
+      const minPrice = Math.floor(bizData.price * 0.5);
+      const maxPrice = Math.floor(bizData.price * 2);
+      
+      if (isNaN(price) || price < minPrice || price > maxPrice) {
+        alert(`Цена должна быть от ${minPrice} до ${maxPrice} ₽`);
+        return;
+      }
+      
+      try {
+        const usersSnap = await db.collection('users').where('username', '==', username).get();
         
-    //    if (usersSnap.empty) {
-    //      alert('Пользователь не найден');
-    //      return;
-    //    }
+        if (usersSnap.empty) {
+          alert('Пользователь не найден');
+          return;
+        }
         
-     //   const targetUser = usersSnap.docs[0];
+        const targetUser = usersSnap.docs[0];
         
-    //    await db.collection('deals').add({
-    //      fromUid: currentUser.uid,
-     //     toUid: targetUser.id,
-      //    bizId: currentSellBizId,
-     //     price: price,
-      //    state: 'pending',
+        await db.collection('deals').add({
+          fromUid: currentUser.uid,
+          toUid: targetUser.id,
+          bizId: currentSellBizId,
+          price: price,
+          state: 'pending',
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
-     //   });
+        });
         
-      //  alert('Предложение отправлено!');
-       // document.getElementById('sell-modal').classList.add('hidden');
-       // currentSellBizId = null;
-       // document.getElementById('sell-username').value = '';
-     //   document.getElementById('sell-price').value = '';
-    //  } catch (err) {
-    //    alert('Ошибка: ' + err.message);
-   //   }
-   // });
+        alert('Предложение отправлено!');
+        document.getElementById('sell-modal').classList.add('hidden');
+        currentSellBizId = null;
+        document.getElementById('sell-username').value = '';
+        document.getElementById('sell-price').value = '';
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
 
     // Собрать доход со всех бизнесов
     document.getElementById('collect-all').addEventListener('click', async () => {
@@ -1611,7 +1611,7 @@
           // Добавляем обработчики для кнопок покупки
           document.querySelectorAll('.buy-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
-              const id = e.target.dataset.id;
+              const id = e.currentTarget.dataset.id;
               
               if (!currentUser) {
                 alert('Войдите в систему');
