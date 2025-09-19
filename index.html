@@ -49,12 +49,29 @@
     .achievement-locked{opacity:0.6}
     .admin-table{width:100%;border-collapse:collapse;margin-top:10px}
     .admin-table th,.admin-table td{padding:8px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)}
+    .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000}
+    .modal-content{background:var(--bg);padding:20px;border-radius:var(--card-radius);border:1px solid var(--glass-border);max-width:400px;width:100%}
+    .admin-tabs{display:flex;gap:8px;margin-bottom:16px}
+    .admin-tab{padding:10px 16px;border-radius:10px;background:var(--panel);cursor:pointer;border:1px solid var(--glass-border)}
+    .admin-tab.active{background:linear-gradient(90deg,var(--accent-start),var(--accent-end))}
   </style>
 </head>
 <body>
   <div id="hud" class="hidden">
     <div style="display:flex;gap:10px;align-items:center"><strong id="hud-username"></strong><span class="muted" id="hud-email"></span></div>
     <div style="margin-left:auto">Баланс: <strong id="hud-balance">0</strong> ₽</div>
+  </div>
+
+  <div id="sell-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Продажа бизнеса игроку</h3>
+      <input id="sell-username" placeholder="Никнейм игрока" style="margin-top:12px" />
+      <input id="sell-price" placeholder="Цена продажи" type="number" style="margin-top:8px" />
+      <div class="flex" style="justify-content:space-between;margin-top:16px">
+        <button class="btn" id="sell-cancel">Отмена</button>
+        <button class="btn" id="sell-confirm">Предложить</button>
+      </div>
+    </div>
   </div>
 
   <div class="app" id="app">
@@ -168,6 +185,7 @@
               <button class="btn" id="clicker-collect">Забрать</button>
             </div>
             <div class="muted small">Всего кликов: <span id="total-clicks">0</span></div>
+            <div class="muted small">Кликов сегодня: <span id="daily-clicks">0</span></div>
           </div>
         </section>
 
@@ -204,36 +222,47 @@
         <section id="view-admin" class="hidden">
           <h2>Админ панель</h2>
           
-          <div class="card">
-            <h3>Все игроки</h3>
-            <div id="admin-users-list"></div>
+          <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="users">Игроки</button>
+            <button class="admin-tab" data-tab="businesses">Бизнесы</button>
+            <button class="admin-tab" data-tab="promocodes">Промокоды</button>
           </div>
 
-          <div class="card">
-            <div class="flex" style="align-items:flex-start">
-              <div style="flex:1">
-                <h4>Создать бизнес</h4>
-                <input id="admin-biz-name" placeholder="Название" />
-                <input id="admin-biz-price" placeholder="Цена" style="margin-top:8px" type="number" />
-                <input id="admin-biz-income" placeholder="Доход в час" style="margin-top:8px" type="number" />
-                <input id="admin-biz-icon" placeholder="URL иконки (опционально)" style="margin-top:8px" />
-                <div style="margin-top:8px"><button class="btn" id="admin-create-biz">Создать</button></div>
-              </div>
-              <div style="width:1px;background:rgba(255,255,255,0.02);height:180px"></div>
-              <div style="flex:1">
-                <h4>Управление промокодами</h4>
-                <input id="admin-promo-code" placeholder="Код промокода" />
-                <input id="admin-promo-amount" placeholder="Сумма" type="number" style="margin-top:8px" />
-                <input id="admin-promo-uses" placeholder="Количество использований" type="number" style="margin-top:8px" value="1" />
-                <div style="margin-top:8px">
-                  <button class="btn" id="admin-create-promo">Создать промокод</button>
-                  <button class="btn" style="background:rgba(200,60,60,0.9);margin-top:8px" id="admin-delete-promo">Удалить промокод</button>
-                </div>
-              </div>
+          <div id="admin-users" class="admin-tab-content">
+            <div class="card">
+              <h3>Поиск игрока</h3>
+              <input id="admin-search-user" placeholder="Никнейм, email или кодовое слово" />
+              <div style="margin-top:8px"><button class="btn" id="admin-search-btn">Найти</button></div>
+            </div>
+            <div class="card">
+              <h3>Все игроки</h3>
+              <div id="admin-users-list"></div>
             </div>
           </div>
 
-          <div id="admin-tables" style="margin-top:12px"></div>
+          <div id="admin-businesses" class="admin-tab-content hidden">
+            <div class="card">
+              <h3>Создать бизнес</h3>
+              <input id="admin-biz-name" placeholder="Название" />
+              <input id="admin-biz-price" placeholder="Цена" style="margin-top:8px" type="number" />
+              <input id="admin-biz-income" placeholder="Доход в час" style="margin-top:8px" type="number" />
+              <input id="admin-biz-icon" placeholder="URL иконки (опционально)" style="margin-top:8px" />
+              <div style="margin-top:8px"><button class="btn" id="admin-create-biz">Создать</button></div>
+            </div>
+          </div>
+
+          <div id="admin-promocodes" class="admin-tab-content hidden">
+            <div class="card">
+              <h3>Управление промокодами</h3>
+              <input id="admin-promo-code" placeholder="Код промокода" />
+              <input id="admin-promo-amount" placeholder="Сумма" type="number" style="margin-top:8px" />
+              <input id="admin-promo-uses" placeholder="Количество использований" type="number" style="margin-top:8px" value="1" />
+              <div style="margin-top:8px">
+                <button class="btn" id="admin-create-promo">Создать промокод</button>
+                <button class="btn" style="background:rgba(200,60,60,0.9);margin-top:8px" id="admin-delete-promo">Удалить промокод</button>
+              </div>
+            </div>
+          </div>
         </section>
 
       </main>
@@ -291,6 +320,9 @@
       news: document.getElementById('view-news'),
       admin: document.getElementById('view-admin')
     };
+
+    // Вспомогательные переменные
+    let currentSellBizId = null;
     
     // Навигация
     navButtons.forEach(btn => {
@@ -307,9 +339,28 @@
         if (view === 'quests') renderQuests();
         if (view === 'achievements') renderAchievements();
         if (view === 'promocodes') renderPromocodes();
-        if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) renderAdminUsers();
+        if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) {
+          renderAdminUsers();
+          setupAdminTabs();
+        }
       });
     });
+
+    // Админ табы
+    function setupAdminTabs() {
+      const tabs = document.querySelectorAll('.admin-tab');
+      const contents = document.querySelectorAll('.admin-tab-content');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          contents.forEach(c => c.classList.add('hidden'));
+          
+          tab.classList.add('active');
+          document.getElementById(`admin-${tab.dataset.tab}`).classList.remove('hidden');
+        });
+      });
+    }
 
     // Проверка админских прав
     function isAdminUser(userDoc, user) {
@@ -347,7 +398,8 @@
             questProgress: {
               dailyClicks: 0
             },
-            usedPromocodes: []
+            usedPromocodes: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
           };
           await userRef.set(newUserData);
           currentUserDoc = newUserData;
@@ -682,6 +734,7 @@
         document.querySelectorAll('.sell-player').forEach(btn => {
           btn.addEventListener('click', async (e) => {
             const id = e.target.dataset.id;
+            currentSellBizId = id;
             
             const bizRef = db.collection('businesses').doc(id);
             const bizDoc = await bizRef.get();
@@ -695,39 +748,8 @@
             const minPrice = Math.floor(bizData.price * 0.5);
             const maxPrice = Math.floor(bizData.price * 2);
             
-            const targetUsername = prompt(`Укажите никнейм игрока для продажи (цена от ${minPrice} до ${maxPrice} ₽)`);
-            
-            if (!targetUsername) return;
-            
-            try {
-              const usersSnap = await db.collection('users').where('username', '==', targetUsername).get();
-              
-              if (usersSnap.empty) {
-                alert('Пользователь не найден');
-                return;
-              }
-              
-              const targetUser = usersSnap.docs[0];
-              const price = parseInt(prompt('Укажите цену продажи', String(minPrice)));
-              
-              if (isNaN(price) || price < minPrice || price > maxPrice) {
-                alert(`Цена должна быть от ${minPrice} до ${maxPrice} ₽`);
-                return;
-              }
-              
-              await db.collection('deals').add({
-                fromUid: currentUser.uid,
-                toUid: targetUser.id,
-                bizId: id,
-                price: price,
-                state: 'pending',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-              });
-              
-              alert('Предложение отправлено!');
-            } catch (err) {
-              alert('Ошибка: ' + err.message);
-            }
+            document.getElementById('sell-price').placeholder = `Цена от ${minPrice} до ${maxPrice}`;
+            document.getElementById('sell-modal').classList.remove('hidden');
           });
         });
       } catch (error) {
@@ -735,6 +757,69 @@
         list.innerHTML = '<div class="muted">Ошибка загрузки бизнесов</div>';
       }
     }
+
+    // Модальное окно продажи
+    document.getElementById('sell-cancel').addEventListener('click', () => {
+      document.getElementById('sell-modal').classList.add('hidden');
+      currentSellBizId = null;
+    });
+
+    document.getElementById('sell-confirm').addEventListener('click', async () => {
+      if (!currentSellBizId) return;
+      
+      const username = document.getElementById('sell-username').value.trim();
+      const price = parseInt(document.getElementById('sell-price').value);
+      
+      if (!username) {
+        alert('Введите никнейм игрока');
+        return;
+      }
+      
+      const bizRef = db.collection('businesses').doc(currentSellBizId);
+      const bizDoc = await bizRef.get();
+      
+      if (!bizDoc.exists) {
+        alert('Бизнес не найден');
+        return;
+      }
+      
+      const bizData = bizDoc.data();
+      const minPrice = Math.floor(bizData.price * 0.5);
+      const maxPrice = Math.floor(bizData.price * 2);
+      
+      if (isNaN(price) || price < minPrice || price > maxPrice) {
+        alert(`Цена должна быть от ${minPrice} до ${maxPrice} ₽`);
+        return;
+      }
+      
+      try {
+        const usersSnap = await db.collection('users').where('username', '==', username).get();
+        
+        if (usersSnap.empty) {
+          alert('Пользователь не найден');
+          return;
+        }
+        
+        const targetUser = usersSnap.docs[0];
+        
+        await db.collection('deals').add({
+          fromUid: currentUser.uid,
+          toUid: targetUser.id,
+          bizId: currentSellBizId,
+          price: price,
+          state: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        alert('Предложение отправлено!');
+        document.getElementById('sell-modal').classList.add('hidden');
+        currentSellBizId = null;
+        document.getElementById('sell-username').value = '';
+        document.getElementById('sell-price').value = '';
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
 
     // Собрать доход со всех бизнесов
     document.getElementById('collect-all').addEventListener('click', async () => {
@@ -785,7 +870,7 @@
     // Рендер рейтинга
     async function renderRating() {
       const el = document.getElementById('rating-list');
-      el.innerHTML = '';
+      el.innerHTML = '<div class="muted">Загрузка рейтинга...</div>';
       
       try {
         const snaps = await db.collection('users').orderBy('balance', 'desc').limit(100).get();
@@ -793,7 +878,7 @@
         
         snaps.forEach(doc => {
           const userData = doc.data();
-          if (userData.username) {
+          if (userData.username && userData.balance !== undefined) {
             users.push({
               username: userData.username,
               balance: userData.balance || 0,
@@ -807,13 +892,14 @@
           return;
         }
         
+        el.innerHTML = '';
         users.forEach((user, index) => {
           const div = document.createElement('div');
           div.className = 'card';
           div.innerHTML = `
             <strong>#${index + 1} ${user.username}</strong>
             <div class="muted small">Баланс: ${user.balance} ₽</div>
-            <div class="muted small">${user.email}</div>
+            ${user.email ? `<div class="muted small">${user.email}</div>` : ''}
           `;
           el.appendChild(div);
         });
@@ -829,6 +915,7 @@
       
       document.getElementById('clicker-amount').innerText = currentUserDoc.clickerAmount || 0;
       document.getElementById('total-clicks').innerText = currentUserDoc.totalClicks || 0;
+      document.getElementById('daily-clicks').innerText = currentUserDoc.questProgress?.dailyClicks || 0;
     }
 
     document.getElementById('clicker-button').addEventListener('click', async () => {
@@ -1173,7 +1260,7 @@
     // Админ: список всех игроков
     async function renderAdminUsers() {
       const list = document.getElementById('admin-users-list');
-      list.innerHTML = '';
+      list.innerHTML = '<div class="muted">Загрузка игроков...</div>';
       
       try {
         const snaps = await db.collection('users').get();
@@ -1189,7 +1276,6 @@
           <tr>
             <th>Никнейм</th>
             <th>Email</th>
-            <th>Пароль</th>
             <th>Кодовое слово</th>
             <th>Баланс</th>
             <th>Кликов</th>
@@ -1202,7 +1288,6 @@
           row.innerHTML = `
             <td>${user.username || 'Не указан'}</td>
             <td>${user.email || 'Не указан'}</td>
-            <td>${user.password ? '******' : 'Не указан'}</td>
             <td>${user.codeword || 'Не указан'}</td>
             <td>${user.balance || 0} ₽</td>
             <td>${user.totalClicks || 0}</td>
@@ -1210,12 +1295,82 @@
           table.appendChild(row);
         });
         
+        list.innerHTML = '';
         list.appendChild(table);
       } catch (error) {
         console.error('Ошибка загрузки пользователей:', error);
         list.innerHTML = '<div class="muted">Ошибка загрузки пользователей</div>';
       }
     }
+
+    // Админ: поиск игроков
+    document.getElementById('admin-search-btn').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
+        alert('Доступно только администратору');
+        return;
+      }
+      
+      const query = document.getElementById('admin-search-user').value.trim().toLowerCase();
+      
+      if (!query) {
+        await renderAdminUsers();
+        return;
+      }
+      
+      const list = document.getElementById('admin-users-list');
+      list.innerHTML = '<div class="muted">Поиск...</div>';
+      
+      try {
+        const snaps = await db.collection('users').get();
+        const results = [];
+        
+        snaps.forEach(doc => {
+          const user = doc.data();
+          if (user.username && (
+            user.username.toLowerCase().includes(query) ||
+            (user.email && user.email.toLowerCase().includes(query)) ||
+            (user.codeword && user.codeword.toLowerCase().includes(query))
+          )) {
+            results.push(user);
+          }
+        });
+        
+        if (results.length === 0) {
+          list.innerHTML = '<div class="muted">Игроки не найдены</div>';
+          return;
+        }
+        
+        const table = document.createElement('table');
+        table.className = 'admin-table';
+        table.innerHTML = `
+          <tr>
+            <th>Никнейм</th>
+            <th>Email</th>
+            <th>Кодовое слово</th>
+            <th>Баланс</th>
+            <th>Кликов</th>
+          </tr>
+        `;
+        
+        results.forEach(user => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${user.username || 'Не указан'}</td>
+            <td>${user.email || 'Не указан'}</td>
+            <td>${user.codeword || 'Не указан'}</td>
+            <td>${user.balance || 0} ₽</td>
+            <td>${user.totalClicks || 0}</td>
+          `;
+          table.appendChild(row);
+        });
+        
+        list.innerHTML = '';
+        list.appendChild(table);
+      } catch (error) {
+        console.error('Ошибка поиска:', error);
+        list.innerHTML = '<div class="muted">Ошибка поиска</div>';
+      }
+    });
 
     // Проверка достижений
     async function checkAchievements() {
@@ -1224,7 +1379,6 @@
       const totalClicks = currentUserDoc.totalClicks || 0;
       
       if (totalClicks >= 1000 && !currentUserDoc.achievements?.thousandClicks) {
-        // Достижение автоматически выдается при достижении условия
         try {
           const userRef = db.collection('users').doc(currentUser.uid);
           await userRef.update({
@@ -1244,7 +1398,6 @@
       const dailyClicks = currentUserDoc.questProgress?.dailyClicks || 0;
       
       if (dailyClicks >= 100 && !currentUserDoc.achievements?.dailyQuest) {
-        // Задание выполнено, но награда еще не получена
         await refreshUserDoc();
         await renderQuests();
       }
