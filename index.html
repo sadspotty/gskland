@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GSK LAND — бизнес-игра v2</title>
+  <title>GSK LAND — бизнес-игра</title>
   <meta name="description" content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." />
   <style>
     /* Emerald - dark liquid glass theme */
@@ -55,96 +55,68 @@
     .admin-tab{padding:10px 16px;border-radius:10px;background:var(--panel);cursor:pointer;border:1px solid var(--glass-border)}
     .admin-tab.active{background:linear-gradient(90deg,var(--accent-start),var(--accent-end))}
 
-    /* НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА УВЕДОМЛЕНИЙ */
-    .notifications-modal {
+    /* НОВЫЕ СТИЛИ ДЛЯ УВЕДОМЛЕНИЙ */
+    .notification-toast {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.7);
+      top: 80px;
+      right: 20px;
+      background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+      color: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 10000;
+      max-width: 350px;
+      transform: translateX(400px);
+      transition: transform 0.4s ease-out;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .notification-toast.show {
+      transform: translateX(0);
+    }
+
+    .notification-toast h4 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+    }
+
+    .notification-toast p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+
+    .notification-toast .btn {
+      margin-top: 10px;
+      margin-right: 8px;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .notification-toast .btn.reject {
+      background: rgba(200,60,60,0.8);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ff4757;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10001;
+      font-size: 12px;
+      font-weight: bold;
     }
-
-    .notifications-content {
-      background: var(--bg);
-      padding: 20px;
-      border-radius: var(--card-radius);
-      border: 1px solid var(--glass-border);
-      max-width: 500px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .notifications-content h3 {
-      margin-top: 0;
-     display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .notifications-content .close-btn {
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 0;
-      width: 30px;
-      height: 30px;
-    }
-
-	.empty-notifications {
-	  text-align: center;
-	  padding: 20px;
-	  color: var(--muted);
-	}
-
-	/* ДОБАВИТЬ ЭТИ СТИЛИ ПОСЛЕ */
-	.notification-toast {
-	  position: fixed;
-	  top: 20px;
-	  right: 20px;
-	  background: var(--bg);
-	  border: 1px solid var(--glass-border);
-	  border-radius: var(--card-radius);
-	  padding: 15px;
-	  max-width: 300px;
-	  z-index: 10002;
-	  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-	  transform: translateX(100%);
-	  transition: transform 0.3s ease;
-	}
-
-	.notification-toast.show {
-	  transform: translateX(0);
-	}
-
-	.notification-badge {
-	  background: #ff4757;
-	  color: white;
-	  border-radius: 50%;
-	  width: 20px;
-	  height: 20px;
-	  text-align: center;
-	  line-height: 20px;
-	  font-size: 12px;
-	  cursor: pointer;
-	}
-  </style>
   </style>
 </head>
 <body>
   <div id="hud" class="hidden">
     <div style="display:flex;gap:10px;align-items:center"><strong id="hud-username"></strong><span class="muted" id="hud-email"></span></div>
-    <div style="margin-left:auto">
-      <span style="margin-right:16px">Баланс: <strong id="hud-balance">0</strong> ₽</span>
-      <div id="notification-badge" class="notification-badge hidden" style="position:relative;display:inline-block;cursor:pointer">0</div>
-    </div>
+    <div style="margin-left:auto">Баланс: <strong id="hud-balance">0</strong> ₽</div>
   </div>
 
   <div id="sell-modal" class="hidden modal">
@@ -155,20 +127,6 @@
       <div class="flex" style="justify-content:space-between;margin-top:16px">
         <button class="btn" id="sell-cancel">Отмена</button>
         <button class="btn" id="sell-confirm">Предложить</button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- НОВОЕ МОДАЛЬНОЕ ОКНО УВЕДОМЛЕНИЙ -->
-  <div id="notifications-modal" class="notifications-modal hidden">
-    <div class="notifications-content">
-      <h3>
-        Уведомления
-        <button class="close-btn" id="close-notifications">×</button>
-      </h3>
-      <div id="notifications-list"></div>
-      <div id="empty-notifications" class="empty-notifications hidden">
-        Нет уведомлений
       </div>
     </div>
   </div>
@@ -365,17 +323,23 @@
         </section>
 
         </main>
-		
-		<aside class="col">
+
+        <aside class="col">
+          <div class="card">
+            <h3>Уведомления <span id="notification-badge" class="notification-badge hidden">0</span></h3>
+            <div id="notifications"></div>
+          </div>
+
           <div class="card">
             <h3>Поиск бизнеса</h3>
             <input id="search-biz" placeholder="Название бизнеса" />
             <div style="margin-top:8px"><button class="btn" id="search-btn">Найти</button></div>
           </div>
         </aside>
-      </div>
+        </div>
 
         <footer>GSK LAND</footer>
+        </div>
 
         <!-- Firebase -->
         <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -469,7 +433,7 @@
               <p><strong>Цена:</strong> ${price} ₽</p>
               <div class="flex">
                 <button class="btn accept-btn" data-id="${dealId}">Принять</button>
-                <button class="btn reject-btn" data-id="${dealId}">Отклонить</button>
+                <button class="btn reject-btn reject" data-id="${dealId}">Отклонить</button>
               </div>
             `;
 
@@ -500,371 +464,320 @@
           }
 
           // Real-time listener для входящих сделок
-		  // Real-time listener для входящих сделок
-		  function setupDealsListener() {
-		    if (!currentUser) return;
+          function setupDealsListener() {
+            if (!currentUser) return;
+    
+            console.log('Setting up deals listener for user:', currentUser.uid);
+    
+            // Удаляем предыдущий listener если есть
+            if (dealsListener) {
+              dealsListener();
+            }
+    
+            dealsListener = db.collection('deals')
+              .where('toUid', '==', currentUser.uid)
+              .where('state', '==', 'pending')
+              .onSnapshot((snapshot) => {
+                console.log('Deals snapshot received:', snapshot.size, 'deals');
+                
+                const notificationBadge = document.getElementById('notification-badge');
+                const notificationsContainer = document.getElementById('notifications');
+                notificationsContainer.innerHTML = '';
+        
+                let activeDealsCount = 0;
+                activeDeals.clear();
 
-		    console.log('Setting up deals listener for user:', currentUser.uid);
+                snapshot.forEach((doc) => {
+                  const deal = doc.data();
+                  deal.id = doc.id;
+                  activeDeals.set(deal.id, deal);
+                  activeDealsCount++;
+          
+                  displayDealInSidebar(deal);
+          
+                  // Показываем всплывающее уведомление только для новых сделок
+                  if (!deal.seen) {
+                    showDealNotification(deal);
+                    // Помечаем как просмотренное
+                    db.collection('deals').doc(deal.id).update({ seen: true });
+                  }
+                });
 
-		    // Удаляем предыдущий listener если есть
-		    if (dealsListener) {
-			  dealsListener();
-		    }
+                // Обновляем бейдж
+                if (activeDealsCount > 0) {
+                  notificationBadge.textContent = activeDealsCount;
+                  notificationBadge.classList.remove('hidden');
+                } else {
+                  notificationBadge.classList.add('hidden');
+                }
+              }, (error) => {
+                console.error('Ошибка listener сделок:', error);
+              });
+          }
 
-		    dealsListener = db.collection('deals')
-			  .where('toUid', '==', currentUser.uid)
-			  .where('state', '==', 'pending')
-			  .onSnapshot((snapshot) => {
-			    const notificationBadge = document.getElementById('notification-badge');
+          // Показать уведомление о сделке
+          async function showDealNotification(deal) {
+            try {
+              const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
+              const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
+      
+              if (sellerSnap.exists && bizSnap.exists) {
+                const seller = sellerSnap.data();
+                const biz = bizSnap.data();
+        
+                showNotificationToast(deal.id, seller.username, biz.name, deal.price);
+              }
+            } catch (error) {
+              console.error('Ошибка показа уведомления:', error);
+            }
+          }
 
-			    let activeDealsCount = 0;
-			   activeDeals.clear();
+          // Отобразить сделку в боковой панели
+          async function displayDealInSidebar(deal) {
+            try {
+              const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
+              const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
+      
+              if (!sellerSnap.exists || !bizSnap.exists) return;
+      
+              const seller = sellerSnap.data();
+              const biz = bizSnap.data();
+      
+              const notifications = document.getElementById('notifications');
+              const el = document.createElement('div');
+              el.className = 'news-item';
+              el.dataset.dealId = deal.id;
+              el.innerHTML = `
+                <strong>Предложение о покупке</strong>
+                <div class="muted small">От: ${seller.username}</div>
+                <div>Бизнес: ${biz.name}</div>
+                <div>Цена: ${deal.price} ₽</div>
+                <div class="flex" style="margin-top:8px;gap:8px">
+                  <button class="btn accept-sidebar" data-id="${deal.id}">Принять</button>
+                  <button class="btn reject-sidebar" style="background:rgba(200,60,60,0.9)" data-id="${deal.id}">Отклонить</button>
+                </div>
+              `;
+      
+              notifications.appendChild(el);
+      
+              // Обработчики для кнопок в сайдбаре
+              el.querySelector('.accept-sidebar').addEventListener('click', async () => {
+                await acceptDeal(deal.id);
+              });
+      
+              el.querySelector('.reject-sidebar').addEventListener('click', async () => {
+                await rejectDeal(deal.id);
+              });
+            } catch (error) {
+              console.error('Ошибка отображения сделки:', error);
+            }
+          }
 
-			    snapshot.forEach((doc) => {
-				  const deal = doc.data();
-				  deal.id = doc.id;
-				  activeDeals.set(deal.id, deal);
-				  activeDealsCount++;
-				
-				  // Показываем всплывающее уведомление только для новых сделок
-				  if (!deal.seen) {
-				    showDealNotification(deal);
-				    // Помечаем как просмотренное
-				    db.collection('deals').doc(deal.id).update({ seen: true });
-				  }
-			    });
+          // Функция принятия сделки
+          async function acceptDeal(dealId) {
+            try {
+              await db.runTransaction(async (tx) => {
+                const dealRef = db.collection('deals').doc(dealId);
+                const dealDoc = await tx.get(dealRef);
+        
+                if (!dealDoc.exists) throw new Error('Сделка не найдена');
+                
+                const dealData = dealDoc.data();
+        
+                if (dealData.state !== 'pending') throw new Error('Сделка уже обработана');
+                if (dealData.toUid !== currentUser.uid) throw new Error('Не ваша сделка');
+        
+                const buyerRef = db.collection('users').doc(currentUser.uid);
+                const sellerRef = db.collection('users').doc(dealData.fromUid);
+                const bizRef = db.collection('businesses').doc(dealData.bizId);
+        
+                const buyerDoc = await tx.get(buyerRef);
+                const sellerDoc = await tx.get(sellerRef);
+                const bizDoc = await tx.get(bizRef);
+        
+                const buyerData = buyerDoc.data();
+                const sellerData = sellerDoc.data();
+                const bizData = bizDoc.data();
+        
+                if (buyerData.balance < dealData.price) throw new Error('Недостаточно средств');
+                if (bizData.ownerUid !== dealData.fromUid) throw new Error('Бизнес уже продан');
+        
+                // Обновляем балансы
+                tx.update(buyerRef, { 
+                  balance: firebase.firestore.FieldValue.increment(-dealData.price) 
+                });
+        
+                tx.update(sellerRef, { 
+                  balance: firebase.firestore.FieldValue.increment(dealData.price) 
+                });
+        
+                // Меняем владельца бизнеса
+                tx.update(bizRef, { 
+                  ownerUid: currentUser.uid,
+                  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                });
+                
+                // Обновляем статус сделки
+                tx.update(dealRef, { 
+                  state: 'accepted',
+                  acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+              });
+      
+              alert('Сделка принята!');
+              await refreshUserDoc();
+              await renderShop();
+              await renderMyBusinesses();
+              await renderRating();
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          }
 
-			    // Обновляем бейдж
-			    if (activeDealsCount > 0) {
-				  notificationBadge.textContent = activeDealsCount;
-				  notificationBadge.classList.remove('hidden');
-			    } else {
-				  notificationBadge.classList.add('hidden');
-			    }
-			  }, (error) => {
-			    console.error('Ошибка listener сделок:', error);
-			  });
+          // Функция отклонения сделки
+          async function rejectDeal(dealId) {
+            try {
+              await db.collection('deals').doc(dealId).update({ 
+                state: 'rejected',
+                rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+              alert('Сделка отклонена');
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          }
 
-		  // Показать уведомление о сделке
-		  async function showDealNotification(deal) {
-		    try {
-			  const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
-			  const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
-
-			  if (sellerSnap.exists && bizSnap.exists) {
-			    const seller = sellerSnap.data();
-			    const biz = bizSnap.data();
-
-			    showNotificationToast(deal.id, seller.username, biz.name, deal.price);
+          // Отслеживание состояния аутентификации
+          auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            if (user) {
+              const userRef = db.collection('users').doc(user.uid);
+              const userSnap = await userRef.get();
+      
+              if (userSnap.exists) {
+                currentUserDoc = userSnap.data();
+              } else {
+                // Создаем нового пользователя
+                const newUserData = { 
+                          username: user.displayName || '', 
+                  email: user.email || '', 
+                  balance: 10000,
+                  codeword: document.getElementById('reg-codeword')?.value || '',
+                  totalClicks: 0,
+                  clickerAmount: 0,
+                  achievements: {
+                    dailyQuest: false,
+                    thousandClicks: false
+                  },
+                  questProgress: {
+                    dailyClicks: 0
+                  },
+                  usedPromocodes: [],
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                await userRef.set(newUserData);
+                currentUserDoc = newUserData;
+              }
+      
+              // Обновляем UI
+			  document.getElementById('user-info').classList.remove('hidden');
+			  document.getElementById('auth-forms').classList.add('hidden');
+			  document.getElementById('display-name').innerText = currentUserDoc.username || user.displayName || 'Игрок';
+			  document.getElementById('display-email').innerText = user.email || '';
+			  document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
+			  
+			  // Обновляем HUD
+			  document.getElementById('hud').classList.remove('hidden');
+			  document.getElementById('hud-username').innerText = currentUserDoc.username || user.displayName || 'Игрок';
+			  document.getElementById('hud-email').innerText = user.email || '';
+			  document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
+			  
+			  // Запускаем listener для сделок
+			  setupDealsListener();
+			  
+			  // Проверяем админские права
+			  if (isAdminUser(currentUserDoc, user)) {
+				document.getElementById('nav-admin').classList.remove('hidden');
+				document.getElementById('news-admin').classList.remove('hidden');
+			  } else {
+				document.getElementById('nav-admin').classList.add('hidden');
+				document.getElementById('news-admin').classList.add('hidden');
 			  }
-		    } catch (error) {
-			console.error('Ошибка показа уведомления:', error);
-		    }
-		  }
-
-		// ← ВСТАВЬ ЗДЕСЬ НАЧИНАЯ С ЭТОЙ СТРОКИ ↓
-
-		  // Показать модальное окно уведомлений
-		  // Показать модальное окно уведомлений
-		  function showNotificationsModal() {
-		    const modal = document.getElementById('notifications-modal');
-		    const list = document.getElementById('notifications-list');
-		    const empty = document.getElementById('empty-notifications');
-		  
-		    list.innerHTML = '';
-		  
-		    if (activeDeals.size === 0) {
-			  empty.classList.remove('hidden');
-			  list.classList.add('hidden');
-		    } else {
-			  empty.classList.add('hidden');
-			  list.classList.remove('hidden');
-			
-			  // Создаем массив промисов для загрузки данных о сделках
-			  const loadPromises = Array.from(activeDeals.values()).map(async (deal) => {
-			    try {
-				  const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
-				  const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
-				
-				  if (sellerSnap.exists && bizSnap.exists) {
-				    const seller = sellerSnap.data();
-				    const biz = bizSnap.data();
-				  
-				    const el = document.createElement('div');
-				    el.className = 'news-item';
-				    el.innerHTML = `
-					  <strong>Предложение о покупке</strong>
-					  <div class="muted small">От: ${seller.username}</div>
-					  <div>Бизнес: ${biz.name}</div>
-					  <div>Цена: ${deal.price} ₽</div>
-					  <div class="flex" style="margin-top:8px;gap:8px">
-					    <button class="btn accept-btn" data-id="${deal.id}">Принять</button>
-					    <button class="btn reject-btn" style="background:rgba(200,60,60,0.9)" data-id="${deal.id}">Отклонить</button>
-					  </div>
-				  `  ;
-				  
-				    list.appendChild(el);
-				  
-				    // Обработчики для кнопок
-				    el.querySelector('.accept-btn').addEventListener('click', async () => {
-					  await acceptDeal(deal.id);
-					  modal.classList.add('hidden');
-				    });
-				  
-				    el.querySelector('.reject-btn').addEventListener('click', async () => {
-					  await rejectDeal(deal.id);
-					  modal.classList.add('hidden');
-				    });
-				  }
-			    } catch (error) {
-				  console.error('Ошибка отображения сделки:', error);
-			    }
-			  });
-			
-			  // Ждем загрузки всех уведомлений
-			  Promise.all(loadPromises).catch(error => {
-			    console.error('Ошибка загрузки уведомлений:', error);
-			  });
-		    }
-		  
-		    modal.classList.remove('hidden');
-		  }
-
-		  // Закрыть модальное окно уведомлений
-		  document.getElementById('close-notifications').addEventListener('click', () => {
-		    document.getElementById('notifications-modal').classList.add('hidden');
-		  });
-
-		  // Клик по бейджу уведомлений
-		  document.getElementById('notification-badge').addEventListener('click', () => {
-		    if (activeDeals.size > 0) {
-			  showNotificationsModal();
-		    }
-		  });
-
-		  // Закрытие по клику вне модального окна
-		  document.getElementById('notifications-modal').addEventListener('click', (e) => {
-		    if (e.target.id === 'notifications-modal') {
-			  document.getElementById('notifications-modal').classList.add('hidden');
-		    }
-		  });
-
-		  // → КОНЕЦ вставки ↑
-
-		  // Функция принятия сделки
-		  async function acceptDeal(dealId) {
-		    try {
-			  await db.runTransaction(async (tx) => {
-			    const dealRef = db.collection('deals').doc(dealId);
-			    const dealDoc = await tx.get(dealRef);
-
-			    if (!dealDoc.exists) throw new Error('Сделка не найдена');
-			  
-			    const dealData = dealDoc.data();
-
-			    if (dealData.state !== 'pending') throw new Error('Сделка уже обработана');
-			    if (dealData.toUid !== currentUser.uid) throw new Error('Не ваша сделка');
-
-			    const buyerRef = db.collection('users').doc(currentUser.uid);
-			    const sellerRef = db.collection('users').doc(dealData.fromUid);
-			    const bizRef = db.collection('businesses').doc(dealData.bizId);
-
-			    const buyerDoc = await tx.get(buyerRef);
-			    const sellerDoc = await tx.get(sellerRef);
-			    const bizDoc = await tx.get(bizRef);
-
-			    const buyerData = buyerDoc.data();
-			    const sellerData = sellerDoc.data();
-			    const bizData = bizDoc.data();
-
-			    if (buyerData.balance < dealData.price) throw new Error('Недостаточно средств');
-			    if (bizData.ownerUid !== dealData.fromUid) throw new Error('Бизнес уже продан');
-
-			    // Обновляем балансы
-			    tx.update(buyerRef, { 
-				  balance: firebase.firestore.FieldValue.increment(-dealData.price) 
-			    });
-
-			    tx.update(sellerRef, { 
-				  balance: firebase.firestore.FieldValue.increment(dealData.price) 
-			    });
-
-			    // Меняем владельца бизнеса
-			    tx.update(bizRef, { 
-				  ownerUid: currentUser.uid,
-				  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
-			    });
-			  
-			    // Обновляем статус сделки
-			    tx.update(dealRef, { 
-				  state: 'accepted',
-				  acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
-			    });
-			  });
-
-			  alert('Сделка принята!');
-			  await refreshUserDoc();
-			  await renderShop();
-			  await renderMyBusinesses();
-			  await renderRating();
-		    } catch (err) {
-			  alert('Ошибка: ' + err.message);
-		    }
-		  }
-
-		  // Функция отклонения сделки
-		  async function rejectDeal(dealId) {
-		    try {
-			  await db.collection('deals').doc(dealId).update({ 
-			    state: 'rejected',
-			    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
-			  });
-			  alert('Сделка отклонена');
-		    } catch (err) {
-			  alert('Ошибка: ' + err.message);
-		    }
-		  }
-
-		  // Отслеживание состояния аутентификации - ТОЛЬКО ЭТОТ ВАРИАНТ!
-		  auth.onAuthStateChanged(async (user) => {
-		    currentUser = user;
-		  
-		    // Сначала скрываем HUD и показываем формы авторизации
-		    document.getElementById('hud').classList.add('hidden');
-		    document.getElementById('user-info').classList.add('hidden');
-		    document.getElementById('auth-forms').classList.remove('hidden');
-		    document.getElementById('nav-admin').classList.add('hidden');
-		    document.getElementById('news-admin').classList.add('hidden');
-		   
-		    // Останавливаем предыдущий listener сделок
-		    if (dealsListener) {
-			  dealsListener();
-			  dealsListener = null;
-		      }
-
-		    if (user) {
-			  // ПОЛЬЗОВАТЕЛЬ АВТОРИЗОВАН
-			  try {
-			    const userRef = db.collection('users').doc(user.uid);
-			    const userSnap = await userRef.get();
-
-			    if (userSnap.exists) {
-				  currentUserDoc = userSnap.data();
-			    } else {
-				  // Создаем нового пользователя
-				  const newUserData = { 
-				    username: user.displayName || '', 
-				    email: user.email || '', 
-				    balance: 10000,
-				    codeword: document.getElementById('reg-codeword')?.value || '',
-				    totalClicks: 0,
-				    clickerAmount: 0,
-				    achievements: {
-					  dailyQuest: false,
-					  thousandClicks: false
-				    },
-				    questProgress: {
-					  dailyClicks: 0
-				    },
-				    usedPromocodes: [],
-				    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-				  };
-				  await userRef.set(newUserData);
-				  currentUserDoc = newUserData;
-			    }
-
-			    // ОБНОВЛЯЕМ UI ДЛЯ АВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
-			    document.getElementById('user-info').classList.remove('hidden');
-			    document.getElementById('auth-forms').classList.add('hidden');
-			    document.getElementById('display-name').innerText = currentUserDoc.username || user.displayName || 'Игрок';
-			    document.getElementById('display-email').innerText = user.email || '';
-			    document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
-			  
-			    // ОБНОВЛЯЕМ HUD
-			    document.getElementById('hud').classList.remove('hidden');
-			    document.getElementById('hud-username').innerText = currentUserDoc.username || user.displayName || 'Игрок';
-			    document.getElementById('hud-email').innerText = user.email || '';
-			    document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
-			  
-			    // Запускаем listener для сделок
-			    setupDealsListener();
-			  
-			    // Проверяем админские права
-			    if (isAdminUser(currentUserDoc, user)) {
-				  document.getElementById('nav-admin').classList.remove('hidden');
-				  document.getElementById('news-admin').classList.remove('hidden');
-			    }
-			  
-			  } catch (error) {
-			    console.error('Ошибка загрузки данных пользователя:', error);
-			    alert('Ошибка загрузки данных. Попробуйте перезайти.');
-			    auth.signOut(); // Принудительный выход при ошибке
-			  }
-		    } else {
-			  // ПОЛЬЗОВАТЕЛЬ НЕ АВТОРИЗОВАН
+			} else {
+			  // Пользователь не авторизован
 			  currentUserDoc = null;
-			  // UI уже скрыт в начале функции
-		    }
-		  
-		    // Обновляем данные независимо от авторизации
-		    await renderShop();
-		  await renderMyBusinesses();
+			  document.getElementById('user-info').classList.add('hidden');
+			  document.getElementById('auth-forms').classList.remove('hidden');
+			  document.getElementById('hud').classList.add('hidden');
+			  document.getElementById('nav-admin').classList.add('hidden');
+			  document.getElementById('news-admin').classList.add('hidden');
+			  
+			  // Останавливаем listener сделок
+			  if (dealsListener) {
+				dealsListener();
+				dealsListener = null;
+			  }
+			}
+			
+			// Обновляем данные
+			await renderShop();
+			await renderMyBusinesses();
 		  });
 
 		  // Регистрация
 		  document.getElementById('btn-register').addEventListener('click', async () => {
-		    const username = document.getElementById('reg-username').value.trim();
-		    const email = document.getElementById('reg-email').value.trim();
-		    const pass = document.getElementById('reg-pass').value;
-		    const pass2 = document.getElementById('reg-pass2').value;
-		    const codeword = document.getElementById('reg-codeword').value.trim();
-		  
-		    if (!username || !email || !pass || pass !== pass2 || !codeword) {
+			const username = document.getElementById('reg-username').value.trim();
+			const email = document.getElementById('reg-email').value.trim();
+			const pass = document.getElementById('reg-pass').value;
+			const pass2 = document.getElementById('reg-pass2').value;
+			const codeword = document.getElementById('reg-codeword').value.trim();
+			
+			if (!username || !email || !pass || pass !== pass2 || !codeword) {
 			  alert('Проверьте данные регистрации');
 			  return;
-		    }
-		  
-		    try {
+			}
+			
+			try {
 			  const cred = await auth.createUserWithEmailAndPassword(email, pass);
 			  await cred.user.updateProfile({ displayName: username });
 			  await db.collection('users').doc(cred.user.uid).set({ 
-			    username, 
-			    email, 
-			    balance: 10000,
-			    codeword,
-			    totalClicks: 0,
-			    clickerAmount: 0,
-			    achievements: {
+				username, 
+				email, 
+				balance: 10000,
+				codeword,
+				totalClicks: 0,
+				clickerAmount: 0,
+				achievements: {
 				  dailyQuest: false,
 				  thousandClicks: false
-			    },
-			    questProgress: {
+				},
+				questProgress: {
 				  dailyClicks: 0
-			    },
-			    usedPromocodes: [],
-			    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+				},
+				usedPromocodes: [],
+				createdAt: firebase.firestore.FieldValue.serverTimestamp()
 			  });
 			  alert('Регистрация успешна! Добро пожаловать в GSK LAND!');
-		    } catch (e) {
+			} catch (e) {
 			  alert('Ошибка регистрации: ' + e.message);
-		    }
+			}
 		  });
 
 		  // Вход
 		  document.getElementById('btn-login').addEventListener('click', async () => {
-		    const email = document.getElementById('login-email').value.trim();
-		    const pass = document.getElementById('login-pass').value;
-		  
-		    try {
+			const email = document.getElementById('login-email').value.trim();
+			const pass = document.getElementById('login-pass').value;
+			
+			try {
 			  await auth.signInWithEmailAndPassword(email, pass);
-		    } catch (e) {
+			} catch (e) {
 			  alert('Ошибка входа: ' + e.message);
-		    }
+			}
 		  });
 
 		  // Выход
 		  document.getElementById('btn-logout').addEventListener('click', () => {
-		    auth.signOut();
+			auth.signOut();
 		  });
 
 		  // Модальное окно продажи
@@ -2021,110 +1934,6 @@
 			list.innerHTML = '<div class="muted">Ошибка загрузки бизнесов</div>';
 		  }
 		}
-		
-		// Обработчик для кнопки поиска бизнеса
-		document.getElementById('search-btn').addEventListener('click', async () => {
-		  const query = document.getElementById('search-biz').value.trim().toLowerCase();
-		  
-		  if (!query) {
-			await renderShop();
-			return;
-		  }
-		  
-		  const list = document.getElementById('shop-list');
-		  list.innerHTML = '';
-		  
-		  try {
-			const snaps = await db.collection('businesses').get();
-			let found = false;
-			
-			snaps.forEach(doc => {
-			  const biz = doc.data();
-			  biz.id = doc.id;
-			  
-			  if (biz.name.toLowerCase().includes(query)) {
-				found = true;
-				
-				const el = document.createElement('div');
-				el.className = 'biz-card';
-				
-				const ownerText = biz.ownerUid ? 
-				  '<div class="muted small">Занят</div>' : 
-				  `<button class="btn buy-btn" data-id="${biz.id}">Купить</button>`;
-				
-				el.innerHTML = `
-				  <div style="display:flex;gap:12px;align-items:center">
-					<img src="${biz.icon || 'https://via.placeholder.com/64/0fb48b/ffffff?text=B'}" width="64" height="64" style="border-radius:8px;object-fit:cover" />
-					<div style="flex:1">
-					  <strong>${biz.name}</strong>
-					  <div class="muted small">Доход/ч: ${biz.incomePerHour} • Цена: ${biz.price} ₽</div>
-					</div>
-					<div>${ownerText}</div>
-				  </div>
-				`;
-				
-				list.appendChild(el);
-			  }
-			});
-			
-			if (!found) {
-			  list.innerHTML = '<div class="muted">Бизнесы не найдены</div>';
-			} else {
-			  // Добавляем обработчики для кнопок покупки
-			  document.querySelectorAll('.buy-btn').forEach(btn => {
-				btn.addEventListener('click', async (e) => {
-				  const id = e.currentTarget.dataset.id;
-				  
-				  if (!currentUser) {
-					alert('Войдите в систему');
-					return;
-				  }
-				  
-				  const bizRef = db.collection('businesses').doc(id);
-				  
-				  try {
-					await db.runTransaction(async (tx) => {
-					  const bizDoc = await tx.get(bizRef);
-					  
-					  if (!bizDoc.exists) throw new Error('Бизнес не найден');
-					  
-					  const bizData = bizDoc.data();
-					  
-					  if (bizData.ownerUid) throw new Error('Бизнес уже куплен');
-					  
-					  const userRef = db.collection('users').doc(currentUser.uid);
-					  const userDoc = await tx.get(userRef);
-					  const userData = userDoc.data();
-					  
-					  if (userData.balance < bizData.price) throw new Error('Недостаточно средств');
-					  
-					  tx.update(userRef, { 
-						balance: firebase.firestore.FieldValue.increment(-bizData.price) 
-					  });
-					  
-					  tx.update(bizRef, { 
-						ownerUid: currentUser.uid, 
-						lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
-					  });
-					});
-					
-					alert('Покупка успешна!');
-					await refreshUserDoc();
-					await renderShop();
-					await renderMyBusinesses();
-					await renderRating();
-				  } catch (err) {
-					alert('Ошибка: ' + err.message);
-				  }
-				});
-			  });
-			}
-		  } catch (error) {
-			console.error('Ошибка поиска:', error);
-			list.innerHTML = '<div class="muted">Ошибка поиска</div>';
-		  }
-		});
-
 		</script>
-	</body>
-</html>
+		</body>
+		</html>
