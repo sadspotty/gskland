@@ -98,11 +98,43 @@
       height: 30px;
     }
 
-    .empty-notifications {
-      text-align: center;
-      padding: 20px;
-      color: var(--muted);
-    }
+	.empty-notifications {
+	  text-align: center;
+	  padding: 20px;
+	  color: var(--muted);
+	}
+
+	/* ДОБАВИТЬ ЭТИ СТИЛИ ПОСЛЕ */
+	.notification-toast {
+	  position: fixed;
+	  top: 20px;
+	  right: 20px;
+	  background: var(--bg);
+	  border: 1px solid var(--glass-border);
+	  border-radius: var(--card-radius);
+	  padding: 15px;
+	  max-width: 300px;
+	  z-index: 10002;
+	  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+	  transform: translateX(100%);
+	  transition: transform 0.3s ease;
+	}
+
+	.notification-toast.show {
+	  transform: translateX(0);
+	}
+
+	.notification-badge {
+	  background: #ff4757;
+	  color: white;
+	  border-radius: 50%;
+	  width: 20px;
+	  height: 20px;
+	  text-align: center;
+	  line-height: 20px;
+	  font-size: 12px;
+	  cursor: pointer;
+	}
   </style>
   </style>
 </head>
@@ -344,7 +376,6 @@
       </div>
 
         <footer>GSK LAND</footer>
-        </div>
 
         <!-- Firebase -->
         <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -438,7 +469,7 @@
               <p><strong>Цена:</strong> ${price} ₽</p>
               <div class="flex">
                 <button class="btn accept-btn" data-id="${dealId}">Принять</button>
-                <button class="btn reject-btn reject" data-id="${dealId}">Отклонить</button>
+                <button class="btn reject-btn" data-id="${dealId}">Отклонить</button>
               </div>
             `;
 
@@ -469,7 +500,7 @@
           }
 
           // Real-time listener для входящих сделок
-          // Real-time listener для входящих сделок
+		  // Real-time listener для входящих сделок
 		  function setupDealsListener() {
 		    if (!currentUser) return;
 
@@ -477,7 +508,7 @@
 
 		    // Удаляем предыдущий listener если есть
 		    if (dealsListener) {
-		  	dealsListener();
+			  dealsListener();
 		    }
 
 		    dealsListener = db.collection('deals')
@@ -487,14 +518,14 @@
 			    const notificationBadge = document.getElementById('notification-badge');
 
 			    let activeDealsCount = 0;
-			    activeDeals.clear();
+			   activeDeals.clear();
 
 			    snapshot.forEach((doc) => {
 				  const deal = doc.data();
 				  deal.id = doc.id;
 				  activeDeals.set(deal.id, deal);
 				  activeDealsCount++;
-			  
+				
 				  // Показываем всплывающее уведомление только для новых сделок
 				  if (!deal.seen) {
 				    showDealNotification(deal);
@@ -513,7 +544,6 @@
 			  }, (error) => {
 			    console.error('Ошибка listener сделок:', error);
 			  });
-		  }
 
 		  // Показать уведомление о сделке
 		  async function showDealNotification(deal) {
@@ -535,6 +565,7 @@
 		// ← ВСТАВЬ ЗДЕСЬ НАЧИНАЯ С ЭТОЙ СТРОКИ ↓
 
 		  // Показать модальное окно уведомлений
+		  // Показать модальное окно уведомлений
 		  function showNotificationsModal() {
 		    const modal = document.getElementById('notifications-modal');
 		    const list = document.getElementById('notifications-list');
@@ -549,7 +580,8 @@
 			  empty.classList.add('hidden');
 			  list.classList.remove('hidden');
 			
-			  activeDeals.forEach(async (deal) => {
+			  // Создаем массив промисов для загрузки данных о сделках
+			  const loadPromises = Array.from(activeDeals.values()).map(async (deal) => {
 			    try {
 				  const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
 				  const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
@@ -569,7 +601,7 @@
 					    <button class="btn accept-btn" data-id="${deal.id}">Принять</button>
 					    <button class="btn reject-btn" style="background:rgba(200,60,60,0.9)" data-id="${deal.id}">Отклонить</button>
 					  </div>
-				    `;
+				  `  ;
 				  
 				    list.appendChild(el);
 				  
@@ -587,6 +619,11 @@
 			    } catch (error) {
 				  console.error('Ошибка отображения сделки:', error);
 			    }
+			  });
+			
+			  // Ждем загрузки всех уведомлений
+			  Promise.all(loadPromises).catch(error => {
+			    console.error('Ошибка загрузки уведомлений:', error);
 			  });
 		    }
 		  
@@ -1975,6 +2012,110 @@
 			list.innerHTML = '<div class="muted">Ошибка загрузки бизнесов</div>';
 		  }
 		}
+		
+		// Обработчик для кнопки поиска бизнеса
+		document.getElementById('search-btn').addEventListener('click', async () => {
+		  const query = document.getElementById('search-biz').value.trim().toLowerCase();
+		  
+		  if (!query) {
+			await renderShop();
+			return;
+		  }
+		  
+		  const list = document.getElementById('shop-list');
+		  list.innerHTML = '';
+		  
+		  try {
+			const snaps = await db.collection('businesses').get();
+			let found = false;
+			
+			snaps.forEach(doc => {
+			  const biz = doc.data();
+			  biz.id = doc.id;
+			  
+			  if (biz.name.toLowerCase().includes(query)) {
+				found = true;
+				
+				const el = document.createElement('div');
+				el.className = 'biz-card';
+				
+				const ownerText = biz.ownerUid ? 
+				  '<div class="muted small">Занят</div>' : 
+				  `<button class="btn buy-btn" data-id="${biz.id}">Купить</button>`;
+				
+				el.innerHTML = `
+				  <div style="display:flex;gap:12px;align-items:center">
+					<img src="${biz.icon || 'https://via.placeholder.com/64/0fb48b/ffffff?text=B'}" width="64" height="64" style="border-radius:8px;object-fit:cover" />
+					<div style="flex:1">
+					  <strong>${biz.name}</strong>
+					  <div class="muted small">Доход/ч: ${biz.incomePerHour} • Цена: ${biz.price} ₽</div>
+					</div>
+					<div>${ownerText}</div>
+				  </div>
+				`;
+				
+				list.appendChild(el);
+			  }
+			});
+			
+			if (!found) {
+			  list.innerHTML = '<div class="muted">Бизнесы не найдены</div>';
+			} else {
+			  // Добавляем обработчики для кнопок покупки
+			  document.querySelectorAll('.buy-btn').forEach(btn => {
+				btn.addEventListener('click', async (e) => {
+				  const id = e.currentTarget.dataset.id;
+				  
+				  if (!currentUser) {
+					alert('Войдите в систему');
+					return;
+				  }
+				  
+				  const bizRef = db.collection('businesses').doc(id);
+				  
+				  try {
+					await db.runTransaction(async (tx) => {
+					  const bizDoc = await tx.get(bizRef);
+					  
+					  if (!bizDoc.exists) throw new Error('Бизнес не найден');
+					  
+					  const bizData = bizDoc.data();
+					  
+					  if (bizData.ownerUid) throw new Error('Бизнес уже куплен');
+					  
+					  const userRef = db.collection('users').doc(currentUser.uid);
+					  const userDoc = await tx.get(userRef);
+					  const userData = userDoc.data();
+					  
+					  if (userData.balance < bizData.price) throw new Error('Недостаточно средств');
+					  
+					  tx.update(userRef, { 
+						balance: firebase.firestore.FieldValue.increment(-bizData.price) 
+					  });
+					  
+					  tx.update(bizRef, { 
+						ownerUid: currentUser.uid, 
+						lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+					  });
+					});
+					
+					alert('Покупка успешна!');
+					await refreshUserDoc();
+					await renderShop();
+					await renderMyBusinesses();
+					await renderRating();
+				  } catch (err) {
+					alert('Ошибка: ' + err.message);
+				  }
+				});
+			  });
+			}
+		  } catch (error) {
+			console.error('Ошибка поиска:', error);
+			list.innerHTML = '<div class="muted">Ошибка поиска</div>';
+		  }
+		});
+
 		</script>
 		</body>
 		</html>
