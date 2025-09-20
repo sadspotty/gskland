@@ -78,7 +78,7 @@
     <header>
       <div>
         <h1>GSK LAND — бизнес-игра</h1>
-        <div class="muted small">Стань успешным предпринимателем!</div>
+        <div class="muted small">Играй в своём городе • Emerald liquid glass</div>
       </div>
       <nav id="nav">
         <button class="nav-btn active" data-view="home">Главная</button>
@@ -146,12 +146,10 @@
             <h3>Как играть</h3>
             <ol class="muted small">
               <li>Зарегистрируйся и создай никнейм.</li>
-			  <li>Заработай свой первый капитал.</li>
               <li>Открой Магазин и купи свободный бизнес (каждый бизнес может принадлежать только одному игроку).</li>
               <li>Заходи в раздел «Мои бизнесы» и собирай доход — кнопка "Собрать" начислит доход с последнего сбора.</li>
               <li>Можно продать бизнес государству (-30% от цены) или предложить игроку (цена от 50% до 200% от изначальной).</li>
-              <li>Следи за балансом в верхней части экрана.</li>
-			  <li>Стань первым в рейтинге игроков!</li>
+              <li>Следи за балансом в HUD в верхней части экрана.</li>
             </ol>
           </div>
         </section>
@@ -325,6 +323,7 @@
 
     // Вспомогательные переменные
     let currentSellBizId = null;
+    let dealsListener = null;
     
     // Навигация
     navButtons.forEach(btn => {
@@ -375,6 +374,137 @@
     let currentUser = null;
     let currentUserDoc = null;
 
+    // Real-time listener для входящих сделок
+    function setupDealsListener() {
+      if (!currentUser) return;
+      
+      // Удаляем предыдущий listener если есть
+      if (dealsListener) {
+        dealsListener();
+      }
+      
+      dealsListener = db.collection('deals')
+        .where('toUid', '==', currentUser.uid)
+        .where('state', '==', 'pending')
+        .onSnapshot((snapshot) => {
+          const notifications = document.getElementById('notifications');
+          notifications.innerHTML = '';
+          
+          snapshot.forEach((doc) => {
+            displayDealNotification(doc);
+          });
+        }, (error) => {
+          console.error('Ошибка listener сделок:', error);
+        });
+    }
+
+    // Функция для отображения уведомления о сделке
+    async function displayDealNotification(dealDoc) {
+      const deal = dealDoc.data();
+      deal.id = dealDoc.id;
+      
+      const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
+      const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
+      
+      if (!sellerSnap.exists || !bizSnap.exists) return;
+      
+      const seller = sellerSnap.data();
+      const biz = bizSnap.data();
+      
+      const notifications = document.getElementById('notifications');
+      const el = document.createElement('div');
+      el.className = 'news-item';
+      el.innerHTML = `
+        <strong>Предложение о покупке</strong>
+        <div class="muted small">От: ${seller.username}</div>
+        <div>Бизнес: ${biz.name}</div>
+        <div>Цена: ${deal.price} ₽</div>
+        <div class="flex" style="margin-top:8px;gap:8px">
+          <button class="btn accept-deal" data-id="${deal.id}">Принять</button>
+          <button class="btn" style="background:rgba(200,60,60,0.9)" data-reject="${deal.id}">Отклонить</button>
+        </div>
+      `;
+      
+      notifications.appendChild(el);
+      
+      // Обработка принятия сделки
+      el.querySelector('.accept-deal').addEventListener('click', async () => {
+        await acceptDeal(deal.id);
+      });
+      
+      // Обработка отклонения сделки
+      el.querySelector('[data-reject]').addEventListener('click', async () => {
+        await rejectDeal(deal.id);
+      });
+    }
+
+    // Функция принятия сделки
+    async function acceptDeal(dealId) {
+      try {
+        await db.runTransaction(async (tx) => {
+          const dealRef = db.collection('deals').doc(dealId);
+          const dealDoc = await tx.get(dealRef);
+          
+          if (!dealDoc.exists) throw new Error('Сделка не найдена');
+          
+          const dealData = dealDoc.data();
+          
+          if (dealData.state !== 'pending') throw new Error('Сделка уже обработана');
+          
+          const buyerRef = db.collection('users').doc(currentUser.uid);
+          const sellerRef = db.collection('users').doc(dealData.fromUid);
+          const bizRef = db.collection('businesses').doc(dealData.bizId);
+          
+          const buyerDoc = await tx.get(buyerRef);
+          const sellerDoc = await tx.get(sellerRef);
+          const bizDoc = await tx.get(bizRef);
+          
+          const buyerData = buyerDoc.data();
+          const sellerData = sellerDoc.data();
+          const bizData = bizDoc.data();
+          
+          if (buyerData.balance < dealData.price) throw new Error('Недостаточно средств');
+          if (bizData.ownerUid !== dealData.fromUid) throw new Error('Бизнес уже продан');
+          
+          // Обновляем балансы
+          tx.update(buyerRef, { 
+            balance: firebase.firestore.FieldValue.increment(-dealData.price) 
+          });
+          
+          tx.update(sellerRef, { 
+            balance: firebase.firestore.FieldValue.increment(dealData.price) 
+          });
+          
+          // Меняем владельца бизнеса
+          tx.update(bizRef, { 
+            ownerUid: currentUser.uid,
+            lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+          });
+          
+          // Обновляем статус сделки
+          tx.update(dealRef, { state: 'accepted' });
+        });
+        
+        alert('Сделка принята!');
+        await refreshUserDoc();
+        await renderShop();
+        await renderMyBusinesses();
+        await renderRating();
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    }
+
+    // Функция отклонения сделки
+    async function rejectDeal(dealId) {
+      try {
+        await db.collection('deals').doc(dealId).update({ state: 'rejected' });
+        alert('Сделка отклонена');
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    }
+
     // Отслеживание состояния аутентификации
     auth.onAuthStateChanged(async (user) => {
       currentUser = user;
@@ -420,6 +550,9 @@
         document.getElementById('hud-email').innerText = user.email || '';
         document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
         
+        // Запускаем listener для сделок
+        setupDealsListener();
+        
         // Проверяем админские права
         if (isAdminUser(currentUserDoc, user)) {
           document.getElementById('nav-admin').classList.remove('hidden');
@@ -436,6 +569,12 @@
         document.getElementById('hud').classList.add('hidden');
         document.getElementById('nav-admin').classList.add('hidden');
         document.getElementById('news-admin').classList.add('hidden');
+        
+        // Останавливаем listener сделок
+        if (dealsListener) {
+          dealsListener();
+          dealsListener = null;
+        }
       }
       
       // Обновляем данные
@@ -1404,106 +1543,6 @@
         await renderQuests();
       }
     }
-
-    // Уведомления о сделках
-    db.collection('deals').where('state', '==', 'pending').onSnapshot(async (snap) => {
-      const notifications = document.getElementById('notifications');
-      notifications.innerHTML = '';
-      
-      if (!currentUser) return;
-      
-      snap.forEach(async (doc) => {
-        const deal = doc.data();
-        deal.id = doc.id;
-        
-        if (deal.toUid === currentUser.uid) {
-          const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
-          const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
-          
-          if (!sellerSnap.exists || !bizSnap.exists) return;
-          
-          const seller = sellerSnap.data();
-          const biz = bizSnap.data();
-          
-          const el = document.createElement('div');
-          el.className = 'muted small';
-          el.innerHTML = `
-            Предложение от ${seller.username}: ${biz.name} — цена ${deal.price} ₽
-            <button class="btn" data-id="${deal.id}">Принять</button>
-            <button class="btn" data-rej="${deal.id}" style="background:rgba(120,120,120,0.9);">Отклонить</button>
-          `;
-          
-          notifications.appendChild(el);
-          
-          // Обработка принятия сделки
-          el.querySelector('[data-id]').addEventListener('click', async () => {
-            try {
-              await db.runTransaction(async (tx) => {
-                const dealRef = db.collection('deals').doc(deal.id);
-                const dealDoc = await tx.get(dealRef);
-                
-                if (!dealDoc.exists) throw new Error('Сделка не найдена');
-                
-                const dealData = dealDoc.data();
-                
-                if (dealData.state !== 'pending') throw new Error('Сделка уже обработана');
-                
-                const buyerRef = db.collection('users').doc(currentUser.uid);
-                const sellerRef = db.collection('users').doc(dealData.fromUid);
-                const bizRef = db.collection('businesses').doc(dealData.bizId);
-                
-                const buyerDoc = await tx.get(buyerRef);
-                const sellerDoc = await tx.get(sellerRef);
-                const bizDoc = await tx.get(bizRef);
-                
-                const buyerData = buyerDoc.data();
-                const sellerData = sellerDoc.data();
-                const bizData = bizDoc.data();
-                
-                if (buyerData.balance < dealData.price) throw new Error('Недостаточно средств');
-                if (bizData.ownerUid !== dealData.fromUid) throw new Error('Бизнес уже продан');
-                
-                // Обновляем балансы
-                tx.update(buyerRef, { 
-                  balance: firebase.firestore.FieldValue.increment(-dealData.price) 
-                });
-                
-                tx.update(sellerRef, { 
-                  balance: firebase.firestore.FieldValue.increment(dealData.price) 
-                });
-                
-                // Меняем владельца бизнеса
-                tx.update(bizRef, { 
-                  ownerUid: currentUser.uid,
-                  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
-                });
-                
-                // Обновляем статус сделки
-                tx.update(dealRef, { state: 'accepted' });
-              });
-              
-              alert('Сделка принята!');
-              await refreshUserDoc();
-              await renderShop();
-              await renderMyBusinesses();
-              await renderRating();
-            } catch (err) {
-              alert('Ошибка: ' + err.message);
-            }
-          });
-          
-          // Обработка отклонения сделки
-          el.querySelector('[data-rej]').addEventListener('click', async () => {
-            try {
-              await db.collection('deals').doc(deal.id).update({ state: 'rejected' });
-              alert('Сделка отклонена');
-            } catch (err) {
-              alert('Ошибка: ' + err.message);
-            }
-          });
-        }
-      });
-    });
 
     // Добавление новостей
     document.getElementById('news-add').addEventListener('click', async () => {
