@@ -712,150 +712,159 @@
 		    }
 		  }
 
-          // Функция отклонения сделки
-          async function rejectDeal(dealId) {
-            try {
-              await db.collection('deals').doc(dealId).update({ 
-                state: 'rejected',
-                rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
-              });
-              alert('Сделка отклонена');
-            } catch (err) {
-              alert('Ошибка: ' + err.message);
-            }
-          }
+		  // Функция отклонения сделки
+		  async function rejectDeal(dealId) {
+		    try {
+			  await db.collection('deals').doc(dealId).update({ 
+			    state: 'rejected',
+			    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+			  });
+			  alert('Сделка отклонена');
+		    } catch (err) {
+			  alert('Ошибка: ' + err.message);
+		    }
+		  }
 
-          // Отслеживание состояния аутентификации
-          auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            if (user) {
-              const userRef = db.collection('users').doc(user.uid);
-              const userSnap = await userRef.get();
-      
-              if (userSnap.exists) {
-                currentUserDoc = userSnap.data();
-              } else {
-                // Создаем нового пользователя
-                const newUserData = { 
-                          username: user.displayName || '', 
-                  email: user.email || '', 
-                  balance: 10000,
-                  codeword: document.getElementById('reg-codeword')?.value || '',
-                  totalClicks: 0,
-                  clickerAmount: 0,
-                  achievements: {
-                    dailyQuest: false,
-                    thousandClicks: false
-                  },
-                  questProgress: {
-                    dailyClicks: 0
-                  },
-                  usedPromocodes: [],
-                  createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                await userRef.set(newUserData);
-                currentUserDoc = newUserData;
-              }
-      
-              // Обновляем UI
-			  document.getElementById('user-info').classList.remove('hidden');
-			  document.getElementById('auth-forms').classList.add('hidden');
-			  document.getElementById('display-name').innerText = currentUserDoc.username || user.displayName || 'Игрок';
-			  document.getElementById('display-email').innerText = user.email || '';
-			  document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
+		  // Отслеживание состояния аутентификации - ТОЛЬКО ЭТОТ ВАРИАНТ!
+		  auth.onAuthStateChanged(async (user) => {
+		    currentUser = user;
+		  
+		    // Сначала скрываем HUD и показываем формы авторизации
+		    document.getElementById('hud').classList.add('hidden');
+		    document.getElementById('user-info').classList.add('hidden');
+		    document.getElementById('auth-forms').classList.remove('hidden');
+		    document.getElementById('nav-admin').classList.add('hidden');
+		    document.getElementById('news-admin').classList.add('hidden');
+		   
+		    // Останавливаем предыдущий listener сделок
+		    if (dealsListener) {
+			  dealsListener();
+			  dealsListener = null;
+		      }
+
+		    if (user) {
+			  // ПОЛЬЗОВАТЕЛЬ АВТОРИЗОВАН
+			  try {
+			    const userRef = db.collection('users').doc(user.uid);
+			    const userSnap = await userRef.get();
+
+			    if (userSnap.exists) {
+				  currentUserDoc = userSnap.data();
+			    } else {
+				  // Создаем нового пользователя
+				  const newUserData = { 
+				    username: user.displayName || '', 
+				    email: user.email || '', 
+				    balance: 10000,
+				    codeword: document.getElementById('reg-codeword')?.value || '',
+				    totalClicks: 0,
+				    clickerAmount: 0,
+				    achievements: {
+					  dailyQuest: false,
+					  thousandClicks: false
+				    },
+				    questProgress: {
+					  dailyClicks: 0
+				    },
+				    usedPromocodes: [],
+				    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+				  };
+				  await userRef.set(newUserData);
+				  currentUserDoc = newUserData;
+			    }
+
+			    // ОБНОВЛЯЕМ UI ДЛЯ АВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
+			    document.getElementById('user-info').classList.remove('hidden');
+			    document.getElementById('auth-forms').classList.add('hidden');
+			    document.getElementById('display-name').innerText = currentUserDoc.username || user.displayName || 'Игрок';
+			    document.getElementById('display-email').innerText = user.email || '';
+			    document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
 			  
-			  // Обновляем HUD
-			  document.getElementById('hud').classList.remove('hidden');
-			  document.getElementById('hud-username').innerText = currentUserDoc.username || user.displayName || 'Игрок';
-			  document.getElementById('hud-email').innerText = user.email || '';
-			  document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
+			    // ОБНОВЛЯЕМ HUD
+			    document.getElementById('hud').classList.remove('hidden');
+			    document.getElementById('hud-username').innerText = currentUserDoc.username || user.displayName || 'Игрок';
+			    document.getElementById('hud-email').innerText = user.email || '';
+			    document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
 			  
-			  // Запускаем listener для сделок
-			  setupDealsListener();
+			    // Запускаем listener для сделок
+			    setupDealsListener();
 			  
-			  // Проверяем админские права
-			  if (isAdminUser(currentUserDoc, user)) {
-				document.getElementById('nav-admin').classList.remove('hidden');
-				document.getElementById('news-admin').classList.remove('hidden');
-			  } else {
-				document.getElementById('nav-admin').classList.add('hidden');
-				document.getElementById('news-admin').classList.add('hidden');
+			    // Проверяем админские права
+			    if (isAdminUser(currentUserDoc, user)) {
+				  document.getElementById('nav-admin').classList.remove('hidden');
+				  document.getElementById('news-admin').classList.remove('hidden');
+			    }
+			  
+			  } catch (error) {
+			    console.error('Ошибка загрузки данных пользователя:', error);
+			    alert('Ошибка загрузки данных. Попробуйте перезайти.');
+			    auth.signOut(); // Принудительный выход при ошибке
 			  }
-			} else {
-			  // Пользователь не авторизован
+		    } else {
+			  // ПОЛЬЗОВАТЕЛЬ НЕ АВТОРИЗОВАН
 			  currentUserDoc = null;
-			  document.getElementById('user-info').classList.add('hidden');
-			  document.getElementById('auth-forms').classList.remove('hidden');
-			  document.getElementById('hud').classList.add('hidden');
-			  document.getElementById('nav-admin').classList.add('hidden');
-			  document.getElementById('news-admin').classList.add('hidden');
-			  
-			  // Останавливаем listener сделок
-			  if (dealsListener) {
-				dealsListener();
-				dealsListener = null;
-			  }
-			}
-			
-			// Обновляем данные
-			await renderShop();
-			await renderMyBusinesses();
+			  // UI уже скрыт в начале функции
+		    }
+		  
+		    // Обновляем данные независимо от авторизации
+		    await renderShop();
+		  await renderMyBusinesses();
 		  });
 
 		  // Регистрация
 		  document.getElementById('btn-register').addEventListener('click', async () => {
-			const username = document.getElementById('reg-username').value.trim();
-			const email = document.getElementById('reg-email').value.trim();
-			const pass = document.getElementById('reg-pass').value;
-			const pass2 = document.getElementById('reg-pass2').value;
-			const codeword = document.getElementById('reg-codeword').value.trim();
-			
-			if (!username || !email || !pass || pass !== pass2 || !codeword) {
+		    const username = document.getElementById('reg-username').value.trim();
+		    const email = document.getElementById('reg-email').value.trim();
+		    const pass = document.getElementById('reg-pass').value;
+		    const pass2 = document.getElementById('reg-pass2').value;
+		    const codeword = document.getElementById('reg-codeword').value.trim();
+		  
+		    if (!username || !email || !pass || pass !== pass2 || !codeword) {
 			  alert('Проверьте данные регистрации');
 			  return;
-			}
-			
-			try {
+		    }
+		  
+		    try {
 			  const cred = await auth.createUserWithEmailAndPassword(email, pass);
 			  await cred.user.updateProfile({ displayName: username });
 			  await db.collection('users').doc(cred.user.uid).set({ 
-				username, 
-				email, 
-				balance: 10000,
-				codeword,
-				totalClicks: 0,
-				clickerAmount: 0,
-				achievements: {
+			    username, 
+			    email, 
+			    balance: 10000,
+			    codeword,
+			    totalClicks: 0,
+			    clickerAmount: 0,
+			    achievements: {
 				  dailyQuest: false,
 				  thousandClicks: false
-				},
-				questProgress: {
+			    },
+			    questProgress: {
 				  dailyClicks: 0
-				},
-				usedPromocodes: [],
-				createdAt: firebase.firestore.FieldValue.serverTimestamp()
+			    },
+			    usedPromocodes: [],
+			    createdAt: firebase.firestore.FieldValue.serverTimestamp()
 			  });
 			  alert('Регистрация успешна! Добро пожаловать в GSK LAND!');
-			} catch (e) {
+		    } catch (e) {
 			  alert('Ошибка регистрации: ' + e.message);
-			}
+		    }
 		  });
 
 		  // Вход
 		  document.getElementById('btn-login').addEventListener('click', async () => {
-			const email = document.getElementById('login-email').value.trim();
-			const pass = document.getElementById('login-pass').value;
-			
-			try {
+		    const email = document.getElementById('login-email').value.trim();
+		    const pass = document.getElementById('login-pass').value;
+		  
+		    try {
 			  await auth.signInWithEmailAndPassword(email, pass);
-			} catch (e) {
+		    } catch (e) {
 			  alert('Ошибка входа: ' + e.message);
-			}
+		    }
 		  });
 
 		  // Выход
 		  document.getElementById('btn-logout').addEventListener('click', () => {
-			auth.signOut();
+		    auth.signOut();
 		  });
 
 		  // Модальное окно продажи
