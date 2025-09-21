@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GSK LAND — бизнес-игра 1</title>
+  <title>GSK LAND — бизнес-игра</title>
   <meta name="description" content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." />
   <style>
     /* Emerald - dark liquid glass theme */
@@ -693,7 +693,7 @@
           
           document.getElementById('hud').classList.remove('hidden');
           document.getElementById('hud-username').innerText = currentUserDoc.username || user.displayName || 'Игрок';
-          document.getElementById('hud-email').innerText = user.email || '';
+          //document.getElementById('hud-email').innerText = user.email || '';
           document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
           
           setupDealsListener();
