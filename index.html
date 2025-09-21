@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GSK LAND — бизнес-игра</title>
+  <title>GSK LAND — бизнес-игра в</title>
   <meta name="description" content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." />
   <style>
     /* Emerald - dark liquid glass theme */
@@ -438,54 +438,57 @@
     }
 
     // Real-time listener для сделок - ИСПРАВЛЕННАЯ ВЕРСИЯ
-    function setupDealsListener() {
-      if (!currentUser) return;
+    // Real-time listener для сделок - исправленный вариант
+	function setupDealsListener() {
+	  if (!currentUser) return;
 
-      if (dealsListener) dealsListener();
+	  if (dealsListener) dealsListener(); // снимаем старый listener, если был
 
-      console.log("Setting up deals listener for user:", currentUser.uid);
-      
-      dealsListener = db.collection('deals')
-        .where('toUid', '==', currentUser.uid)
-        .where('state', '==', 'pending')
-        .onSnapshot((snapshot) => {
-          console.log("Deals snapshot received:", snapshot.size, "deals");
-          const notificationBadge = document.getElementById('notification-badge');
-          const notificationsList = document.getElementById('notifications-list');
-          
-          // Очищаем список уведомлений
-          notificationsList.innerHTML = '';
-          let activeDealsCount = 0;
+	  console.log("Setting up deals listener for user:", currentUser.uid);
 
-          snapshot.forEach((doc) => {
-            const deal = doc.data();
-            deal.id = doc.id;
-            activeDealsCount++;
-            
-            console.log("Processing deal:", deal.id, "from:", deal.fromUid);
-            
-            // Отображаем уведомление в списке
-            displayDealNotification(deal);
-            
-            // Показываем toast-уведомление, если сделка еще не была просмотрена
-            if (!deal.seen) {
-              console.log("Deal not seen, showing toast");
-              db.collection('deals').doc(deal.id).update({ seen: true });
-              showDealNotification(deal);
-            }
-          });
+	  dealsListener = db.collection('deals')
+		.where('toUid', '==', currentUser.uid)
+		.where('state', '==', 'pending')
+		.onSnapshot(async (snapshot) => {
+		  console.log("Deals snapshot received:", snapshot.size, "deals");
+		  const notificationBadge = document.getElementById('notification-badge');
+		  const notificationsList = document.getElementById('notifications-list');
 
-          // Обновляем бейдж с количеством уведомлений
-          if (activeDealsCount > 0) {
-            notificationBadge.textContent = activeDealsCount;
-            notificationBadge.classList.remove('hidden');
-          } else {
-            notificationBadge.classList.add('hidden');
-          }
-        }, (error) => {
-          console.error('Ошибка listener сделок:', error);
-        });
-    }
+		  // Очищаем список уведомлений
+		  notificationsList.innerHTML = '';
+		  let activeDealsCount = 0;
+
+		  // используем for...of вместо forEach, чтобы работал await
+		  for (const doc of snapshot.docs) {
+			const deal = doc.data();
+			deal.id = doc.id;
+			activeDealsCount++;
+
+			console.log("Processing deal:", deal.id, "from:", deal.fromUid);
+
+			// ждём пока уведомление отрисуется
+			await displayDealNotification(deal);
+
+			// показываем toast только один раз
+			if (!deal.seen) {
+			  console.log("Deal not seen, showing toast");
+			  db.collection('deals').doc(deal.id).update({ seen: true });
+			  showDealNotification(deal);
+			}
+		  }
+
+		  // Обновляем бейдж с количеством уведомлений
+		  if (activeDealsCount > 0) {
+			notificationBadge.textContent = activeDealsCount;
+			notificationBadge.classList.remove('hidden');
+		  } else {
+			notificationBadge.classList.add('hidden');
+		  }
+		}, (error) => {
+		  console.error('Ошибка listener сделок:', error);
+		});
+	}
+
 
     async function showDealNotification(deal) {
       try {
