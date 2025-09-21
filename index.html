@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GSK LAND — бизнес-игра 2</title>
+  <title>GSK LAND — бизнес-игра 1</title>
   <meta name="description" content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." />
   <style>
     /* Emerald - dark liquid glass theme */
@@ -491,31 +491,22 @@
 
 
     async function showDealNotification(deal) {
-      try {
-        const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
-        const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
+	  try {
+		// Используем данные прямо из deal
+		const sellerName = deal.fromName || 'Игрок';
+		const bizName = deal.bizName || 'Бизнес';
 
-        if (sellerSnap.exists && bizSnap.exists) {
-          const seller = sellerSnap.data();
-          const biz = bizSnap.data();
-          showNotificationToast(deal.id, seller.username, biz.name, deal.price);
-        }
-      } catch (error) {
-        console.error('Ошибка показа уведомления:', error);
-      }
-    }
+		showNotificationToast(deal.id, sellerName, bizName, deal.price);
+	  } catch (error) {
+		console.error('Ошибка показа уведомления:', error);
+	  }
+	}
+
 
     // Функция отображения уведомления в списке - ИСПРАВЛЕННАЯ ВЕРСИЯ
     async function displayDealNotification(deal) {
 	  try {
 		console.log("Displaying deal notification:", deal.id);
-
-		const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
-		const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
-
-		// Если данных нет — подставляем заглушки
-		const sellerName = sellerSnap.exists ? (sellerSnap.data().username || 'Игрок') : 'Неизвестный игрок';
-		const bizName = bizSnap.exists ? (bizSnap.data().name || 'Бизнес') : 'Неизвестный бизнес';
 
 		const notificationsList = document.getElementById('notifications-list');
 		const notification = document.createElement('div');
@@ -523,8 +514,8 @@
 		notification.id = `notification-${deal.id}`;
 		notification.innerHTML = `
 		  <strong>Предложение о покупке</strong>
-		  <div class="muted small">От: ${sellerName}</div>
-		  <div>Бизнес: ${bizName}</div>
+		  <div class="muted small">От: ${deal.fromName || 'Игрок'}</div>
+		  <div>Бизнес: ${deal.bizName || 'Бизнес'}</div>
 		  <div>Цена: ${deal.price} ₽</div>
 		  <div class="flex" style="margin-top:8px;gap:8px">
 			<button class="btn accept-deal" data-id="${deal.id}">Принять</button>
@@ -534,21 +525,14 @@
 
 		notificationsList.appendChild(notification);
 
-		// обработчики
-		notification.querySelector('.accept-deal').addEventListener('click', () => {
-		  console.log("Accepting deal:", deal.id);
-		  acceptDeal(deal.id);
-		});
-
-		notification.querySelector('.reject-deal').addEventListener('click', () => {
-		  console.log("Rejecting deal:", deal.id);
-		  rejectDeal(deal.id);
-		});
+		notification.querySelector('.accept-deal').addEventListener('click', () => acceptDeal(deal.id));
+		notification.querySelector('.reject-deal').addEventListener('click', () => rejectDeal(deal.id));
 
 	  } catch (error) {
 		console.error('Ошибка отображения уведомления:', error);
 	  }
 	}
+
 
         
     //    notificationsList.appendChild(notification);
