@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GSK LAND — бизнес-игра!!!</title>
+  <title>GSK LAND — бизнес-игра</title>
   <meta name="description" content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." />
   <style>
     /* Emerald - dark liquid glass theme */
@@ -203,7 +203,7 @@
               <li>Открой Магазин и купи свободный бизнес (каждый бизнес может принадлежать только одному игроку).</li>
               <li>Заходи в раздел «Мои бизнесы» и собирай доход — кнопка "Собрать" начислит доход с последнего сбора.</li>
               <li>Можно продать бизнес государству (-30% от цены) или предложить игроку (цена от 50% до 200% от изначальной).</li>
-              <li>Следи за балансом в HUD в верхной части экрана.</li>
+              <li>Следи за баланс в HUD в верхней части экрана.</li>
             </ol>
           </div>
         </section>
@@ -437,7 +437,7 @@
       setTimeout(() => { if (toast.parentNode) toast.remove(); }, 30000);
     }
 
-    // Real-time listener для сделок
+    // Real-time listener для сделок - ИСПРАВЛЕННАЯ ВЕРСИЯ
     function setupDealsListener() {
       if (!currentUser) return;
 
@@ -453,6 +453,7 @@
           const notificationBadge = document.getElementById('notification-badge');
           const notificationsList = document.getElementById('notifications-list');
           
+          // Очищаем список уведомлений
           notificationsList.innerHTML = '';
           let activeDealsCount = 0;
 
@@ -463,8 +464,10 @@
             
             console.log("Processing deal:", deal.id, "from:", deal.fromUid);
             
+            // Отображаем уведомление в списке
             displayDealNotification(deal);
             
+            // Показываем toast-уведомление, если сделка еще не была просмотрена
             if (!deal.seen) {
               console.log("Deal not seen, showing toast");
               db.collection('deals').doc(deal.id).update({ seen: true });
@@ -472,6 +475,7 @@
             }
           });
 
+          // Обновляем бейдж с количеством уведомлений
           if (activeDealsCount > 0) {
             notificationBadge.textContent = activeDealsCount;
             notificationBadge.classList.remove('hidden');
@@ -498,6 +502,7 @@
       }
     }
 
+    // Функция отображения уведомления в списке - ИСПРАВЛЕННАЯ ВЕРСИЯ
     async function displayDealNotification(deal) {
       try {
         console.log("Displaying deal notification:", deal.id);
@@ -534,20 +539,23 @@
         
         notificationsList.appendChild(notification);
 
+        // Добавляем обработчики событий для кнопок
         notification.querySelector('.accept-deal').addEventListener('click', () => {
           console.log("Accepting deal:", deal.id);
           acceptDeal(deal.id);
         });
-
+        
         notification.querySelector('.reject-deal').addEventListener('click', () => {
           console.log("Rejecting deal:", deal.id);
           rejectDeal(deal.id);
         });
+        
       } catch (error) {
         console.error('Ошибка отображения уведомления:', error);
       }
     }
 
+    // Функция принятия сделки
     async function acceptDeal(dealId) {
       try {
         console.log("Accepting deal:", dealId);
@@ -602,6 +610,7 @@
       }
     }
 
+    // Функция отклонения сделки
     async function rejectDeal(dealId) {
       try {
         console.log("Rejecting deal:", dealId);
@@ -627,6 +636,7 @@
       }
     }
 
+    // Вспомогательная функция для обновления бейджа уведомлений
     function updateNotificationBadge() {
       const notifications = document.querySelectorAll('.news-item');
       const notificationBadge = document.getElementById('notification-badge');
@@ -877,7 +887,7 @@
     // Рендер рейтинга
     async function renderRating() {
       const el = document.getElementById('rating-list');
-      el.innerHTML = '<div class="muted">Загрузка рейтинга...</div>';
+            el.innerHTML = '<div class="muted">Загрузка рейтинга...</div>';
       
       try {
         const snaps = await db.collection('users').orderBy('balance', 'desc').limit(100).get();
@@ -970,7 +980,7 @@
         await refreshUserDoc();
         await renderClicker();
         await checkAchievements();
-      } catch (err) {
+        } catch (err) {
         alert('Ошибка: ' + err.message);
       }
     });
@@ -1378,7 +1388,7 @@
         console.error('Ошибка поиска:', error);
         list.innerHTML = '<div class="muted">Ошибка поиска</div>';
       }
-    });
+    }
 
     // Проверка достижений
     async function checkAchievements() {
@@ -1603,7 +1613,7 @@
         console.error('Ошибка поиска:', error);
         list.innerHTML = '<div class="muted">Ошибка поиска</div>';
       }
-    });
+    }
 
     // Админ: создание бизнеса
     document.getElementById('admin-create-biz').addEventListener('click', async () => {
@@ -1644,7 +1654,7 @@
       } catch (err) {
         alert('Ошибка создания: ' + err.message);
       }
-    });
+    }
 
     // Обновление данных пользователя
     async function refreshUserDoc() {
@@ -1786,7 +1796,7 @@
     // Рендер моих бизнесов
     async function renderMyBusinesses() {
       const list = document.getElementById('my-list');
-      list.innerHTML = '';
+            list.innerHTML = '';
       
       if (!currentUser) {
         list.innerHTML = '<div class="muted">Войдите чтобы увидеть свои бизнесы</div>';
