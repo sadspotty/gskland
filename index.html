@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GSK LAND — бизнес-игра в</title>
+  <title>GSK LAND — бизнес-игра 2</title>
   <meta name="description" content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." />
   <style>
     /* Emerald - dark liquid glass theme */
@@ -833,14 +833,16 @@
         const targetUser = usersSnap.docs[0];
         
         await db.collection('deals').add({
-          fromUid: currentUser.uid,
-          toUid: targetUser.id,
-          bizId: currentSellBizId,
-          price: price,
-          state: 'pending',
-          seen: false,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+		  fromUid: currentUser.uid,
+		  fromName: currentUserDoc.username || currentUser.email || 'Игрок',
+		  toUid: targetUser.id,
+		  bizId: currentSellBizId,
+		  bizName: bizData.name,
+		  price: price,
+		  state: 'pending',
+		  seen: false,
+		  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+		});
         
         alert('Предложение отправлено!');
         document.getElementById('sell-modal').classList.add('hidden');
