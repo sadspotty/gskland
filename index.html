@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GSK LAND — бизнес-игра</title>
+  <title>GSK LAND — бизнес-игра!!!</title>
   <meta name="description" content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." />
   <style>
     /* Emerald - dark liquid glass theme */
@@ -182,7 +182,7 @@
                   <input id="login-pass" placeholder="Пароль" type="password" style="margin-top:8px" />
                   <div style="margin-top:8px"><button class="btn" id="btn-login">Войти</button></div>
                 </div>
-                <div style="width:1px;background:rgba(255,255,255,0.02;height:160px"></div>
+                <div style="width:1px;background:rgba(255,255,255,0.02);height:160px"></div>
                 <div style="flex:1">
                   <h3>Регистрация</h3>
                   <input id="reg-username" placeholder="Никнейм" />
@@ -318,1605 +318,1665 @@
             </div>
           </div>
         </section>
+      </main>
 
-        </main>
+      <aside class="col">
+        <div class="card">
+          <h3>Уведомления <span id="notification-badge" class="notification-badge hidden">0</span></h3>
+          <div id="notifications-list"></div>
+        </div>
 
-        <aside class="col">
-          <div class="card">
-            <h3>Уведомления <span id="notification-badge" class="notification-badge hidden">0</span></h3>
-            <div id="notifications-list"></div>
-          </div>
-
-          <div class="card">
-            <h3>Поиск бизнеса</h3>
-            <input id="search-biz" placeholder="Название бизнеса" />
-            <div style="margin-top:8px"><button class="btn" id="search-btn">Найти</button></div>
-          </div>
-        </aside>
-      </div>
-
-      <footer>GSK LAND</footer>
+        <div class="card">
+          <h3>Поиск бизнеса</h3>
+          <input id="search-biz" placeholder="Название бизнеса" />
+          <div style="margin-top:8px"><button class="btn" id="search-btn">Найти</button></div>
+        </div>
+      </aside>
     </div>
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyAZPTcPsHVAw1RiuOUhM9IXZTSWJdRAW-c",
-        authDomain: "gskland2.firebaseapp.com",
-        projectId: "gskland2",
-        storageBucket: "gskland2.firebasestorage.app",
-        messagingSenderId: "615778317319",
-        appId: "1:615778317319:web:d875f784f280f5758926a2",
-        measurementId: "G-GPWV7RJK8X"
-      };
+    <footer>GSK LAND</footer>
+  </div>
 
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.firestore();
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAZPTcPsHVAw1RiuOUhM9IXZTSWJdRAW-c",
+      authDomain: "gskland2.firebaseapp.com",
+      projectId: "gskland2",
+      storageBucket: "gskland2.firebasestorage.app",
+      messagingSenderId: "615778317319",
+      appId: "1:615778317319:web:d875f784f280f5758926a2",
+      measurementId: "G-GPWV7RJK8X"
+    };
 
-      const navButtons = document.querySelectorAll('.nav-btn');
-      const views = {
-        home: document.getElementById('view-home'),
-        shop: document.getElementById('view-shop'),
-        my: document.getElementById('view-my'),
-        rating: document.getElementById('view-rating'),
-        clicker: document.getElementById('view-clicker'),
-        quests: document.getElementById('view-quests'),
-        achievements: document.getElementById('view-achievements'),
-        promocodes: document.getElementById('view-promocodes'),
-        news: document.getElementById('view-news'),
-        admin: document.getElementById('view-admin')
-      };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-      let currentSellBizId = null;
-      let dealsListener = null;
-      let currentUser = null;
-      let currentUserDoc = null;
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const views = {
+      home: document.getElementById('view-home'),
+      shop: document.getElementById('view-shop'),
+      my: document.getElementById('view-my'),
+      rating: document.getElementById('view-rating'),
+      clicker: document.getElementById('view-clicker'),
+      quests: document.getElementById('view-quests'),
+      achievements: document.getElementById('view-achievements'),
+      promocodes: document.getElementById('view-promocodes'),
+      news: document.getElementById('view-news'),
+      admin: document.getElementById('view-admin')
+    };
 
-      navButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const view = btn.dataset.view;
-          Object.values(views).forEach(v => v.classList.add('hidden'));
-          views[view].classList.remove('hidden');
+    let currentSellBizId = null;
+    let dealsListener = null;
+    let currentUser = null;
+    let currentUserDoc = null;
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.view;
+        Object.values(views).forEach(v => v.classList.add('hidden'));
+        views[view].classList.remove('hidden');
   
-          if (view === 'rating') renderRating();
-          if (view === 'clicker') renderClicker();
-          if (view === 'quests') renderQuests();
-          if (view === 'achievements') renderAchievements();
-          if (view === 'promocodes') renderPromocodes();
-          if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) {
-            renderAdminUsers();
-          }
-        });
+        if (view === 'rating') renderRating();
+        if (view === 'clicker') renderClicker();
+        if (view === 'quests') renderQuests();
+        if (view === 'achievements') renderAchievements();
+        if (view === 'promocodes') renderPromocodes();
+        if (view === 'news') renderNews();
+        if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) {
+          renderAdminUsers();
+        }
+      });
+    });
+
+    function isAdminUser(userDoc, user) {
+      if (!user) return false;
+      const email = user.email ? user.email.toLowerCase() : '';
+      const username = userDoc ? userDoc.username : (user.displayName || '');
+      return username === 'Spotty' || email === 'sad.spotty@gmail.com';
+    }
+
+    // НОВАЯ СИСТЕМА УВЕДОМЛЕНИЙ
+    function showNotificationToast(dealId, sellerName, bizName, price) {
+      const existingToast = document.getElementById(`toast-${dealId}`);
+      if (existingToast) existingToast.remove();
+
+      const toast = document.createElement('div');
+      toast.id = `toast-${dealId}`;
+      toast.className = 'notification-toast';
+      toast.innerHTML = `
+        <h4>💼 Новое предложение!</h4>
+        <p><strong>От:</strong> ${sellerName}</p>
+        <p><strong>Бизнес:</strong> ${bizName}</p>
+        <p><strong>Цена:</strong> ${price} ₽</p>
+        <div class="flex">
+          <button class="btn accept-btn" data-id="${dealId}">Принять</button>
+          <button class="btn reject-btn reject" data-id="${dealId}">Отклонить</button>
+        </div>
+      `;
+
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 100);
+
+      toast.querySelector('.accept-btn').addEventListener('click', () => {
+        acceptDeal(dealId);
+        toast.remove();
       });
 
-      function isAdminUser(userDoc, user) {
-        if (!user) return false;
-        const email = user.email ? user.email.toLowerCase() : '';
-        const username = userDoc ? userDoc.username : (user.displayName || '');
-        return username === 'Spotty' || email === 'sad.spotty@gmail.com';
-      }
+      toast.querySelector('.reject-btn').addEventListener('click', () => {
+        rejectDeal(dealId);
+        toast.remove();
+      });
 
-      // НОВАЯ СИСТЕМА УВЕДОМЛЕНИЙ
-      function showNotificationToast(dealId, sellerName, bizName, price) {
-        const existingToast = document.getElementById(`toast-${dealId}`);
-        if (existingToast) existingToast.remove();
+      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 30000);
+    }
 
-        const toast = document.createElement('div');
-        toast.id = `toast-${dealId}`;
-        toast.className = 'notification-toast';
-        toast.innerHTML = `
-          <h4>💼 Новое предложение!</h4>
-          <p><strong>От:</strong> ${sellerName}</p>
-          <p><strong>Бизнес:</strong> ${bizName}</p>
-          <p><strong>Цена:</strong> ${price} ₽</p>
-          <div class="flex">
-            <button class="btn accept-btn" data-id="${dealId}">Принять</button>
-            <button class="btn reject-btn reject" data-id="${dealId}">Отклонить</button>
-          </div>
-        `;
+    // Real-time listener для сделок
+    function setupDealsListener() {
+      if (!currentUser) return;
 
-        document.body.appendChild(toast);
-        setTimeout(() => toast.classList.add('show'), 100);
+      if (dealsListener) dealsListener();
 
-        toast.querySelector('.accept-btn').addEventListener('click', () => {
-          acceptDeal(dealId);
-          toast.remove();
-        });
+      console.log("Setting up deals listener for user:", currentUser.uid);
+      
+      dealsListener = db.collection('deals')
+        .where('toUid', '==', currentUser.uid)
+        .where('state', '==', 'pending')
+        .onSnapshot((snapshot) => {
+          console.log("Deals snapshot received:", snapshot.size, "deals");
+          const notificationBadge = document.getElementById('notification-badge');
+          const notificationsList = document.getElementById('notifications-list');
+          
+          notificationsList.innerHTML = '';
+          let activeDealsCount = 0;
 
-        toast.querySelector('.reject-btn').addEventListener('click', () => {
-          rejectDeal(dealId);
-          toast.remove();
-        });
-
-        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 30000);
-      }
-
-      // Real-time listener для сделок
-      function setupDealsListener() {
-        if (!currentUser) return;
-
-        if (dealsListener) dealsListener();
-
-        dealsListener = db.collection('deals')
-          .where('toUid', '==', currentUser.uid)
-          .where('state', '==', 'pending')
-          .onSnapshot((snapshot) => {
-            const notificationBadge = document.getElementById('notification-badge');
-            const notificationsList = document.getElementById('notifications-list');
+          snapshot.forEach((doc) => {
+            const deal = doc.data();
+            deal.id = doc.id;
+            activeDealsCount++;
             
-            notificationsList.innerHTML = '';
-            let activeDealsCount = 0;
-
-            snapshot.forEach((doc) => {
-              const deal = doc.data();
-              deal.id = doc.id;
-              activeDealsCount++;
-              
-              displayDealNotification(deal);
-              
-              if (!deal.seen) {
-                db.collection('deals').doc(deal.id).update({ seen: true });
-                showDealNotification(deal);
-              }
-            });
-
-            if (activeDealsCount > 0) {
-              notificationBadge.textContent = activeDealsCount;
-              notificationBadge.classList.remove('hidden');
-            } else {
-              notificationBadge.classList.add('hidden');
+            console.log("Processing deal:", deal.id, "from:", deal.fromUid);
+            
+            displayDealNotification(deal);
+            
+            if (!deal.seen) {
+              console.log("Deal not seen, showing toast");
+              db.collection('deals').doc(deal.id).update({ seen: true });
+              showDealNotification(deal);
             }
-          }, (error) => {
-            console.error('Ошибка listener сделок:', error);
           });
-      }
 
-      async function showDealNotification(deal) {
-        try {
-          const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
-          const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
-
-          if (sellerSnap.exists && bizSnap.exists) {
-            const seller = sellerSnap.data();
-            const biz = bizSnap.data();
-            showNotificationToast(deal.id, seller.username, biz.name, deal.price);
+          if (activeDealsCount > 0) {
+            notificationBadge.textContent = activeDealsCount;
+            notificationBadge.classList.remove('hidden');
+          } else {
+            notificationBadge.classList.add('hidden');
           }
-        } catch (error) {
-          console.error('Ошибка показа уведомления:', error);
-        }
-      }
+        }, (error) => {
+          console.error('Ошибка listener сделок:', error);
+        });
+    }
 
-      async function displayDealNotification(deal) {
-        try {
-          const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
-          const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
+    async function showDealNotification(deal) {
+      try {
+        const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
+        const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
 
-          if (!sellerSnap.exists || !bizSnap.exists) return;
-
+        if (sellerSnap.exists && bizSnap.exists) {
           const seller = sellerSnap.data();
           const biz = bizSnap.data();
+          showNotificationToast(deal.id, seller.username, biz.name, deal.price);
+        }
+      } catch (error) {
+        console.error('Ошибка показа уведомления:', error);
+      }
+    }
+
+    async function displayDealNotification(deal) {
+      try {
+        console.log("Displaying deal notification:", deal.id);
+        
+        const sellerSnap = await db.collection('users').doc(deal.fromUid).get();
+        const bizSnap = await db.collection('businesses').doc(deal.bizId).get();
+
+        if (!sellerSnap.exists) {
+          console.error("Seller not found for deal:", deal.fromUid);
+          return;
+        }
+        if (!bizSnap.exists) {
+          console.error("Business not found for deal:", deal.bizId);
+          return;
+        }
+
+        const seller = sellerSnap.data();
+        const biz = bizSnap.data();
+        
+        const notificationsList = document.getElementById('notifications-list');
+        const notification = document.createElement('div');
+        notification.className = 'news-item';
+        notification.id = `notification-${deal.id}`;
+        notification.innerHTML = `
+          <strong>Предложение о покупке</strong>
+          <div class="muted small">От: ${seller.username || 'Неизвестный'}</div>
+          <div>Бизнес: ${biz.name || 'Неизвестный бизнес'}</div>
+          <div>Цена: ${deal.price} ₽</div>
+          <div class="flex" style="margin-top:8px;gap:8px">
+            <button class="btn accept-deal" data-id="${deal.id}">Принять</button>
+            <button class="btn reject-deal" style="background:rgba(200,60,60,0.9)" data-id="${deal.id}">Отклонить</button>
+          </div>
+        `;
+        
+        notificationsList.appendChild(notification);
+
+        notification.querySelector('.accept-deal').addEventListener('click', () => {
+          console.log("Accepting deal:", deal.id);
+          acceptDeal(deal.id);
+        });
+
+        notification.querySelector('.reject-deal').addEventListener('click', () => {
+          console.log("Rejecting deal:", deal.id);
+          rejectDeal(deal.id);
+        });
+      } catch (error) {
+        console.error('Ошибка отображения уведомления:', error);
+      }
+    }
+
+    async function acceptDeal(dealId) {
+      try {
+        console.log("Accepting deal:", dealId);
+        
+        await db.runTransaction(async (tx) => {
+          const dealRef = db.collection('deals').doc(dealId);
+          const dealDoc = await tx.get(dealRef);
+          if (!dealDoc.exists) throw new Error('Сделка не найдена');
           
-          const notificationsList = document.getElementById('notifications-list');
-          const notification = document.createElement('div');
-          notification.className = 'news-item';
-          notification.innerHTML = `
-            <strong>Предложение о покупке</strong>
-            <div class="muted small">От: ${seller.username}</div>
-            <div>Бизнес: ${biz.name}</div>
-            <div>Цена: ${deal.price} ₽</div>
-            <div class="flex" style="margin-top:8px;gap:8px">
-              <button class="btn accept-deal" data-id="${deal.id}">Принять</button>
-              <button class="btn reject-deal" style="background:rgba(200,60,60,0.9)" data-id="${deal.id}">Отклонить</button>
-            </div>
-          `;
-          
-          notificationsList.appendChild(notification);
+          const dealData = dealDoc.data();
+          if (dealData.state !== 'pending') throw new Error('Сделка уже обработана');
+          if (dealData.toUid !== currentUser.uid) throw new Error('Не ваша сделка');
 
-          notification.querySelector('.accept-deal').addEventListener('click', () => acceptDeal(deal.id));
-          notification.querySelector('.reject-deal').addEventListener('click', () => rejectDeal(deal.id));
-        } catch (error) {
-          console.error('Ошибка отображения уведомления:', error);
-        }
-      }
+          const buyerRef = db.collection('users').doc(currentUser.uid);
+          const sellerRef = db.collection('users').doc(dealData.fromUid);
+          const bizRef = db.collection('businesses').doc(dealData.bizId);
 
-      async function acceptDeal(dealId) {
-        try {
-          await db.runTransaction(async (tx) => {
-            const dealRef = db.collection('deals').doc(dealId);
-            const dealDoc = await tx.get(dealRef);
-            if (!dealDoc.exists) throw new Error('Сделка не найдена');
-            
-            const dealData = dealDoc.data();
-            if (dealData.state !== 'pending') throw new Error('Сделка уже обработана');
-            if (dealData.toUid !== currentUser.uid) throw new Error('Не ваша сделка');
+          const buyerDoc = await tx.get(buyerRef);
+          const sellerDoc = await tx.get(sellerRef);
+          const bizDoc = await tx.get(bizRef);
 
-            const buyerRef = db.collection('users').doc(currentUser.uid);
-            const sellerRef = db.collection('users').doc(dealData.fromUid);
-            const bizRef = db.collection('businesses').doc(dealData.bizId);
+          const buyerData = buyerDoc.data();
+          const sellerData = sellerDoc.data();
+          const bizData = bizDoc.data();
 
-            const buyerDoc = await tx.get(buyerRef);
-            const sellerDoc = await tx.get(sellerRef);
-            const bizDoc = await tx.get(bizRef);
+          if (buyerData.balance < dealData.price) throw new Error('Недостаточно средств');
+          if (bizData.ownerUid !== dealData.fromUid) throw new Error('Бизнес уже продан');
 
-            const buyerData = buyerDoc.data();
-            const sellerData = sellerDoc.data();
-            const bizData = bizDoc.data();
+          tx.update(buyerRef, { balance: firebase.firestore.FieldValue.increment(-dealData.price) });
+          tx.update(sellerRef, { balance: firebase.firestore.FieldValue.increment(dealData.price) });
+          tx.update(bizRef, { ownerUid: currentUser.uid, lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() });
+          tx.update(dealRef, { state: 'accepted', acceptedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        });
 
-            if (buyerData.balance < dealData.price) throw new Error('Недостаточно средств');
-            if (bizData.ownerUid !== dealData.fromUid) throw new Error('Бизнес уже продан');
-
-            tx.update(buyerRef, { balance: firebase.firestore.FieldValue.increment(-dealData.price) });
-            tx.update(sellerRef, { balance: firebase.firestore.FieldValue.increment(dealData.price) });
-            tx.update(bizRef, { ownerUid: currentUser.uid, lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() });
-            tx.update(dealRef, { state: 'accepted', acceptedAt: firebase.firestore.FieldValue.serverTimestamp() });
-          });
-
-          alert('Сделка принята!');
-          await refreshUserDoc();
-          await renderShop();
-          await renderMyBusinesses();
-          await renderRating();
-        } catch (err) {
-          alert('Ошибка: ' + err.message);
-        }
-      }
-
-      async function rejectDeal(dealId) {
-        try {
-          await db.collection('deals').doc(dealId).update({ 
-            state: 'rejected',
-            rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          alert('Сделка отклонена');
-        } catch (err) {
-          alert('Ошибка: ' + err.message);
-        }
-      }
-
-      auth.onAuthStateChanged(async (user) => {
-        currentUser = user;
-        
-        document.getElementById('hud').classList.add('hidden');
-        document.getElementById('user-info').classList.add('hidden');
-        document.getElementById('auth-forms').classList.remove('hidden');
-        document.getElementById('nav-admin').classList.add('hidden');
-        document.getElementById('news-admin').classList.add('hidden');
-        
-        if (dealsListener) {
-          dealsListener();
-          dealsListener = null;
-        }
-
-        if (user) {
-          try {
-            const userRef = db.collection('users').doc(user.uid);
-            const userSnap = await userRef.get();
-
-            if (userSnap.exists) {
-              currentUserDoc = userSnap.data();
-            } else {
-              const newUserData = { 
-                username: user.displayName || '', 
-                email: user.email || '', 
-                balance: 10000,
-                codeword: document.getElementById('reg-codeword')?.value || '',
-                totalClicks: 0,
-                clickerAmount: 0,
-                achievements: { dailyQuest: false, thousandClicks: false },
-                questProgress: { dailyClicks: 0 },
-                usedPromocodes: [],
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-              };
-              await userRef.set(newUserData);
-              currentUserDoc = newUserData;
-            }
-
-            document.getElementById('user-info').classList.remove('hidden');
-            document.getElementById('auth-forms').classList.add('hidden');
-            document.getElementById('display-name').innerText = currentUserDoc.username || user.displayName || 'Игрок';
-            document.getElementById('display-email').innerText = user.email || '';
-            document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
-            
-            document.getElementById('hud').classList.remove('hidden');
-            document.getElementById('hud-username').innerText = currentUserDoc.username || user.displayName || 'Игрок';
-            document.getElementById('hud-email').innerText = user.email || '';
-            document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
-            
-            setupDealsListener();
-            
-            if (isAdminUser(currentUserDoc, user)) {
-              document.getElementById('nav-admin').classList.remove('hidden');
-              document.getElementById('news-admin').classList.remove('hidden');
-            }
-            
-          } catch (error) {
-            console.error('Ошибка загрузки данных пользователя:', error);
-            alert('Ошибка загрузки данных. Попробуйте перезайти.');
-            auth.signOut();
-          }
-        } else {
-          currentUserDoc = null;
+        // Удаляем уведомление из списка
+        const notificationEl = document.getElementById(`notification-${dealId}`);
+        if (notificationEl) {
+          notificationEl.remove();
         }
         
+        alert('Сделка принята!');
+        await refreshUserDoc();
         await renderShop();
         await renderMyBusinesses();
-      });
-
-      // Регистрация
-      document.getElementById('btn-register').addEventListener('click', async () => {
-        const username = document.getElementById('reg-username').value.trim();
-        const email = document.getElementById('reg-email').value.trim();
-        const pass = document.getElementById('reg-pass').value;
-        const pass2 = document.getElementById('reg-pass2').value;
-        const codeword = document.getElementById('reg-codeword').value.trim();
+        await renderRating();
         
-        if (!username || !email || !pass || pass !== pass2 || !codeword) {
-          alert('Проверьте данные регистрации');
+        // Обновляем счетчик уведомлений
+        updateNotificationBadge();
+        
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    }
+
+    async function rejectDeal(dealId) {
+      try {
+        console.log("Rejecting deal:", dealId);
+        
+        await db.collection('deals').doc(dealId).update({ 
+          state: 'rejected',
+          rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Удаляем уведомление из списка
+        const notificationEl = document.getElementById(`notification-${dealId}`);
+        if (notificationEl) {
+          notificationEl.remove();
+        }
+        
+        alert('Сделка отклонена');
+        
+        // Обновляем счетчик уведомлений
+        updateNotificationBadge();
+        
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    }
+
+    function updateNotificationBadge() {
+      const notifications = document.querySelectorAll('.news-item');
+      const notificationBadge = document.getElementById('notification-badge');
+      
+      if (notifications.length > 0) {
+        notificationBadge.textContent = notifications.length;
+        notificationBadge.classList.remove('hidden');
+      } else {
+        notificationBadge.classList.add('hidden');
+      }
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      currentUser = user;
+      
+      document.getElementById('hud').classList.add('hidden');
+      document.getElementById('user-info').classList.add('hidden');
+      document.getElementById('auth-forms').classList.remove('hidden');
+      document.getElementById('nav-admin').classList.add('hidden');
+      document.getElementById('news-admin').classList.add('hidden');
+      
+      if (dealsListener) {
+        dealsListener();
+        dealsListener = null;
+      }
+
+      if (user) {
+        try {
+          const userRef = db.collection('users').doc(user.uid);
+          const userSnap = await userRef.get();
+
+          if (userSnap.exists) {
+            currentUserDoc = userSnap.data();
+          } else {
+            const newUserData = { 
+              username: user.displayName || '', 
+              email: user.email || '', 
+              balance: 10000,
+              codeword: document.getElementById('reg-codeword')?.value || '',
+              totalClicks: 0,
+              clickerAmount: 0,
+              achievements: { dailyQuest: false, thousandClicks: false },
+              questProgress: { dailyClicks: 0 },
+              usedPromocodes: [],
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            await userRef.set(newUserData);
+            currentUserDoc = newUserData;
+          }
+
+          document.getElementById('user-info').classList.remove('hidden');
+          document.getElementById('auth-forms').classList.add('hidden');
+          document.getElementById('display-name').innerText = currentUserDoc.username || user.displayName || 'Игрок';
+          document.getElementById('display-email').innerText = user.email || '';
+          document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
+          
+          document.getElementById('hud').classList.remove('hidden');
+          document.getElementById('hud-username').innerText = currentUserDoc.username || user.displayName || 'Игрок';
+          document.getElementById('hud-email').innerText = user.email || '';
+          document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
+          
+          setupDealsListener();
+          
+          if (isAdminUser(currentUserDoc, user)) {
+            document.getElementById('nav-admin').classList.remove('hidden');
+            document.getElementById('news-admin').classList.remove('hidden');
+          }
+          
+        } catch (error) {
+          console.error('Ошибка загрузки данных пользователя:', error);
+          alert('Ошибка загрузки данных. Попробуйте перезайти.');
+          auth.signOut();
+        }
+      } else {
+        currentUserDoc = null;
+      }
+      
+      await renderShop();
+      await renderMyBusinesses();
+    });
+
+    // Регистрация
+    document.getElementById('btn-register').addEventListener('click', async () => {
+      const username = document.getElementById('reg-username').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const pass = document.getElementById('reg-pass').value;
+      const pass2 = document.getElementById('reg-pass2').value;
+      const codeword = document.getElementById('reg-codeword').value.trim();
+      
+      if (!username || !email || !pass || pass !== pass2 || !codeword) {
+        alert('Проверьте данные регистрации');
+        return;
+      }
+      
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, pass);
+        await cred.user.updateProfile({ displayName: username });
+        await db.collection('users').doc(cred.user.uid).set({ 
+          username, 
+          email, 
+          balance: 10000,
+          codeword,
+          totalClicks: 0,
+          clickerAmount: 0,
+          achievements: {
+            dailyQuest: false,
+            thousandClicks: false
+          },
+          questProgress: {
+            dailyClicks: 0
+          },
+          usedPromocodes: [],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert('Регистрация успешна! Добро пожаловать в GSK LAND!');
+      } catch (e) {
+        alert('Ошибка регистрации: ' + e.message);
+      }
+    });
+
+    // Вход
+    document.getElementById('btn-login').addEventListener('click', async () => {
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-pass').value;
+      
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+      } catch (e) {
+        alert('Ошибка входа: ' + e.message);
+      }
+    });
+
+    // Выход
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      auth.signOut();
+    });
+
+    // Модальное окно продажи
+    document.getElementById('sell-cancel').addEventListener('click', () => {
+      document.getElementById('sell-modal').classList.add('hidden');
+      currentSellBizId = null;
+    });
+
+    document.getElementById('sell-confirm').addEventListener('click', async () => {
+      if (!currentSellBizId) return;
+      
+      const username = document.getElementById('sell-username').value.trim();
+      const price = parseInt(document.getElementById('sell-price').value);
+      
+      if (!username) {
+        alert('Введите никнейм игрока');
+        return;
+      }
+      
+      const bizRef = db.collection('businesses').doc(currentSellBizId);
+      const bizDoc = await bizRef.get();
+      
+      if (!bizDoc.exists) {
+        alert('Бизнес не найден');
+        return;
+      }
+      
+      const bizData = bizDoc.data();
+      const minPrice = Math.floor(bizData.price * 0.5);
+      const maxPrice = Math.floor(bizData.price * 2);
+      
+      if (isNaN(price) || price < minPrice || price > maxPrice) {
+        alert(`Цена должна быть от ${minPrice} до ${maxPrice} ₽`);
+        return;
+      }
+      
+      try {
+        const usersSnap = await db.collection('users').where('username', '==', username).get();
+        
+        if (usersSnap.empty) {
+          alert('Пользователь не найден');
           return;
         }
         
-        try {
-          const cred = await auth.createUserWithEmailAndPassword(email, pass);
-          await cred.user.updateProfile({ displayName: username });
-          await db.collection('users').doc(cred.user.uid).set({ 
-            username, 
-            email, 
-            balance: 10000,
-            codeword,
-            totalClicks: 0,
-            clickerAmount: 0,
-            achievements: {
-              dailyQuest: false,
-              thousandClicks: false
-            },
-            questProgress: {
-              dailyClicks: 0
-            },
-            usedPromocodes: [],
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          alert('Регистрация успешна! Добро пожаловать в GSK LAND!');
-        } catch (e) {
-          alert('Ошибка регистрации: ' + e.message);
-        }
-      });
-
-      // Вход
-      document.getElementById('btn-login').addEventListener('click', async () => {
-        const email = document.getElementById('login-email').value.trim();
-        const pass = document.getElementById('login-pass').value;
+        const targetUser = usersSnap.docs[0];
         
-        try {
-          await auth.signInWithEmailAndPassword(email, pass);
-        } catch (e) {
-          alert('Ошибка входа: ' + e.message);
-        }
-      });
-
-      // Выход
-      document.getElementById('btn-logout').addEventListener('click', () => {
-        auth.signOut();
-      });
-
-      // Модальное окно продажи
-      document.getElementById('sell-cancel').addEventListener('click', () => {
+        await db.collection('deals').add({
+          fromUid: currentUser.uid,
+          toUid: targetUser.id,
+          bizId: currentSellBizId,
+          price: price,
+          state: 'pending',
+          seen: false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        alert('Предложение отправлено!');
         document.getElementById('sell-modal').classList.add('hidden');
         currentSellBizId = null;
-      });
+        document.getElementById('sell-username').value = '';
+        document.getElementById('sell-price').value = '';
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
 
-      document.getElementById('sell-confirm').addEventListener('click', async () => {
-        if (!currentSellBizId) return;
+    // Собрать доход со всех бизнесов
+    document.getElementById('collect-all').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      try {
+        const snaps = await db.collection('businesses').where('ownerUid', '==', currentUser.uid).get();
+        let totalIncome = 0;
+        const batch = db.batch();
+        const userRef = db.collection('users').doc(currentUser.uid);
         
-        const username = document.getElementById('sell-username').value.trim();
-        const price = parseInt(document.getElementById('sell-price').value);
-        
-        if (!username) {
-          alert('Введите никнейм игрока');
-          return;
-        }
-        
-        const bizRef = db.collection('businesses').doc(currentSellBizId);
-        const bizDoc = await bizRef.get();
-        
-        if (!bizDoc.exists) {
-          alert('Бизнес не найден');
-          return;
-        }
-        
-        const bizData = bizDoc.data();
-        const minPrice = Math.floor(bizData.price * 0.5);
-        const maxPrice = Math.floor(bizData.price * 2);
-        
-        if (isNaN(price) || price < minPrice || price > maxPrice) {
-          alert(`Цена должна быть от ${minPrice} до ${maxPrice} ₽`);
-          return;
-        }
-        
-        try {
-          const usersSnap = await db.collection('users').where('username', '==', username).get();
+        snaps.forEach(doc => {
+          const bizData = doc.data();
+          const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : new Date();
+          const now = new Date();
+          const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
+          const income = Math.floor(bizData.incomePerHour * hoursPassed);
           
-          if (usersSnap.empty) {
-            alert('Пользователь не найден');
-            return;
+          if (income > 0) {
+            totalIncome += income;
+            batch.update(doc.ref, { 
+              lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+            });
           }
-          
-          const targetUser = usersSnap.docs[0];
-          
-          await db.collection('deals').add({
-            fromUid: currentUser.uid,
-            toUid: targetUser.id,
-            bizId: currentSellBizId,
-            price: price,
-            state: 'pending',
-            seen: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          alert('Предложение отправлено!');
-          document.getElementById('sell-modal').classList.add('hidden');
-          currentSellBizId = null;
-          document.getElementById('sell-username').value = '';
-          document.getElementById('sell-price').value = '';
-        } catch (err) {
-          alert('Ошибка: ' + err.message);
-        }
-      });
-
-      // Собрать доход со всех бизнесов
-      document.getElementById('collect-all').addEventListener('click', async () => {
-        if (!currentUser) {
-          alert('Войдите в систему');
+        });
+        
+        if (totalIncome <= 0) {
+          alert('Нет накопленного дохода');
           return;
         }
         
-        try {
-          const snaps = await db.collection('businesses').where('ownerUid', '==', currentUser.uid).get();
-          let totalIncome = 0;
-          const batch = db.batch();
-          const userRef = db.collection('users').doc(currentUser.uid);
-          
-          snaps.forEach(doc => {
-            const bizData = doc.data();
-            const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : new Date();
-            const now = new Date();
-            const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
-            const income = Math.floor(bizData.incomePerHour * hoursPassed);
+        batch.update(userRef, { 
+          balance: firebase.firestore.FieldValue.increment(totalIncome) 
+        });
+        
+        await batch.commit();
+        alert(`Собрано: ${totalIncome} ₽`);
+        await refreshUserDoc();
+        await renderMyBusinesses();
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
+
+    // Рендер рейтинга
+    async function renderRating() {
+      const el = document.getElementById('rating-list');
+      el.innerHTML = '<div class="muted">Загрузка рейтинга...</div>';
+      
+      try {
+        const snaps = await db.collection('users').orderBy('balance', 'desc').limit(100).get();
+        const users = [];
+        
+        snaps.forEach(doc => {
+          const userData = doc.data();
+          if (userData.username && userData.balance !== undefined) {
+            users.push({
+              username: userData.username,
+              balance: userData.balance || 0,
+              email: userData.email || ''
+            });
+          }
+        });
+        
+        if (users.length === 0) {
+          el.innerHTML = '<div class="muted">Нет данных для рейтинга</div>';
+          return;
+        }
+        
+        el.innerHTML = '';
+        users.forEach((user, index) => {
+          const div = document.createElement('div');
+          div.className = 'card';
+          div.innerHTML = `
+            <strong>#${index + 1} ${user.username}</strong>
+            <div class="muted small">Баланс: ${user.balance} ₽</div>
+            ${user.email ? `<div class="muted small">${user.email}</div>` : ''}
+          `;
+          el.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки рейтинга:', error);
+        el.innerHTML = '<div class="muted">Ошибка загрузки рейтинга</div>';
+      }
+    }
+
+    // Кликер
+    async function renderClicker() {
+      if (!currentUser) return;
+      
+      document.getElementById('clicker-amount').innerText = currentUserDoc.clickerAmount || 0;
+      document.getElementById('total-clicks').innerText = currentUserDoc.totalClicks || 0;
+      document.getElementById('daily-clicks').innerText = currentUserDoc.questProgress?.dailyClicks || 0;
+    }
+
+    document.getElementById('clicker-button').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      try {
+        const userRef = db.collection('users').doc(currentUser.uid);
+        await userRef.update({
+          clickerAmount: firebase.firestore.FieldValue.increment(5),
+          totalClicks: firebase.firestore.FieldValue.increment(1),
+          'questProgress.dailyClicks': firebase.firestore.FieldValue.increment(1)
+        });
+        
+        await refreshUserDoc();
+        await renderClicker();
+        await checkAchievements();
+        await checkQuests();
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
+
+    document.getElementById('clicker-collect').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      if (!currentUserDoc.clickerAmount || currentUserDoc.clickerAmount <= 0) {
+        alert('Нечего забирать');
+        return;
+      }
+      
+      try {
+        const userRef = db.collection('users').doc(currentUser.uid);
+        await userRef.update({
+          balance: firebase.firestore.FieldValue.increment(currentUserDoc.clickerAmount),
+          clickerAmount: 0
+        });
+        
+        alert(`Забрано ${currentUserDoc.clickerAmount} ₽!`);
+        await refreshUserDoc();
+        await renderClicker();
+        await checkAchievements();
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
+
+    // Задания
+    async function renderQuests() {
+      const list = document.getElementById('quests-list');
+      list.innerHTML = '';
+      
+      if (!currentUser) {
+        list.innerHTML = '<div class="muted">Войдите чтобы увидеть задания</div>';
+        return;
+      }
+      
+      const progress = currentUserDoc.questProgress?.dailyClicks || 0;
+      const completed = currentUserDoc.achievements?.dailyQuest || false;
+      
+      const questCard = document.createElement('div');
+      questCard.className = 'card';
+      questCard.innerHTML = `
+        <h3>Ежедневное задание</h3>
+        <p>Сделайте 100 кликов в разделе "Подработка"</p>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+        </div>
+        <div class="muted small">Прогресс: ${progress}/100 кликов</div>
+        ${completed ? 
+          '<div class="btn" style="background:rgba(15,180,139,0.9);">Задание выполнено!</div>' : 
+          (progress >= 100 ? 
+            '<button class="btn" id="claim-quest">Забрать награду (10,000 ₽)</button>' : 
+            '<div class="muted">Задание еще не выполнено</div>'
+          )
+        }
+      `;
+      
+      list.appendChild(questCard);
+      
+      if (progress >= 100 && !completed) {
+        document.getElementById('claim-quest').addEventListener('click', async () => {
+          try {
+            const userRef = db.collection('users').doc(currentUser.uid);
+            await userRef.update({
+              balance: firebase.firestore.FieldValue.increment(10000),
+              'achievements.dailyQuest': true
+            });
             
-            if (income > 0) {
-              totalIncome += income;
-              batch.update(doc.ref, { 
-                lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
-              });
-            }
-          });
-          
-          if (totalIncome <= 0) {
-            alert('Нет накопленного дохода');
-            return;
+            alert('Награда получена: 10,000 ₽!');
+            await refreshUserDoc();
+            await renderQuests();
+          } catch (err) {
+            alert('Ошибка: ' + err.message);
           }
-          
-          batch.update(userRef, { 
-            balance: firebase.firestore.FieldValue.increment(totalIncome) 
-          });
-          
-          await batch.commit();
-          alert(`Собрано: ${totalIncome} ₽`);
-          await refreshUserDoc();
-          await renderMyBusinesses();
-        } catch (err) {
-          alert('Ошибка: ' + err.message);
-        }
-      });
-
-      // Рендер рейтинга
-      async function renderRating() {
-        const el = document.getElementById('rating-list');
-        el.innerHTML = '<div class="muted">Загрузка рейтинга...</div>';
-        
-        try {
-          const snaps = await db.collection('users').orderBy('balance', 'desc').limit(100).get();
-          const users = [];
-          
-          snaps.forEach(doc => {
-            const userData = doc.data();
-            if (userData.username && userData.balance !== undefined) {
-              users.push({
-                username: userData.username,
-                balance: userData.balance || 0,
-                email: userData.email || ''
-              });
-            }
-          });
-          
-          if (users.length === 0) {
-            el.innerHTML = '<div class="muted">Нет данных для рейтинга</div>';
-            return;
-          }
-          
-          el.innerHTML = '';
-          users.forEach((user, index) => {
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.innerHTML = `
-              <strong>#${index + 1} ${user.username}</strong>
-              <div class="muted small">Баланс: ${user.balance} ₽</div>
-              ${user.email ? `<div class="muted small">${user.email}</div>` : ''}
-            `;
-            el.appendChild(div);
-          });
-        } catch (error) {
-          console.error('Ошибка загрузки рейтинга:', error);
-          el.innerHTML = '<div class="muted">Ошибка загрузки рейтинга</div>';
-        }
+        });
       }
+    }
 
-      // Кликер
-      async function renderClicker() {
-        if (!currentUser) return;
-        
-        document.getElementById('clicker-amount').innerText = currentUserDoc.clickerAmount || 0;
-        document.getElementById('total-clicks').innerText = currentUserDoc.totalClicks || 0;
-        document.getElementById('daily-clicks').innerText = currentUserDoc.questProgress?.dailyClicks || 0;
+    // Достижения
+    async function renderAchievements() {
+      const list = document.getElementById('achievements-list');
+      list.innerHTML = '';
+      
+      if (!currentUser) {
+        list.innerHTML = '<div class="muted">Войдите чтобы увидеть достижения</div>';
+        return;
       }
-
-      document.getElementById('clicker-button').addEventListener('click', async () => {
-        if (!currentUser) {
-          alert('Войдите в систему');
-          return;
+      
+      const totalClicks = currentUserDoc.totalClicks || 0;
+      const thousandCompleted = currentUserDoc.achievements?.thousandClicks || false;
+      
+      const achievements = [
+        {
+          id: 'thousandClicks',
+          title: 'Мастер кликов',
+          description: 'Сделайте 1000 кликов в разделе "Подработка"',
+          reward: '50,000 ₽',
+          progress: totalClicks,
+          target: 1000,
+          completed: thousandCompleted
         }
-        
-        try {
-          const userRef = db.collection('users').doc(currentUser.uid);
-          await userRef.update({
-            clickerAmount: firebase.firestore.FieldValue.increment(5),
-            totalClicks: firebase.firestore.FieldValue.increment(1),
-            'questProgress.dailyClicks': firebase.firestore.FieldValue.increment(1)
-          });
-          
-          await refreshUserDoc();
-          await renderClicker();
-          await checkAchievements();
-          await checkQuests();
-        } catch (err) {
-          alert('Ошибка: ' + err.message);
-        }
-      });
-
-      document.getElementById('clicker-collect').addEventListener('click', async () => {
-        if (!currentUser) {
-          alert('Войдите в систему');
-          return;
-        }
-        
-        if (!currentUserDoc.clickerAmount || currentUserDoc.clickerAmount <= 0) {
-          alert('Нечего забирать');
-          return;
-        }
-        
-        try {
-          const userRef = db.collection('users').doc(currentUser.uid);
-          await userRef.update({
-            balance: firebase.firestore.FieldValue.increment(currentUserDoc.clickerAmount),
-            clickerAmount: 0
-          });
-          
-          alert(`Забрано ${currentUserDoc.clickerAmount} ₽!`);
-          await refreshUserDoc();
-          await renderClicker();
-          await checkAchievements();
-        } catch (err) {
-          alert('Ошибка: ' + err.message);
-        }
-      });
-
-      // Задания
-      async function renderQuests() {
-        const list = document.getElementById('quests-list');
-        list.innerHTML = '';
-        
-        if (!currentUser) {
-          list.innerHTML = '<div class="muted">Войдите чтобы увидеть задания</div>';
-          return;
-        }
-        
-        const progress = currentUserDoc.questProgress?.dailyClicks || 0;
-        const completed = currentUserDoc.achievements?.dailyQuest || false;
-        
-        const questCard = document.createElement('div');
-        questCard.className = 'card';
-        questCard.innerHTML = `
-          <h3>Ежедневное задание</h3>
-          <p>Сделайте 100 кликов в разделе "Подработка"</p>
+      ];
+      
+      achievements.forEach(achievement => {
+        const achievementCard = document.createElement('div');
+        achievementCard.className = `achievement-card ${achievement.completed ? '' : 'achievement-locked'}`;
+        achievementCard.innerHTML = `
+          <h3>${achievement.title}</h3>
+          <p>${achievement.description}</p>
           <div class="progress-bar">
-            <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+            <div class="progress-fill" style="width: ${Math.min((achievement.progress / achievement.target) * 100, 100)}%"></div>
           </div>
-          <div class="muted small">Прогресс: ${progress}/100 кликов</div>
-          ${completed ? 
-            '<div class="btn" style="background:rgba(15,180,139,0.9);">Задание выполнено!</div>' : 
-            (progress >= 100 ? 
-              '<button class="btn" id="claim-quest">Забрать награду (10,000 ₽)</button>' : 
-              '<div class="muted">Задание еще не выполнено</div>'
+          <div class="muted small">Прогресс: ${achievement.progress}/${achievement.target}</div>
+          <div class="muted small">Награда: ${achievement.reward}</div>
+          ${achievement.completed ? 
+            '<div class="btn" style="background:rgba(15,180,139,0.9);margin-top:8px">Достижение получено!</div>' : 
+            (achievement.progress >= achievement.target ? 
+              '<button class="btn" data-achievement="thousandClicks">Забрать награду</button>' : 
+              '<div class="muted">Достижение еще не получено</div>'
             )
           }
         `;
         
-        list.appendChild(questCard);
-        
-        if (progress >= 100 && !completed) {
-          document.getElementById('claim-quest').addEventListener('click', async () => {
+        list.appendChild(achievementCard);
+      });
+
+      // Обработка получения награды
+      document.querySelectorAll('[data-achievement]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const achievementId = btn.dataset.achievement;
+          
+          if (achievementId === 'thousandClicks') {
             try {
               const userRef = db.collection('users').doc(currentUser.uid);
               await userRef.update({
-                balance: firebase.firestore.FieldValue.increment(10000),
-                'achievements.dailyQuest': true
+                balance: firebase.firestore.FieldValue.increment(50000),
+                'achievements.thousandClicks': true
               });
               
-              alert('Награда получена: 10,000 ₽!');
+              alert('Награда получена: 50,000 ₽!');
               await refreshUserDoc();
-              await renderQuests();
+              await renderAchievements();
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          }
+        });
+      });
+    }
+
+    // Промокоды
+    async function renderPromocodes() {
+      const list = document.getElementById('promocodes-list');
+      list.innerHTML = '';
+      
+      if (!currentUser) {
+        list.innerHTML = '<div class="muted">Войдите чтобы использовать промокоды</div>';
+        return;
+      }
+      
+      try {
+        const snaps = await db.collection('promocodes').get();
+        if (!snaps.empty) {
+          const availablePromos = document.createElement('div');
+          availablePromos.className = 'card';
+          availablePromos.innerHTML = '<h3>Доступные промокоды</h3>';
+          
+          snaps.forEach(doc => {
+            const promo = doc.data();
+            const used = currentUserDoc.usedPromocodes?.includes(doc.id) || false;
+            
+            const promoEl = document.createElement('div');
+            promoEl.className = `muted small ${used ? 'achievement-locked' : ''}`;
+            promoEl.innerHTML = `
+              <strong>${promo.code}</strong> - ${promo.amount} ₽
+              ${used ? '(использован)' : ''}
+            `;
+            availablePromos.appendChild(promoEl);
+          });
+          
+          list.appendChild(availablePromos);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки промокодов:', error);
+      }
+    }
+
+    document.getElementById('promocode-activate').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      const code = document.getElementById('promocode-input').value.trim().toUpperCase();
+      
+      if (!code) {
+        alert('Введите промокод');
+        return;
+      }
+      
+      try {
+        const promoSnap = await db.collection('promocodes').doc(code).get();
+        
+        if (!promoSnap.exists) {
+          alert('Промокод не найден');
+          return;
+        }
+        
+        const promo = promoSnap.data();
+        
+        if (currentUserDoc.usedPromocodes?.includes(code)) {
+          alert('Вы уже использовали этот промокод');
+          return;
+        }
+        
+        if (promo.uses <= 0) {
+          alert('Промокод больше не действителен');
+          return;
+        }
+        
+        // Активируем промокод
+        const userRef = db.collection('users').doc(currentUser.uid);
+        const promoRef = db.collection('promocodes').doc(code);
+        
+        await db.runTransaction(async (tx) => {
+          const userDoc = await tx.get(userRef);
+          const promoDoc = await tx.get(promoRef);
+          
+          if (!userDoc.exists || !promoDoc.exists) throw new Error('Ошибка активации');
+          
+          const userData = userDoc.data();
+          const promoData = promoDoc.data();
+          
+          if (userData.usedPromocodes?.includes(code)) throw new Error('Промокод уже использован');
+          if (promoData.uses <= 0) throw new Error('Промокод не действителен');
+          
+          tx.update(userRef, {
+            balance: firebase.firestore.FieldValue.increment(promoData.amount),
+            usedPromocodes: firebase.firestore.FieldValue.arrayUnion(code)
+          });
+          
+          tx.update(promoRef, {
+            uses: firebase.firestore.FieldValue.increment(-1),
+            usedBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+          });
+        });
+        
+        alert(`Промокод активирован! Получено ${promo.amount} ₽`);
+        document.getElementById('promocode-input').value = '';
+        await refreshUserDoc();
+        await renderPromocodes();
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
+      }
+    });
+
+    // Админ: создание промокода
+    document.getElementById('admin-create-promo').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
+        alert('Доступно только администратору');
+        return;
+      }
+      
+      const code = document.getElementById('admin-promo-code').value.trim().toUpperCase();
+      const amount = parseInt(document.getElementById('admin-promo-amount').value);
+      const uses = parseInt(document.getElementById('admin-promo-uses').value);
+      
+      if (!code || isNaN(amount) || isNaN(uses) || amount <= 0 || uses <= 0) {
+        alert('Заполните все поля корректно');
+        return;
+      }
+      
+      try {
+        await db.collection('promocodes').doc(code).set({
+          code: code,
+          amount: amount,
+          uses: uses,
+          createdBy: currentUser.uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          usedBy: []
+        });
+        
+        alert('Промокод создан!');
+        document.getElementById('admin-promo-code').value = '';
+        document.getElementById('admin-promo-amount').value = '';
+        document.getElementById('admin-promo-uses').value = '1';
+      } catch (err) {
+        alert('Ошибка создания: ' + err.message);
+      }
+    });
+
+    // Админ: удаление промокода
+    document.getElementById('admin-delete-promo').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
+        alert('Доступно только администратору');
+        return;
+      }
+      
+      const code = document.getElementById('admin-promo-code').value.trim().toUpperCase();
+      
+      if (!code) {
+        alert('Введите код промокода для удаления');
+        return;
+      }
+      
+      if (!confirm(`Удалить промокод ${code}?`)) return;
+        
+      try {
+        await db.collection('promocodes').doc(code).delete();
+        alert('Промокод удален!');
+        document.getElementById('admin-promo-code').value = '';
+      } catch (err) {
+        alert('Ошибка удаления: ' + err.message);
+      }
+    });
+
+    // Админ: список всех игроков
+    async function renderAdminUsers() {
+      const list = document.getElementById('admin-users-list');
+      list.innerHTML = '<div class="muted">Загрузка игроков...</div>';
+      
+      try {
+        const snaps = await db.collection('users').get();
+        
+        if (snaps.empty) {
+          list.innerHTML = '<div class="muted">Нет зарегистрированных игроков</div>';
+          return;
+        }
+        
+        const table = document.createElement('table');
+        table.className = 'admin-table';
+        table.innerHTML = `
+          <tr>
+            <th>Никнейм</th>
+            <th>Email</th>
+            <th>Кодовое слово</th>
+            <th>Баланс</th>
+            <th>Кликов</th>
+          </tr>
+        `;
+        
+        snaps.forEach(doc => {
+          const user = doc.data();
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${user.username || 'Не указан'}</td>
+            <td>${user.email || 'Не указан'}</td>
+            <td>${user.codeword || 'Не указан'}</td>
+            <td>${user.balance || 0} ₽</td>
+            <td>${user.totalClicks || 0}</td>
+          `;
+          table.appendChild(row);
+        });
+        
+        list.innerHTML = '';
+        list.appendChild(table);
+      } catch (error) {
+        console.error('Ошибка загрузки пользователей:', error);
+        list.innerHTML = '<div class="muted">Ошибка загрузки пользователей</div>';
+      }
+    }
+
+    // Админ: поиск игроков
+    document.getElementById('admin-search-btn').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
+        alert('Доступно только администратору');
+        return;
+      }
+      
+      const query = document.getElementById('admin-search-user').value.trim().toLowerCase();
+      
+      if (!query) {
+        await renderAdminUsers();
+        return;
+      }
+      
+      const list = document.getElementById('admin-users-list');
+      list.innerHTML = '<div class="muted">Поиск...</div>';
+      
+      try {
+        const snaps = await db.collection('users').get();
+        const results = [];
+        
+        snaps.forEach(doc => {
+          const user = doc.data();
+          if (user.username && (
+            user.username.toLowerCase().includes(query) ||
+            (user.email && user.email.toLowerCase().includes(query)) ||
+            (user.codeword && user.codeword.toLowerCase().includes(query))
+          )) {
+            results.push(user);
+          }
+        });
+        
+        if (results.length === 0) {
+          list.innerHTML = '<div class="muted">Игроки не найдены</div>';
+          return;
+        }
+        
+        const table = document.createElement('table');
+        table.className = 'admin-table';
+        table.innerHTML = `
+          <tr>
+            <th>Никнейм</th>
+            <th>Email</th>
+            <th>Кодовое слово</th>
+            <th>Баланс</th>
+            <th>Кликов</th>
+          </tr>
+        `;
+        
+        results.forEach(user => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${user.username || 'Не указан'}</td>
+            <td>${user.email || 'Не указан'}</td>
+            <td>${user.codeword || 'Не указан'}</td>
+            <td>${user.balance || 0} ₽</td>
+            <td>${user.totalClicks || 0}</td>
+          `;
+          table.appendChild(row);
+        });
+        
+        list.innerHTML = '';
+        list.appendChild(table);
+      } catch (error) {
+        console.error('Ошибка поиска:', error);
+        list.innerHTML = '<div class="muted">Ошибка поиска</div>';
+      }
+    });
+
+    // Проверка достижений
+    async function checkAchievements() {
+      if (!currentUser) return;
+      
+      const totalClicks = currentUserDoc.totalClicks || 0;
+      
+      if (totalClicks >= 1000 && !currentUserDoc.achievements?.thousandClicks) {
+        try {
+          const userRef = db.collection('users').doc(currentUser.uid);
+          await userRef.update({
+            'achievements.thousandClicks': true
+          });
+          await refreshUserDoc();
+        } catch (err) {
+          console.error('Ошибка выдачи достижения:', err);
+        }
+      }
+    }
+
+    // Проверка заданий
+    async function checkQuests() {
+      if (!currentUser) return;
+      
+      const dailyClicks = currentUserDoc.questProgress?.dailyClicks || 0;
+      
+      if (dailyClicks >= 100 && !currentUserDoc.achievements?.dailyQuest) {
+        await refreshUserDoc();
+        await renderQuests();
+      }
+    }
+
+    // Добавление новостей
+    document.getElementById('news-add').addEventListener('click', async () => {
+      if (!currentUser) {
+        alert('Войдите в систему');
+        return;
+      }
+      
+      if (!isAdminUser(currentUserDoc, currentUser)) {
+        alert('Только администратор может публиковать новости');
+        return;
+      }
+      
+      const title = document.getElementById('news-title').value.trim();
+      const content = document.getElementById('news-content').value.trim();
+      
+      if (!title || !content) {
+        alert('Заполните заголовок и текст новости');
+        return;
+      }
+      
+      try {
+        await db.collection('news').add({
+          title,
+          content,
+          author: currentUserDoc.username || currentUser.email || 'admin',
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        document.getElementById('news-title').value = '';
+        document.getElementById('news-content').value = '';
+        alert('Новость опубликована');
+        await renderNews();
+      } catch (err) {
+        alert('Ошибка публикации: ' + err.message);
+      }
+    });
+
+    // Отслеживание новостей в реальном времени
+    function setupNewsListener() {
+      return db.collection('news')
+        .orderBy('timestamp', 'desc')
+        .onSnapshot((snap) => {
+          const el = document.getElementById('news-list');
+          el.innerHTML = '';
+          
+          snap.forEach((doc) => {
+            const news = doc.data();
+            const time = news.timestamp ? news.timestamp.toDate().toLocaleString() : '';
+            
+            const div = document.createElement('div');
+            div.className = 'news-item';
+            div.innerHTML = `
+              <strong>${news.title}</strong>
+              <div class="muted small">${news.author} • ${time}</div>
+              <div style="margin-top:8px">${news.content}</div>
+            `;
+            
+            el.appendChild(div);
+          });
+        });
+    }
+
+    // Рендер новостей
+    async function renderNews() {
+      const el = document.getElementById('news-list');
+      el.innerHTML = '<div class="muted">Загрузка новостей...</div>';
+      
+      try {
+        const snaps = await db.collection('news').orderBy('timestamp', 'desc').get();
+        el.innerHTML = '';
+        
+        snaps.forEach((doc) => {
+          const news = doc.data();
+          const time = news.timestamp ? news.timestamp.toDate().toLocaleString() : '';
+          
+          const div = document.createElement('div');
+          div.className = 'news-item';
+          div.innerHTML = `
+            <strong>${news.title}</strong>
+            <div class="muted small">${news.author} • ${time}</div>
+            <div style="margin-top:8px">${news.content}</div>
+          `;
+          
+          el.appendChild(div);
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки новостей:', error);
+        el.innerHTML = '<div class="muted">Ошибка загрузки новостей</div>';
+      }
+    }
+
+    // Поиск бизнеса
+    document.getElementById('search-btn').addEventListener('click', async () => {
+      const query = document.getElementById('search-biz').value.trim().toLowerCase();
+      
+      if (!query) {
+        await renderShop();
+        return;
+      }
+      
+      const list = document.getElementById('shop-list');
+      list.innerHTML = '';
+      
+      try {
+        const snaps = await db.collection('businesses').get();
+        let found = false;
+        
+        snaps.forEach(doc => {
+          const biz = doc.data();
+          biz.id = doc.id;
+          
+          if (biz.name.toLowerCase().includes(query)) {
+            found = true;
+            
+            const el = document.createElement('div');
+            el.className = 'biz-card';
+            
+            const ownerText = biz.ownerUid ? 
+              '<div class="muted small">Занят</div>' : 
+              `<button class="btn buy-btn" data-id="${biz.id}">Купить</button>`;
+            
+            el.innerHTML = `
+              <div style="display:flex;gap:12px;align-items:center">
+                <img src="${biz.icon || 'https://via.placeholder.com/64/0fb48b/ffffff?text=B'}" width="64" height="64" style="border-radius:8px;object-fit:cover" />
+                <div style="flex:1">
+                  <strong>${biz.name}</strong>
+                  <div class="muted small">Доход/ч: ${biz.incomePerHour} • Цена: ${biz.price} ₽</div>
+                </div>
+                <div>${ownerText}</div>
+              </div>
+            `;
+            
+            list.appendChild(el);
+          }
+        });
+        
+        if (!found) {
+          list.innerHTML = '<div class="muted">Бизнесы не найдены</div>';
+        } else {
+          // Добавляем обработчики для кнопок покупки
+          document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const id = e.currentTarget.dataset.id;
+              
+              if (!currentUser) {
+                alert('Войдите в систему');
+                return;
+              }
+              
+              const bizRef = db.collection('businesses').doc(id);
+              
+              try {
+                await db.runTransaction(async (tx) => {
+                  const bizDoc = await tx.get(bizRef);
+                  
+                  if (!bizDoc.exists) throw new Error('Бизнес не найден');
+                  
+                  const bizData = bizDoc.data();
+                  
+                  if (bizData.ownerUid) throw new Error('Бизнес уже куплен');
+                  
+                  const userRef = db.collection('users').doc(currentUser.uid);
+                  const userDoc = await tx.get(userRef);
+                  const userData = userDoc.data();
+                  
+                  if (userData.balance < bizData.price) throw new Error('Недостаточно средств');
+                  
+                  tx.update(userRef, { 
+                    balance: firebase.firestore.FieldValue.increment(-bizData.price) 
+                  });
+                  
+                  tx.update(bizRef, { 
+                    ownerUid: currentUser.uid, 
+                    lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                  });
+                });
+                
+                alert('Покупка успешна!');
+                await refreshUserDoc();
+                await renderShop();
+                await renderMyBusinesses();
+                await renderRating();
+              } catch (err) {
+                alert('Ошибка: ' + err.message);
+              }
+            });
+          });
+        }
+      } catch (error) {
+        console.error('Ошибка поиска:', error);
+        list.innerHTML = '<div class="muted">Ошибка поиска</div>';
+      }
+    });
+
+    // Админ: создание бизнеса
+    document.getElementById('admin-create-biz').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
+        alert('Доступно только администратору');
+        return;
+      }
+      
+      const name = document.getElementById('admin-biz-name').value.trim();
+      const price = parseInt(document.getElementById('admin-biz-price').value);
+      const income = parseInt(document.getElementById('admin-biz-income').value);
+      const icon = document.getElementById('admin-biz-icon').value.trim();
+      
+      if (!name || isNaN(price) || isNaN(income) || price <= 0 || income <= 0) {
+        alert('Заполните все поля корректно');
+        return;
+      }
+      
+      try {
+        await db.collection('businesses').add({
+          name,
+          price,
+          incomePerHour: income,
+          ownerUid: null,
+          icon: icon || '',
+          lastCollectedAt: null
+        });
+        
+        alert('Бизнес создан');
+        
+        // Очищаем поля
+        document.getElementById('admin-biz-name').value = '';
+        document.getElementById('admin-biz-price').value = '';
+        document.getElementById('admin-biz-income').value = '';
+        document.getElementById('admin-biz-icon').value = '';
+        
+        await renderShop();
+      } catch (err) {
+        alert('Ошибка создания: ' + err.message);
+      }
+    });
+
+    // Обновление данных пользователя
+    async function refreshUserDoc() {
+      if (!currentUser) return;
+      
+      try {
+        const userSnap = await db.collection('users').doc(currentUser.uid).get();
+        
+        if (userSnap.exists) {
+          currentUserDoc = userSnap.data();
+          
+          // Обновляем UI
+          document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
+          document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
+        }
+      } catch (error) {
+        console.error('Ошибка обновления данных пользователя:', error);
+      }
+    }
+
+    // Создание демо-бизнесов при первом запуске
+    (async function ensureDemoBusinesses() {
+      try {
+        const bizSnap = await db.collection('businesses').limit(1).get();
+        
+        if (bizSnap.empty) {
+          // Создаем демо-бизнесы
+          const demoBusinesses = [
+            { name: 'Магазин "У дома"', price: 5000, incomePerHour: 50, ownerUid: null, icon: '', lastCollectedAt: null },
+            { name: 'Кинотеатр "Галактика"', price: 20000, incomePerHour: 300, ownerUid: null, icon: '', lastCollectedAt: null },
+            { name: 'Кафе "Бочка"', price: 8000, incomePerHour: 80, ownerUid: null, icon: '', lastCollectedAt: null },
+            { name: 'Автосервис', price: 15000, incomePerHour: 150, ownerUid: null, icon: '', lastCollectedAt: null },
+            { name: 'Салон красоты', price: 12000, incomePerHour: 120, ownerUid: null, icon: '', lastCollectedAt: null }
+          ];
+          
+          for (const biz of demoBusinesses) {
+            await db.collection('businesses').add(biz);
+          }
+          
+          console.log('Демо-бизнесы созданы');
+        }
+      } catch (error) {
+        console.error('Ошибка создания демо-бизнесов:', error);
+      }
+    })();
+
+    // Рендер магазина
+    async function renderShop() {
+      const list = document.getElementById('shop-list');
+      list.innerHTML = '';
+      
+      try {
+        const snaps = await db.collection('businesses').orderBy('name').get();
+        
+        if (snaps.empty) {
+          list.innerHTML = '<div class="muted">Нет доступных бизнесов</div>';
+          return;
+        }
+        
+        snaps.forEach(doc => {
+          const biz = doc.data();
+          biz.id = doc.id;
+          
+          const el = document.createElement('div');
+          el.className = 'biz-card';
+          
+          const ownerText = biz.ownerUid ? 
+            '<div class="muted small">Занят</div>' : 
+            `<button class="btn buy-btn" data-id="${biz.id}">Купить</button>`;
+          
+          el.innerHTML = `
+            <div style="display:flex;gap:12px;align-items:center">
+              <img src="${biz.icon || 'https://via.placeholder.com/64/0fb48b/ffffff?text=B'}" width="64" height="64" style="border-radius:8px;object-fit:cover" />
+              <div style="flex:1">
+                <strong>${biz.name}</strong>
+                <div class="muted small">Доход/ч: ${biz.incomePerHour} • Цена: ${biz.price} ₽</div>
+              </div>
+              <div>${ownerText}</div>
+            </div>
+          `;
+          
+          list.appendChild(el);
+        });
+        
+        // Обработка покупки
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            
+            if (!currentUser) {
+              alert('Войдите в систему');
+              return;
+            }
+            
+            const bizRef = db.collection('businesses').doc(id);
+            
+            try {
+              await db.runTransaction(async (tx) => {
+                const bizDoc = await tx.get(bizRef);
+                
+                if (!bizDoc.exists) throw new Error('Бизнес не найден');
+                
+                const bizData = bizDoc.data();
+                
+                if (bizData.ownerUid) throw new Error('Бизнес уже куплен');
+                
+                const userRef = db.collection('users').doc(currentUser.uid);
+                const userDoc = await tx.get(userRef);
+                const userData = userDoc.data();
+                
+                if (userData.balance < bizData.price) throw new Error('Недостаточно средств');
+                
+                tx.update(userRef, { 
+                  balance: firebase.firestore.FieldValue.increment(-bizData.price) 
+                });
+                
+                tx.update(bizRef, { 
+                  ownerUid: currentUser.uid, 
+                  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                });
+              });
+              
+              alert('Покупка успешна!');
+              await refreshUserDoc();
+              await renderShop();
+              await renderMyBusinesses();
+              await renderRating();
             } catch (err) {
               alert('Ошибка: ' + err.message);
             }
           });
-        }
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки магазина:', error);
+        list.innerHTML = '<div class="muted">Ошибка загрузки магазина</div>';
       }
+    }
 
-      // Достижения
-      async function renderAchievements() {
-        const list = document.getElementById('achievements-list');
-        list.innerHTML = '';
+    // Рендер моих бизнесов
+    async function renderMyBusinesses() {
+      const list = document.getElementById('my-list');
+      list.innerHTML = '';
+      
+      if (!currentUser) {
+        list.innerHTML = '<div class="muted">Войдите чтобы увидеть свои бизнесы</div>';
+        return;
+      }
+      
+      try {
+        const snaps = await db.collection('businesses').where('ownerUid', '==', currentUser.uid).get();
         
-        if (!currentUser) {
-          list.innerHTML = '<div class="muted">Войдите чтобы увидеть достижения</div>';
+        if (snaps.empty) {
+          list.innerHTML = '<div class="muted">У вас нет бизнесов</div>';
           return;
         }
         
-        const totalClicks = currentUserDoc.totalClicks || 0;
-        const thousandCompleted = currentUserDoc.achievements?.thousandClicks || false;
+        snaps.forEach(doc => {
+          const biz = doc.data();
+          biz.id = doc.id;
+          
+          const lastCollected = biz.lastCollectedAt ? biz.lastCollectedAt.toDate() : new Date();
+          const now = new Date();
+          const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
+          const pendingIncome = Math.floor(biz.incomePerHour * hoursPassed);
+          
+          const el = document.createElement('div');
+          el.className = 'biz-card';
+          
+          el.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <strong>${biz.name}</strong>
+                <div class="muted small">Доход/ч: ${biz.incomePerHour} • Накоплено: ${pendingIncome} ₽</div>
+              </div>
+              <div class="flex">
+                <button class="btn collect-btn" data-id="${biz.id}">Собрать</button>
+                <button class="btn sell-gov" data-id="${biz.id}" style="background:rgba(200,60,60,0.9);margin-left:6px">Продать гос.</button>
+                <button class="btn sell-player" data-id="${biz.id}" style="background:rgba(120,120,120,0.9);margin-left:6px">Продать игроку</button>
+              </div>
+            </div>
+          `;
+          
+          list.appendChild(el);
+        });
         
-        const achievements = [
-          {
-            id: 'thousandClicks',
-            title: 'Мастер кликов',
-            description: 'Сделайте 1000 кликов в разделе "Подработка"',
-            reward: '50,000 ₽',
-            progress: totalClicks,
-            target: 1000,
-            completed: thousandCompleted
-          }
-        ];
+        // Обработка сбора дохода
+        document.querySelectorAll('.collect-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            
+            if (!currentUser) {
+              alert('Войдите в систему');
+              return;
+            }
+            
+            const bizRef = db.collection('businesses').doc(id);
+            
+            try {
+              await db.runTransaction(async (tx) => {
+                const bizDoc = await tx.get(bizRef);
+                
+                if (!bizDoc.exists) throw new Error('Бизнес не найден');
+                
+                const bizData = bizDoc.data();
+                
+                if (bizData.ownerUid !== currentUser.uid) throw new Error('Вы не владелец этого бизнеса');
+                
+                const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : new Date();
+                const now = new Date();
+                const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
+                const income = Math.floor(bizData.incomePerHour * hoursPassed);
+                
+                if (income <= 0) throw new Error('Нет накопленного дохода');
+                
+                const userRef = db.collection('users').doc(currentUser.uid);
+                
+                tx.update(userRef, { 
+                  balance: firebase.firestore.FieldValue.increment(income) 
+                });
+                
+                tx.update(bizRef, { 
+                  lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                });
+              });
+              
+              alert('Доход собран!');
+              await refreshUserDoc();
+              await renderMyBusinesses();
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          });
+        });
         
-        achievements.forEach(achievement => {
-		const achievementCard = document.createElement('div');
-		achievementCard.className = `achievement-card ${achievement.completed ? '' : 'achievement-locked'}`;
-		achievementCard.innerHTML = `
-			<h3>${achievement.title}</h3>
-			<p>${achievement.description}</p>
-			<div class="progress-bar">
-				<div class="progress-fill" style="width: ${Math.min((achievement.progress / achievement.target) * 100, 100)}%"></div>
-			</div>
-			<div class="muted small">Прогресс: ${achievement.progress}/${achievement.target}</div>
-			<div class="muted small">Награда: ${achievement.reward}</div>
-			${achievement.completed ? 
-				'<div class="btn" style="background:rgba(15,180,139,0.9);margin-top:8px">Достижение получено!</div>' : 
-				(achievement.progress >= achievement.target ? 
-					'<button class="btn" data-achievement="thousandClicks">Забрать награду</button>' : 
-					'<div class="muted">Достижение еще не получено</div>'
-				)
-			}
-		`;
-		
-		list.appendChild(achievementCard);
-	});
+        // Обработка продажи государству
+        document.querySelectorAll('.sell-gov').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.target.dataset.id;
+            
+            if (!confirm('Продать государству? Вы получите 70% от цены.')) return;
+            
+            const bizRef = db.collection('businesses').doc(id);
+            
+            try {
+              await db.runTransaction(async (tx) => {
+                const bizDoc = await tx.get(bizRef);
+                
+                if (!bizDoc.exists) throw new Error('Бизнес не найден');
+                
+                const bizData = bizDoc.data();
+                
+                if (bizData.ownerUid !== currentUser.uid) throw new Error('Вы не владелец этого бизнеса');
+                
+                const salePrice = Math.floor(bizData.price * 0.7);
+                const userRef = db.collection('users').doc(currentUser.uid);
+                
+                tx.update(userRef, { 
+                  balance: firebase.firestore.FieldValue.increment(salePrice) 
+                });
+                
+                tx.update(bizRef, { 
+                  ownerUid: null, 
+                  lastCollectedAt: null 
+                });
+              });
+              
+              alert('Бизнес продан государству!');
+              await refreshUserDoc();
+              await renderShop();
+              await renderMyBusinesses();
+              await renderRating();
+            } catch (err) {
+              alert('Ошибка: ' + err.message);
+            }
+          });
+        });
+        
+        // Обработка продажи игроку
+        document.querySelectorAll('.sell-player').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            currentSellBizId = id;
+            
+            const bizRef = db.collection('businesses').doc(id);
+            const bizDoc = await bizRef.get();
+            
+            if (!bizDoc.exists) {
+              alert('Бизнес не найден');
+              return;
+            }
+            
+            const bizData = bizDoc.data();
+            const minPrice = Math.floor(bizData.price * 0.5);
+            const maxPrice = Math.floor(bizData.price * 2);
+            
+            document.getElementById('sell-price').placeholder = `Цена от ${minPrice} до ${maxPrice}`;
+            document.getElementById('sell-modal').classList.remove('hidden');
+          });
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки бизнесов:', error);
+        list.innerHTML = '<div class="muted">Ошибка загрузки бизнесов</div>';
+      }
+    }
 
-	// Обработка получения награды
-	document.querySelectorAll('[data-achievement]').forEach(btn => {
-		btn.addEventListener('click', async () => {
-			const achievementId = btn.dataset.achievement;
-			
-			if (achievementId === 'thousandClicks') {
-				try {
-					const userRef = db.collection('users').doc(currentUser.uid);
-					await userRef.update({
-						balance: firebase.firestore.FieldValue.increment(50000),
-						'achievements.thousandClicks': true
-					});
-					
-					alert('Награда получена: 50,000 ₽!');
-					await refreshUserDoc();
-					await renderAchievements();
-				} catch (err) {
-					alert('Ошибка: ' + err.message);
-				}
-			}
-		});
-	});
-}
+    // Инициализация админских вкладок
+    function setupAdminTabs() {
+      const tabs = document.querySelectorAll('.admin-tab');
+      const tabContents = document.querySelectorAll('.admin-tab-content');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabId = tab.dataset.tab;
+          
+          // Убираем активный класс у всех вкладок и контента
+          tabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(content => content.classList.add('hidden'));
+          
+          // Добавляем активный класс текущей вкладке и показываем соответствующий контент
+          tab.classList.add('active');
+          document.getElementById(`admin-${tabId}`).classList.remove('hidden');
+        });
+      });
+    }
 
-	// Промокоды
-	async function renderPromocodes() {
-		const list = document.getElementById('promocodes-list');
-		list.innerHTML = '';
-		
-		if (!currentUser) {
-			list.innerHTML = '<div class="muted">Войдите чтобы использовать промокоды</div>';
-			return;
-		}
-		
-		try {
-			const snaps = await db.collection('promocodes').get();
-			if (!snaps.empty) {
-				const availablePromos = document.createElement('div');
-				availablePromos.className = 'card';
-				availablePromos.innerHTML = '<h3>Доступные промокоды</h3>';
-				
-				snaps.forEach(doc => {
-					const promo = doc.data();
-					const used = currentUserDoc.usedPromocodes?.includes(doc.id) || false;
-					
-					const promoEl = document.createElement('div');
-					promoEl.className = `muted small ${used ? 'achievement-locked' : ''}`;
-					promoEl.innerHTML = `
-						<strong>${promo.code}</strong> - ${promo.amount} ₽
-						${used ? '(использован)' : ''}
-					`;
-					availablePromos.appendChild(promoEl);
-				});
-				
-				list.appendChild(availablePromos);
-			}
-		} catch (error) {
-			console.error('Ошибка загрузки промокодов:', error);
-		}
-	}
+    // Вызов функции инициализации админских вкладок
+    setupAdminTabs();
 
-	document.getElementById('promocode-activate').addEventListener('click', async () => {
-		if (!currentUser) {
-			alert('Войдите в систему');
-			return;
-		}
-		
-		const code = document.getElementById('promocode-input').value.trim().toUpperCase();
-		
-		if (!code) {
-			alert('Введите промокод');
-			return;
-		}
-		
-		try {
-			const promoSnap = await db.collection('promocodes').doc(code).get();
-			
-			if (!promoSnap.exists) {
-				alert('Промокод не найден');
-				return;
-			}
-			
-			const promo = promoSnap.data();
-			
-			if (currentUserDoc.usedPromocodes?.includes(code)) {
-				alert('Вы уже использовали этот промокод');
-				return;
-			}
-			
-			if (promo.uses <= 0) {
-				alert('Промокод больше не действителен');
-				return;
-			}
-			
-			// Активируем промокод
-			const userRef = db.collection('users').doc(currentUser.uid);
-			const promoRef = db.collection('promocodes').doc(code);
-			
-			await db.runTransaction(async (tx) => {
-				const userDoc = await tx.get(userRef);
-				const promoDoc = await tx.get(promoRef);
-				
-				if (!userDoc.exists || !promoDoc.exists) throw new Error('Ошибка активации');
-				
-				const userData = userDoc.data();
-				const promoData = promoDoc.data();
-				
-				if (userData.usedPromocodes?.includes(code)) throw new Error('Промокод уже использован');
-				if (promoData.uses <= 0) throw new Error('Промокод не действителен');
-				
-				tx.update(userRef, {
-					balance: firebase.firestore.FieldValue.increment(promoData.amount),
-					usedPromocodes: firebase.firestore.FieldValue.arrayUnion(code)
-				});
-				
-				tx.update(promoRef, {
-					uses: firebase.firestore.FieldValue.increment(-1),
-					usedBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-				});
-			});
-			
-			alert(`Промокод активирован! Получено ${promo.amount} ₽`);
-			document.getElementById('promocode-input').value = '';
-			await refreshUserDoc();
-			await renderPromocodes();
-		} catch (err) {
-			alert('Ошибка: ' + err.message);
-		}
-	});
-
-	// Админ: создание промокода
-	document.getElementById('admin-create-promo').addEventListener('click', async () => {
-		if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
-			alert('Доступно только администратору');
-			return;
-		}
-		
-		const code = document.getElementById('admin-promo-code').value.trim().toUpperCase();
-		const amount = parseInt(document.getElementById('admin-promo-amount').value);
-		const uses = parseInt(document.getElementById('admin-promo-uses').value);
-		
-		if (!code || isNaN(amount) || isNaN(uses) || amount <= 0 || uses <= 0) {
-			alert('Заполните все поля корректно');
-			return;
-		}
-		
-		try {
-			await db.collection('promocodes').doc(code).set({
-				code: code,
-				amount: amount,
-				uses: uses,
-				createdBy: currentUser.uid,
-				createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-				usedBy: []
-			});
-			
-			alert('Промокод создан!');
-			document.getElementById('admin-promo-code').value = '';
-			document.getElementById('admin-promo-amount').value = '';
-			document.getElementById('admin-promo-uses').value = '1';
-		} catch (err) {
-			alert('Ошибка создания: ' + err.message);
-		}
-	});
-
-	// Админ: удаление промокода
-	document.getElementById('admin-delete-promo').addEventListener('click', async () => {
-		if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
-			alert('Доступно только администратору');
-			return;
-		}
-		
-		const code = document.getElementById('admin-promo-code').value.trim().toUpperCase();
-		
-		if (!code) {
-			alert('Введите код промокода для удаления');
-			return;
-		}
-		
-		if (!confirm(`Удалить промокод ${code}?`)) return;
-			
-		try {
-			await db.collection('promocodes').doc(code).delete();
-			alert('Промокод удален!');
-			document.getElementById('admin-promo-code').value = '';
-		} catch (err) {
-			alert('Ошибка удаления: ' + err.message);
-		}
-	});
-
-	// Админ: список всех игроков
-	async function renderAdminUsers() {
-		const list = document.getElementById('admin-users-list');
-		list.innerHTML = '<div class="muted">Загрузка игроков...</div>';
-		
-		try {
-			const snaps = await db.collection('users').get();
-			
-			if (snaps.empty) {
-				list.innerHTML = '<div class="muted">Нет зарегистрированных игроков</div>';
-				return;
-			}
-			
-			const table = document.createElement('table');
-			table.className = 'admin-table';
-			table.innerHTML = `
-				<tr>
-					<th>Никнейм</th>
-					<th>Email</th>
-					<th>Кодовое слово</th>
-					<th>Баланс</th>
-					<th>Кликов</th>
-				</tr>
-			`;
-			
-			snaps.forEach(doc => {
-				const user = doc.data();
-				const row = document.createElement('tr');
-				row.innerHTML = `
-					<td>${user.username || 'Не указан'}</td>
-					<td>${user.email || 'Не указан'}</td>
-					<td>${user.codeword || 'Не указан'}</td>
-					<td>${user.balance || 0} ₽</td>
-					<td>${user.totalClicks || 0}</td>
-				`;
-				table.appendChild(row);
-			});
-			
-			list.innerHTML = '';
-			list.appendChild(table);
-		} catch (error) {
-			console.error('Ошибка загрузки пользователей:', error);
-			list.innerHTML = '<div class="muted">Ошибка загрузки пользователей</div>';
-		}
-	}
-
-	// Админ: поиск игроков
-	document.getElementById('admin-search-btn').addEventListener('click', async () => {
-		if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
-			alert('Доступно только администратору');
-			return;
-		}
-		
-		const query = document.getElementById('admin-search-user').value.trim().toLowerCase();
-		
-		if (!query) {
-			await renderAdminUsers();
-			return;
-		}
-		
-		const list = document.getElementById('admin-users-list');
-		list.innerHTML = '<div class="muted">Поиск...</div>';
-		
-		try {
-			const snaps = await db.collection('users').get();
-			const results = [];
-			
-			snaps.forEach(doc => {
-				const user = doc.data();
-				if (user.username && (
-					user.username.toLowerCase().includes(query) ||
-					(user.email && user.email.toLowerCase().includes(query)) ||
-					(user.codeword && user.codeword.toLowerCase().includes(query))
-				)) {
-					results.push(user);
-				}
-			});
-			
-			if (results.length === 0) {
-				list.innerHTML = '<div class="muted">Игроки не найдены</div>';
-				return;
-			}
-			
-			const table = document.createElement('table');
-			table.className = 'admin-table';
-			table.innerHTML = `
-				<tr>
-					<th>Никнейм</th>
-					<th>Email</th>
-					<th>Кодовое слово</th>
-					<th>Баланс</th>
-					<th>Кликов</th>
-				</tr>
-			`;
-			
-			results.forEach(user => {
-				const row = document.createElement('tr');
-				row.innerHTML = `
-					<td>${user.username || 'Не указан'}</td>
-					<td>${user.email || 'Не указаn'}</td>
-					<td>${user.codeword || 'Не указан'}</td>
-					<td>${user.balance || 0} ₽</td>
-					<td>${user.totalClicks || 0}</td>
-				`;
-				table.appendChild(row);
-			});
-			
-			list.innerHTML = '';
-			list.appendChild(table);
-		} catch (error) {
-			console.error('Ошибка поиска:', error);
-			list.innerHTML = '<div class="muted">Ошибка поиска</div>';
-		}
-	});
-
-	// Проверка достижений
-	async function checkAchievements() {
-		if (!currentUser) return;
-		
-		const totalClicks = currentUserDoc.totalClicks || 0;
-		
-		if (totalClicks >= 1000 && !currentUserDoc.achievements?.thousandClicks) {
-			try {
-				const userRef = db.collection('users').doc(currentUser.uid);
-				await userRef.update({
-					'achievements.thousandClicks': true
-				});
-				await refreshUserDoc();
-			} catch (err) {
-				console.error('Ошибка выдачи достижения:', err);
-			}
-		}
-	}
-
-	// Проверка заданий
-	async function checkQuests() {
-		if (!currentUser) return;
-		
-		const dailyClicks = currentUserDoc.questProgress?.dailyClicks || 0;
-		
-		if (dailyClicks >= 100 && !currentUserDoc.achievements?.dailyQuest) {
-			await refreshUserDoc();
-			await renderQuests();
-		}
-	}
-
-	// Добавление новостей
-	document.getElementById('news-add').addEventListener('click', async () => {
-		if (!currentUser) {
-			alert('Войдите в систему');
-			return;
-		}
-		
-		if (!isAdminUser(currentUserDoc, currentUser)) {
-			alert('Только администратор может публиковать новости');
-			return;
-		}
-		
-		const title = document.getElementById('news-title').value.trim();
-		const content = document.getElementById('news-content').value.trim();
-		
-		if (!title || !content) {
-			alert('Заполните заголовок и текст новости');
-			return;
-		}
-		
-		try {
-			await db.collection('news').add({
-				title,
-				content,
-				author: currentUserDoc.username || currentUser.email || 'admin',
-				timestamp: firebase.firestore.FieldValue.serverTimestamp()
-			});
-			
-			document.getElementById('news-title').value = '';
-			document.getElementById('news-content').value = '';
-			alert('Новость опубликована');
-			await renderNews();
-		} catch (err) {
-			alert('Ошибка публикации: ' + err.message);
-		}
-	});
-
-	// Отслеживание новостей в реальном времени
-	function setupNewsListener() {
-		return db.collection('news')
-			.orderBy('timestamp', 'desc')
-			.onSnapshot((snap) => {
-				const el = document.getElementById('news-list');
-				el.innerHTML = '';
-				
-				snap.forEach((doc) => {
-					const news = doc.data();
-					const time = news.timestamp ? news.timestamp.toDate().toLocaleString() : '';
-					
-					const div = document.createElement('div');
-					div.className = 'news-item';
-					div.innerHTML = `
-						<strong>${news.title}</strong>
-						<div class="muted small">${news.author} • ${time}</div>
-						<div style="margin-top:8px">${news.content}</div>
-					`;
-					
-					el.appendChild(div);
-				});
-			});
-	}
-
-	// Рендер новостей
-	async function renderNews() {
-		const el = document.getElementById('news-list');
-		el.innerHTML = '<div class="muted">Загрузка новостей...</div>';
-		
-		try {
-			const snaps = await db.collection('news').orderBy('timestamp', 'desc').get();
-			el.innerHTML = '';
-			
-			snaps.forEach((doc) => {
-				const news = doc.data();
-				const time = news.timestamp ? news.timestamp.toDate().toLocaleString() : '';
-				
-				const div = document.createElement('div');
-				div.className = 'news-item';
-				div.innerHTML = `
-					<strong>${news.title}</strong>
-					<div class="muted small">${news.author} • ${time}</div>
-					<div style="margin-top:8px">${news.content}</div>
-				`;
-				
-				el.appendChild(div);
-			});
-		} catch (error) {
-			console.error('Ошибка загрузки новостей:', error);
-			el.innerHTML = '<div class="muted">Ошибка загрузки новостей</div>';
-		}
-	}
-
-	// Поиск бизнеса
-	document.getElementById('search-btn').addEventListener('click', async () => {
-		const query = document.getElementById('search-biz').value.trim().toLowerCase();
-		
-		if (!query) {
-			await renderShop();
-			return;
-		}
-		
-		const list = document.getElementById('shop-list');
-		list.innerHTML = '';
-		
-		try {
-			const snaps = await db.collection('businesses').get();
-			let found = false;
-			
-			snaps.forEach(doc => {
-				const biz = doc.data();
-				biz.id = doc.id;
-				
-				if (biz.name.toLowerCase().includes(query)) {
-					found = true;
-					
-					const el = document.createElement('div');
-					el.className = 'biz-card';
-					
-					const ownerText = biz.ownerUid ? 
-						'<div class="muted small">Занят</div>' : 
-						`<button class="btn buy-btn" data-id="${biz.id}">Купить</button>`;
-					
-					el.innerHTML = `
-						<div style="display:flex;gap:12px;align-items:center">
-							<img src="${biz.icon || 'https://via.placeholder.com/64/0fb48b/ffffff?text=B'}" width="64" height="64" style="border-radius:8px;object-fit:cover" />
-							<div style="flex:1">
-								<strong>${biz.name}</strong>
-								<div class="muted small">Доход/ч: ${biz.incomePerHour} • Цена: ${biz.price} ₽</div>
-							</div>
-							<div>${ownerText}</div>
-						</div>
-					`;
-					
-					list.appendChild(el);
-				}
-			});
-			
-			if (!found) {
-				list.innerHTML = '<div class="muted">Бизнесы не найдены</div>';
-			} else {
-				// Добавляем обработчики для кнопок покупки
-				document.querySelectorAll('.buy-btn').forEach(btn => {
-					btn.addEventListener('click', async (e) => {
-						const id = e.currentTarget.dataset.id;
-						
-						if (!currentUser) {
-							alert('Войдите в систему');
-							return;
-						}
-						
-						const bizRef = db.collection('businesses').doc(id);
-						
-						try {
-							await db.runTransaction(async (tx) => {
-								const bizDoc = await tx.get(bizRef);
-								
-								if (!bizDoc.exists) throw new Error('Бизнес не найден');
-								
-								const bizData = bizDoc.data();
-								
-								if (bizData.ownerUid) throw new Error('Бизнес уже куплен');
-								
-								const userRef = db.collection('users').doc(currentUser.uid);
-								const userDoc = await tx.get(userRef);
-								const userData = userDoc.data();
-								
-								if (userData.balance < bizData.price) throw new Error('Недостаточно средств');
-								
-								tx.update(userRef, { 
-									balance: firebase.firestore.FieldValue.increment(-bizData.price) 
-								});
-								
-								tx.update(bizRef, { 
-									ownerUid: currentUser.uid, 
-									lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
-								});
-							});
-							
-							alert('Покупка успешна!');
-							await refreshUserDoc();
-							await renderShop();
-							await renderMyBusinesses();
-							await renderRating();
-						} catch (err) {
-							alert('Ошибка: ' + err.message);
-						}
-					});
-				});
-			}
-		} catch (error) {
-			console.error('Ошибка поиска:', error);
-			list.innerHTML = '<div class="muted">Ошибка поиска</div>';
-		}
-	});
-
-	// Админ: создание бизнеса
-	document.getElementById('admin-create-biz').addEventListener('click', async () => {
-		if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) {
-			alert('Доступно только администратору');
-			return;
-		}
-		
-		const name = document.getElementById('admin-biz-name').value.trim();
-		const price = parseInt(document.getElementById('admin-biz-price').value);
-		const income = parseInt(document.getElementById('admin-biz-income').value);
-		const icon = document.getElementById('admin-biz-icon').value.trim();
-		
-		if (!name || isNaN(price) || isNaN(income) || price <= 0 || income <= 0) {
-			alert('Заполните все поля корректно');
-			return;
-		}
-		
-		try {
-			await db.collection('businesses').add({
-				name,
-				price,
-				incomePerHour: income,
-				ownerUid: null,
-				icon: icon || '',
-				lastCollectedAt: null
-			});
-			
-			alert('Бизнес создан');
-			
-			// Очищаем поля
-			document.getElementById('admin-biz-name').value = '';
-			document.getElementById('admin-biz-price').value = '';
-			document.getElementById('admin-biz-income').value = '';
-			document.getElementById('admin-biz-icon').value = '';
-			
-			await renderShop();
-		} catch (err) {
-			alert('Ошибка создания: ' + err.message);
-		}
-	});
-
-	// Обновление данных пользователя
-	async function refreshUserDoc() {
-		if (!currentUser) return;
-		
-		try {
-			const userSnap = await db.collection('users').doc(currentUser.uid).get();
-			
-			if (userSnap.exists) {
-				currentUserDoc = userSnap.data();
-				
-				// Обновляем UI
-				document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
-				document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
-			}
-		} catch (error) {
-			console.error('Ошибка обновления данных пользователя:', error);
-		}
-	}
-
-	// Создание демо-бизнесов при первом запуске
-	(async function ensureDemoBusinesses() {
-		try {
-			const bizSnap = await db.collection('businesses').limit(1).get();
-			
-			if (bizSnap.empty) {
-				// Создаем демо-бизнесы
-				const demoBusinesses = [
-					{ name: 'Магазин "У дома"', price: 5000, incomePerHour: 50, ownerUid: null, icon: '', lastCollectedAt: null },
-					{ name: 'Кинотеатр "Галактика"', price: 20000, incomePerHour: 300, ownerUid: null, icon: '', lastCollectedAt: null },
-					{ name: 'Кафе "Бочка"', price: 8000, incomePerHour: 80, ownerUid: null, icon: '', lastCollectedAt: null },
-					{ name: 'Автосервис', price: 15000, incomePerHour: 150, ownerUid: null, icon: '', lastCollectedAt: null },
-					{ name: 'Салон красоты', price: 12000, incomePerHour: 120, ownerUid: null, icon: '', lastCollectedAt: null }
-				];
-				
-				for (const biz of demoBusinesses) {
-					await db.collection('businesses').add(biz);
-				}
-				
-				console.log('Демо-бизнесы созданы');
-			}
-		} catch (error) {
-			console.error('Ошибка создания демо-бизнесов:', error);
-		}
-	})();
-
-	// Рендер магазина
-	async function renderShop() {
-		const list = document.getElementById('shop-list');
-		list.innerHTML = '';
-		
-		try {
-			const snaps = await db.collection('businesses').orderBy('name').get();
-			
-			if (snaps.empty) {
-				list.innerHTML = '<div class="muted">Нет доступных бизнесов</div>';
-				return;
-			}
-			
-			snaps.forEach(doc => {
-				const biz = doc.data();
-				biz.id = doc.id;
-				
-				const el = document.createElement('div');
-				el.className = 'biz-card';
-				
-				const ownerText = biz.ownerUid ? 
-					'<div class="muted small">Занят</div>' : 
-					`<button class="btn buy-btn" data-id="${biz.id}">Купить</button>`;
-				
-				el.innerHTML = `
-					<div style="display:flex;gap:12px;align-items:center">
-						<img src="${biz.icon || 'https://via.placeholder.com/64/0fb48b/ffffff?text=B'}" width="64" height="64" style="border-radius:8px;object-fit:cover" />
-						<div style="flex:1">
-							<strong>${biz.name}</strong>
-							<div class="muted small">Доход/ч: ${biz.incomePerHour} • Цена: ${biz.price} ₽</div>
-						</div>
-						<div>${ownerText}</div>
-					</div>
-				`;
-				
-				list.appendChild(el);
-			});
-			
-			// Обработка покупки
-			document.querySelectorAll('.buy-btn').forEach(btn => {
-				btn.addEventListener('click', async (e) => {
-					const id = e.currentTarget.dataset.id;
-					
-					if (!currentUser) {
-						alert('Войдите в систему');
-						return;
-					}
-					
-					const bizRef = db.collection('businesses').doc(id);
-					
-					try {
-						await db.runTransaction(async (tx) => {
-							const bizDoc = await tx.get(bizRef);
-							
-							if (!bizDoc.exists) throw new Error('Бизнес не найден');
-							
-							const bizData = bizDoc.data();
-							
-							if (bizData.ownerUid) throw new Error('Бизнес уже куплен');
-							
-							const userRef = db.collection('users').doc(currentUser.uid);
-							const userDoc = await tx.get(userRef);
-							const userData = userDoc.data();
-							
-							if (userData.balance < bizData.price) throw new Error('Недостаточно средств');
-							
-							tx.update(userRef, { 
-								balance: firebase.firestore.FieldValue.increment(-bizData.price) 
-							});
-							
-							tx.update(bizRef, { 
-								ownerUid: currentUser.uid, 
-								lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
-							});
-						});
-						
-						alert('Покупка успешна!');
-						await refreshUserDoc();
-						await renderShop();
-						await renderMyBusinesses();
-						await renderRating();
-					} catch (err) {
-						alert('Ошибка: ' + err.message);
-					}
-				});
-			});
-		} catch (error) {
-			console.error('Ошибка загрузки магазина:', error);
-			list.innerHTML = '<div class="muted">Ошибка загрузки магазина</div>';
-		}
-	}
-
-	// Рендер моих бизнесов
-	async function renderMyBusinesses() {
-		const list = document.getElementById('my-list');
-		list.innerHTML = '';
-		
-		if (!currentUser) {
-			list.innerHTML = '<div class="muted">Войдите чтобы увидеть свои бизнесы</div>';
-			return;
-		}
-		
-		try {
-			const snaps = await db.collection('businesses').where('ownerUid', '==', currentUser.uid).get();
-			
-			if (snaps.empty) {
-				list.innerHTML = '<div class="muted">У вас нет бизнесов</div>';
-				return;
-			}
-			
-			snaps.forEach(doc => {
-				const biz = doc.data();
-				biz.id = doc.id;
-				
-				const lastCollected = biz.lastCollectedAt ? biz.lastCollectedAt.toDate() : new Date();
-				const now = new Date();
-				const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
-				const pendingIncome = Math.floor(biz.incomePerHour * hoursPassed);
-				
-				const el = document.createElement('div');
-				el.className = 'biz-card';
-				
-				el.innerHTML = `
-					<div style="display:flex;justify-content:space-between;align-items:center">
-						<div>
-							<strong>${biz.name}</strong>
-							<div class="muted small">Доход/ч: ${biz.incomePerHour} • Накоплено: ${pendingIncome} ₽</div>
-						</div>
-						<div class="flex">
-							<button class="btn collect-btn" data-id="${biz.id}">Собрать</button>
-							<button class="btn sell-gov" data-id="${biz.id}" style="background:rgba(200,60,60,0.9);margin-left:6px">Продать гос.</button>
-							<button class="btn sell-player" data-id="${biz.id}" style="background:rgba(120,120,120,0.9);margin-left:6px">Продать игроку</button>
-						</div>
-					</div>
-				`;
-				
-				list.appendChild(el);
-			});
-			
-			// Обработка сбора дохода
-			document.querySelectorAll('.collect-btn').forEach(btn => {
-				btn.addEventListener('click', async (e) => {
-					const id = e.target.dataset.id;
-					
-					if (!currentUser) {
-						alert('Войдите в систему');
-						return;
-					}
-					
-					const bizRef = db.collection('businesses').doc(id);
-					
-					try {
-						await db.runTransaction(async (tx) => {
-							const bizDoc = await tx.get(bizRef);
-							
-							if (!bizDoc.exists) throw new Error('Бизнес не найден');
-							
-							const bizData = bizDoc.data();
-							
-							if (bizData.ownerUid !== currentUser.uid) throw new Error('Вы не владелец этого бизнеса');
-							
-							const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : new Date();
-							const now = new Date();
-							const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
-							const income = Math.floor(bizData.incomePerHour * hoursPassed);
-							
-							if (income <= 0) throw new Error('Нет накопленного дохода');
-							
-							const userRef = db.collection('users').doc(currentUser.uid);
-							
-							tx.update(userRef, { 
-								balance: firebase.firestore.FieldValue.increment(income) 
-							});
-							
-							tx.update(bizRef, { 
-								lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() 
-							});
-						});
-						
-						alert('Доход собран!');
-						await refreshUserDoc();
-						await renderMyBusinesses();
-					} catch (err) {
-						alert('Ошибка: ' + err.message);
-					}
-				});
-			});
-			
-			// Обработка продажи государству
-			document.querySelectorAll('.sell-gov').forEach(btn => {
-				btn.addEventListener('click', async (e) => {
-					const id = e.target.dataset.id;
-					
-					if (!confirm('Продать государству? Вы получите 70% от цены.')) return;
-					
-					const bizRef = db.collection('businesses').doc(id);
-					
-					try {
-						await db.runTransaction(async (tx) => {
-							const bizDoc = await tx.get(bizRef);
-							
-							if (!bizDoc.exists) throw new Error('Бизнес не найден');
-							
-							const bizData = bizDoc.data();
-							
-							if (bizData.ownerUid !== currentUser.uid) throw new Error('Вы не владелец этого бизнеса');
-							
-							const salePrice = Math.floor(bizData.price * 0.7);
-							const userRef = db.collection('users').doc(currentUser.uid);
-							
-							tx.update(userRef, { 
-								balance: firebase.firestore.FieldValue.increment(salePrice) 
-							});
-							
-							tx.update(bizRef, { 
-								ownerUid: null, 
-								lastCollectedAt: null 
-							});
-						});
-						
-						alert('Бизнес продан государству!');
-						await refreshUserDoc();
-						await renderShop();
-						await renderMyBusinesses();
-						await renderRating();
-					} catch (err) {
-						alert('Ошибка: ' + err.message);
-					}
-				});
-			});
-			
-			// Обработка продажи игроку
-			document.querySelectorAll('.sell-player').forEach(btn => {
-				btn.addEventListener('click', async (e) => {
-					const id = e.currentTarget.dataset.id;
-					currentSellBizId = id;
-					
-					const bizRef = db.collection('businesses').doc(id);
-					const bizDoc = await bizRef.get();
-					
-					if (!bizDoc.exists) {
-						alert('Бизнес не найден');
-						return;
-					}
-					
-					const bizData = bizDoc.data();
-					const minPrice = Math.floor(bizData.price * 0.5);
-					const maxPrice = Math.floor(bizData.price * 2);
-					
-					document.getElementById('sell-price').placeholder = `Цена от ${minPrice} до ${maxPrice}`;
-					document.getElementById('sell-modal').classList.remove('hidden');
-				});
-			});
-		} catch (error) {
-			console.error('Ошибка загрузки бизнесов:', error);
-			list.innerHTML = '<div class="muted">Ошибка загрузки бизнесов</div>';
-		}
-	}
-
-	// Инициализация админских вкладок
-	function setupAdminTabs() {
-		const tabs = document.querySelectorAll('.admin-tab');
-		const tabContents = document.querySelectorAll('.admin-tab-content');
-		
-		tabs.forEach(tab => {
-			tab.addEventListener('click', () => {
-				const tabId = tab.dataset.tab;
-				
-				// Убираем активный класс у всех вкладок и контента
-				tabs.forEach(t => t.classList.remove('active'));
-				tabContents.forEach(content => content.classList.add('hidden'));
-				
-				// Добавляем активный класс текущей вкладке и показываем соответствующий контент
-				tab.classList.add('active');
-				document.getElementById(`admin-${tabId}`).classList.remove('hidden');
-			});
-		});
-	}
-
-	// Вызов функции инициализации админских вкладок
-	setupAdminTabs();
-
-	// Инициализация при загрузке страницы
-	document.addEventListener('DOMContentLoaded', function() {
-		console.log('GSK LAND loaded successfully');
-	});
-	</script>
-	</body>
-	</html>
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('GSK LAND loaded successfully');
+    });
+  </script>
+</body>
+</html>
