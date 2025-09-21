@@ -1407,7 +1407,7 @@
           console.error('Ошибка выдачи достижения:', err);
         }
       }
-    });
+    }
 
     // Проверка заданий
     async function checkQuests() {
@@ -1613,7 +1613,7 @@
         console.error('Ошибка поиска:', error);
         list.innerHTML = '<div class="muted">Ошибка поиска</div>';
       }
-    }
+    });
 
     // Админ: создание бизнеса
     document.getElementById('admin-create-biz').addEventListener('click', async () => {
@@ -1654,7 +1654,7 @@
       } catch (err) {
         alert('Ошибка создания: ' + err.message);
       }
-    }
+    });
 
     // Обновление данных пользователя
     async function refreshUserDoc() {
