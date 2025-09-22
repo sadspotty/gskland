@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
 <meta charset="utf-8"/>
@@ -109,6 +108,17 @@
     .notification-toast .btn.reject {
       background: rgba(200,60,60,0.8);
     }
+
+    /* Казино (рулетка) — стили */
+    .casino-card { padding:16px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02)); border:1px solid rgba(255,255,255,0.03); }
+    .wheel-wrap{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap}
+    .wheel { width:360px; height:360px; border-radius:50%; position:relative; overflow:visible; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+    .wheel canvas{ width:100%; height:100%; transform: translateZ(0); }
+    .wheel-pointer{ position:absolute; top:-8px; left:50%; transform:translateX(-50%); width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:24px solid #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); z-index:50 }
+    .casino-controls{ max-width:360px }
+    .casino-controls input[type=number]{ width:100%; }
+    .casino-info{ margin-top:12px }
+    @media (max-width:900px){ .wheel{ width:280px;height:280px } }
   </style>
 </head>
 <body>
@@ -143,6 +153,7 @@
 <button class="nav-btn" data-view="achievements">Достижения</button>
 <button class="nav-btn" data-view="promocodes">Промокоды</button>
 <button class="nav-btn" data-view="news">Новости</button>
+<button class="nav-btn" data-view="casino">Казино</button>
 <button class="nav-btn hidden" data-view="admin" id="nav-admin">Админ</button>
 </nav>
 </header>
@@ -259,6 +270,28 @@
 <div style="margin-top:8px"><button class="btn" id="news-add">Опубликовать</button></div>
 </div>
 </section>
+<section class="hidden" id="view-casino">
+<h2>Казино — Рулетка</h2>
+<div class="card casino-card">
+<div class="wheel-wrap">
+<div style="position:relative">
+<div class="wheel" id="roulette-wheel">
+<div aria-hidden="" class="wheel-pointer"></div>
+<canvas height="720" id="roulette-canvas" width="720"></canvas>
+</div>
+</div>
+<div class="casino-controls">
+<label>Стоимость прокрута (₽) — от 1000 до 50000</label>
+<input id="spin-cost" max="50000" min="1000" step="100" type="number" value="1000"/>
+<div style="margin-top:8px;display:flex;gap:8px">
+<button class="btn" id="spin-btn">Прокрутить</button>
+<button class="btn" id="spin-demo" style="background:rgba(200,60,60,0.9)">Быстрая проверка (demo)</button>
+</div>
+<div class="casino-info muted small" id="casino-result">Ставка не сделана</div>
+</div>
+</div>
+</div>
+</section>
 <section class="hidden" id="view-admin">
 <h2>Админ панель</h2>
 <div class="admin-tabs">
@@ -300,28 +333,7 @@
 </div>
 </div>
 </section>
-<section class="hidden" id="view-casino">
-<h2>Казино — Рулетка</h2>
-<div class="card casino-card">
-<div class="wheel-wrap">
-<div style="position:relative">
-<div class="wheel" id="roulette-wheel">
-<div aria-hidden="" class="wheel-pointer"></div>
-<canvas height="720" id="roulette-canvas" width="720"></canvas>
-</div>
-</div>
-<div class="casino-controls">
-<label>Стоимость прокрута (₽) — от 1000 до 50000</label>
-<input id="spin-cost" max="50000" min="1000" step="100" type="number" value="1000"/>
-<div style="margin-top:8px;display:flex;gap:8px">
-<button class="btn" id="spin-btn">Прокрутить</button>
-<button class="btn" id="spin-demo" style="background:rgba(200,60,60,0.9)">Быстрая проверка (demo)</button>
-</div>
-<div class="casino-info muted small" id="casino-result">Ставка не сделана</div>
-</div>
-</div>
-</div>
-</section></main>
+</main>
 <aside class="col">
 <div class="card">
 <h3>Уведомления <span class="notification-badge hidden" id="notification-badge">0</span></h3>
@@ -366,6 +378,7 @@
       achievements: document.getElementById('view-achievements'),
       promocodes: document.getElementById('view-promocodes'),
       news: document.getElementById('view-news'),
+      casino: document.getElementById('view-casino'),
       admin: document.getElementById('view-admin')
     };
 
@@ -373,6 +386,7 @@
     let dealsListener = null;
     let currentUser = null;
     let currentUserDoc = null;
+    let spinning = false;
 
     navButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -381,13 +395,14 @@
         const view = btn.dataset.view;
         Object.values(views).forEach(v => v.classList.add('hidden'));
         views[view].classList.remove('hidden');
-  
+
         if (view === 'rating') renderRating();
         if (view === 'clicker') renderClicker();
         if (view === 'quests') renderQuests();
         if (view === 'achievements') renderAchievements();
         if (view === 'promocodes') renderPromocodes();
         if (view === 'news') renderNews();
+        if (view === 'casino') initCasino();
         if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) {
           renderAdminUsers();
         }
@@ -436,121 +451,98 @@
       setTimeout(() => { if (toast.parentNode) toast.remove(); }, 30000);
     }
 
-    // Real-time listener для сделок - ИСПРАВЛЕННАЯ ВЕРСИЯ
     // Real-time listener для сделок - исправленный вариант
-	function setupDealsListener() {
-	  if (!currentUser) return;
+    function setupDealsListener() {
+      if (!currentUser) return;
 
-	  if (dealsListener) dealsListener(); // снимаем старый listener, если был
+      if (dealsListener) dealsListener(); // снимаем старый listener, если был
 
-	  console.log("Setting up deals listener for user:", currentUser.uid);
+      console.log("Setting up deals listener for user:", currentUser.uid);
 
-	  dealsListener = db.collection('deals')
-		.where('toUid', '==', currentUser.uid)
-		.where('state', '==', 'pending')
-		.onSnapshot(async (snapshot) => {
-		  console.log("Deals snapshot received:", snapshot.size, "deals");
-		  const notificationBadge = document.getElementById('notification-badge');
-		  const notificationsList = document.getElementById('notifications-list');
+      dealsListener = db.collection('deals')
+        .where('toUid', '==', currentUser.uid)
+        .where('state', '==', 'pending')
+        .onSnapshot(async (snapshot) => {
+          console.log("Deals snapshot received:", snapshot.size, "deals");
+          const notificationBadge = document.getElementById('notification-badge');
+          const notificationsList = document.getElementById('notifications-list');
 
-		  // Очищаем список уведомлений
-		  notificationsList.innerHTML = '';
-		  let activeDealsCount = 0;
+          // Очищаем список уведомлений
+          notificationsList.innerHTML = '';
+          let activeDealsCount = 0;
 
-		  // используем for...of вместо forEach, чтобы работал await
-		  for (const doc of snapshot.docs) {
-			const deal = doc.data();
-			deal.id = doc.id;
-			activeDealsCount++;
+          // используем for...of вместо forEach, чтобы работал await
+          for (const doc of snapshot.docs) {
+            const deal = doc.data();
+            deal.id = doc.id;
+            activeDealsCount++;
 
-			console.log("Processing deal:", deal.id, "from:", deal.fromUid);
+            console.log("Processing deal:", deal.id, "from:", deal.fromUid);
 
-			// ждём пока уведомление отрисуется
-			await displayDealNotification(deal);
+            // ждём пока уведомление отрисуется
+            await displayDealNotification(deal);
 
-			// показываем toast только один раз
-			if (!deal.seen) {
-			  console.log("Deal not seen, showing toast");
-			  db.collection('deals').doc(deal.id).update({ seen: true });
-			  showDealNotification(deal);
-			}
-		  }
+            // показываем toast только один раз
+            if (!deal.seen) {
+              console.log("Deal not seen, showing toast");
+              db.collection('deals').doc(deal.id).update({ seen: true });
+              showDealNotification(deal);
+            }
+          }
 
-		  // Обновляем бейдж с количеством уведомлений
-		  if (activeDealsCount > 0) {
-			notificationBadge.textContent = activeDealsCount;
-			notificationBadge.classList.remove('hidden');
-		  } else {
-			notificationBadge.classList.add('hidden');
-		  }
-		}, (error) => {
-		  console.error('Ошибка listener сделок:', error);
-		});
-	}
-
+          // Обновляем бейдж с количеством уведомлений
+          if (activeDealsCount > 0) {
+            notificationBadge.textContent = activeDealsCount;
+            notificationBadge.classList.remove('hidden');
+          } else {
+            notificationBadge.classList.add('hidden');
+          }
+        }, (error) => {
+          console.error('Ошибка listener сделок:', error);
+        });
+    }
 
     async function showDealNotification(deal) {
-	  try {
-		// Используем данные прямо из deal
-		const sellerName = deal.fromName || 'Игрок';
-		const bizName = deal.bizName || 'Бизнес';
+      try {
+        // Используем данные прямо из deal
+        const sellerName = deal.fromName || 'Игрок';
+        const bizName = deal.bizName || 'Бизнес';
 
-		showNotificationToast(deal.id, sellerName, bizName, deal.price);
-	  } catch (error) {
-		console.error('Ошибка показа уведомления:', error);
-	  }
-	}
-
+        showNotificationToast(deal.id, sellerName, bizName, deal.price);
+      } catch (error) {
+        console.error('Ошибка показа уведомления:', error);
+      }
+    }
 
     // Функция отображения уведомления в списке - ИСПРАВЛЕННАЯ ВЕРСИЯ
     async function displayDealNotification(deal) {
-	  try {
-		console.log("Displaying deal notification:", deal.id);
+      try {
+        console.log("Displaying deal notification:", deal.id);
 
-		const notificationsList = document.getElementById('notifications-list');
-		const notification = document.createElement('div');
-		notification.className = 'news-item';
-		notification.id = `notification-${deal.id}`;
-		notification.innerHTML = `
-		  <strong>Предложение о покупке</strong>
-		  <div class="muted small">От: ${deal.fromName || 'Игрок'}</div>
-		  <div>Бизнес: ${deal.bizName || 'Бизнес'}</div>
-		  <div>Цена: ${deal.price} ₽</div>
-		  <div class="flex" style="margin-top:8px;gap:8px">
-			<button class="btn accept-deal" data-id="${deal.id}">Принять</button>
-			<button class="btn reject-deal" style="background:rgba(200,60,60,0.9)" data-id="${deal.id}">Отклонить</button>
-		  </div>
-		`;
+        const notificationsList = document.getElementById('notifications-list');
+        const notification = document.createElement('div');
+        notification.className = 'news-item';
+        notification.id = `notification-${deal.id}`;
+        notification.innerHTML = `
+          <strong>Предложение о покупке</strong>
+          <div class="muted small">От: ${deal.fromName || 'Игрок'}</div>
+          <div>Бизнес: ${deal.bizName || 'Бизнес'}</div>
+          <div>Цена: ${deal.price} ₽</div>
+          <div class="flex" style="margin-top:8px;gap:8px">
+            <button class="btn accept-deal" data-id="${deal.id}">Принять</button>
+            <button class="btn reject-deal" style="background:rgba(200,60,60,0.9)" data-id="${deal.id}">Отклонить</button>
+          </div>
+        `;
 
-		notificationsList.appendChild(notification);
+        notificationsList.appendChild(notification);
 
-		notification.querySelector('.accept-deal').addEventListener('click', () => acceptDeal(deal.id));
-		notification.querySelector('.reject-deal').addEventListener('click', () => rejectDeal(deal.id));
+        notification.querySelector('.accept-deal').addEventListener('click', () => acceptDeal(deal.id));
+        notification.querySelector('.reject-deal').addEventListener('click', () => rejectDeal(deal.id));
 
-	  } catch (error) {
-		console.error('Ошибка отображения уведомления:', error);
-	  }
-	}
-
-
-        
-    //    notificationsList.appendChild(notification);
-
-        // Добавляем обработчики событий для кнопок
-      //  notification.querySelector('.accept-deal').addEventListener('click', () => {
-       //   console.log("Accepting deal:", deal.id);
-      //    acceptDeal(deal.id);
-      //  });
-        
-     //   notification.querySelector('.reject-deal').addEventListener('click', () => {
-      //    console.log("Rejecting deal:", deal.id);
-      //    rejectDeal(deal.id);
-      //  });
-     //   
-     // } catch (error) {
-    //    console.error('Ошибка отображения уведомления:', error);
-     // }
-   // }
+      } catch (error) {
+        console.error('Ошибка отображения уведомления:', error);
+      }
+    }
 
     // Функция принятия сделки
     async function acceptDeal(dealId) {
@@ -692,7 +684,6 @@
           
           document.getElementById('hud').classList.remove('hidden');
           document.getElementById('hud-username').innerText = currentUserDoc.username || user.displayName || 'Игрок';
-          //document.getElementById('hud-email').innerText = user.email || '';
           document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
           
           setupDealsListener();
@@ -816,16 +807,16 @@
         const targetUser = usersSnap.docs[0];
         
         await db.collection('deals').add({
-		  fromUid: currentUser.uid,
-		  fromName: currentUserDoc.username || currentUser.email || 'Игрок',
-		  toUid: targetUser.id,
-		  bizId: currentSellBizId,
-		  bizName: bizData.name,
-		  price: price,
-		  state: 'pending',
-		  seen: false,
-		  createdAt: firebase.firestore.FieldValue.serverTimestamp()
-		});
+          fromUid: currentUser.uid,
+          fromName: currentUserDoc.username || currentUser.email || 'Игрок',
+          toUid: targetUser.id,
+          bizId: currentSellBizId,
+          bizName: bizData.name,
+          price: price,
+          state: 'pending',
+          seen: false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
         
         alert('Предложение отправлено!');
         document.getElementById('sell-modal').classList.add('hidden');
@@ -1979,192 +1970,197 @@
       });
     }
 
+    // Функция инициализации казино
+    function initCasino() {
+      const canvas = document.getElementById('roulette-canvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const wheelEl = document.getElementById('roulette-wheel');
+      const resultEl = document.getElementById('casino-result');
+      const spinBtn = document.getElementById('spin-btn');
+      const spinDemo = document.getElementById('spin-demo');
+      const costInput = document.getElementById('spin-cost');
+
+      const sectors = [
+        {label:'0x', mult:0},
+        {label:'0.5x', mult:0.5},
+        {label:'1x', mult:1},
+        {label:'1x', mult:1},
+        {label:'2x', mult:2},
+        {label:'0x', mult:0},
+        {label:'0.5x', mult:0.5},
+        {label:'1x', mult:1},
+        {label:'3x', mult:3},
+        {label:'1x', mult:1},
+        {label:'0x', mult:0},
+        {label:'2x', mult:2}
+      ];
+      const sectorCount = sectors.length;
+
+      function drawWheel(){
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w/2; const cy = h/2; const r = Math.min(cx,cy)-10;
+        ctx.clearRect(0,0,w,h);
+        const angleStep = (Math.PI*2)/sectorCount;
+        for(let i=0;i<sectorCount;i++){
+          const start = -Math.PI/2 + i*angleStep;
+          const end = start + angleStep;
+          ctx.beginPath();
+          ctx.moveTo(cx,cy);
+          ctx.arc(cx,cy,r,start,end,false);
+          ctx.closePath();
+          ctx.fillStyle = (i%2===0)? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.02)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+          ctx.stroke();
+          ctx.save();
+          ctx.translate(cx,cy);
+          const ang = start + angleStep/2;
+          ctx.rotate(ang);
+          ctx.textAlign = 'right';
+          ctx.fillStyle = 'white';
+          ctx.font = '24px Inter, Arial';
+          ctx.fillText(sectors[i].label, r-20, 10);
+          ctx.restore();
+        }
+        ctx.beginPath(); ctx.arc(cx,cy,48,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
+        ctx.fillStyle='white'; ctx.font='20px Inter, Arial'; ctx.textAlign='center'; ctx.fillText('РУЛЕТКА',cx,cy+6);
+      }
+
+      function chooseSectorBiased(){
+        const rand = Math.random();
+        if(rand < 0.30){
+          const zeros = sectors.map((s,i)=> s.mult===0?i:-1).filter(i=>i>=0);
+          return zeros[Math.floor(Math.random()*zeros.length)];
+        } else if(rand < 0.50){
+          const halfs = sectors.map((s,i)=> s.mult===0.5?i:-1).filter(i=>i>=0);
+          return halfs[Math.floor(Math.random()*halfs.length)];
+        } else if(rand < 0.75){
+          const ones = sectors.map((s,i)=> s.mult===1?i:-1).filter(i=>i>=0);
+          return ones[Math.floor(Math.random()*ones.length)];
+        } else if(rand < 0.90){
+          const twos = sectors.map((s,i)=> s.mult===2?i:-1).filter(i=>i>=0);
+          return twos[Math.floor(Math.random()*twos.length)];
+        } else {
+          const threes = sectors.map((s,i)=> s.mult===3?i:-1).filter(i=>i>=0);
+          return threes[Math.floor(Math.random()*threes.length)];
+        }
+      }
+
+      async function doSpin(isDemo=false){
+        if(spinning) return;
+        if(!currentUser){ alert('Войдите в систему'); return; }
+        
+        // Обновляем данные пользователя
+        if(!currentUserDoc){ 
+          await refreshUserDoc(); 
+        }
+        
+        let cost = parseInt(costInput.value) || 0;
+        if(cost < 1000) { cost = 1000; costInput.value = cost; }
+        if(cost > 50000) { cost = 50000; costInput.value = cost; }
+
+        if(!isDemo){
+          if((currentUserDoc?.balance || 0) < cost){ 
+            alert('Недостаточно средств'); 
+            return; 
+          }
+        }
+
+        spinning = true;
+        spinBtn.disabled = true;
+        spinDemo.disabled = true;
+        resultEl.innerText = 'Крутим...';
+
+        if(!isDemo){
+          try{ 
+            await db.collection('users').doc(currentUser.uid).update({ 
+              balance: firebase.firestore.FieldValue.increment(-cost) 
+            }); 
+            await refreshUserDoc(); // Обновляем данные после списания
+          }
+          catch(e){ 
+            console.error('Ошибка списания ставки',e); 
+            spinning = false;
+            spinBtn.disabled = false;
+            spinDemo.disabled = false;
+            return;
+          }
+        }
+
+        const chosenIndex = chooseSectorBiased();
+        const sectorAngle = 360 / sectorCount;
+        const randomSpins = 4 + Math.floor(Math.random()*3);
+        const offset = sectorAngle * chosenIndex + sectorAngle/2;
+        const targetDeg = randomSpins*360 + (360 - offset);
+
+        wheelEl.style.transition = 'transform 5s cubic-bezier(0.22, 0.61, 0.36, 1)';
+        wheelEl.style.transform = `rotate(${targetDeg}deg)`;
+
+        wheelEl.addEventListener('transitionend', async function handler(){
+          wheelEl.removeEventListener('transitionend', handler);
+          
+          // Сбрасываем анимацию
+          setTimeout(()=> {
+            const currentRotation = parseInt(wheelEl.style.transform.replace('rotate(', '').replace('deg)', '')) % 360;
+            wheelEl.style.transition = 'none';
+            wheelEl.style.transform = `rotate(${currentRotation}deg)`;
+          }, 100);
+
+          const sector = sectors[chosenIndex];
+          const mult = sector.mult;
+          let payout = 0;
+          
+          if(mult > 0){
+            payout = Math.floor(cost * mult);
+            if(!isDemo){
+              try{ 
+                await db.collection('users').doc(currentUser.uid).update({ 
+                  balance: firebase.firestore.FieldValue.increment(payout) 
+                }); 
+              } 
+              catch(e){ 
+                console.error('Ошибка выдачи выигрыша',e); 
+              }
+            }
+          }
+
+          await refreshUserDoc();
+          resultEl.innerHTML = `Результат: <strong>${sector.label}</strong> — множитель ${mult}x. ${payout>0?('Выигрыш: '+payout+' ₽'):'Проигрыш'} `;
+
+          spinning = false;
+          spinBtn.disabled = false; 
+          spinDemo.disabled = false;
+        }, {once: true});
+      }
+
+      // Удаляем старые обработчики и добавляем новые
+      spinBtn.replaceWith(spinBtn.cloneNode(true));
+      spinDemo.replaceWith(spinDemo.cloneNode(true));
+      
+      document.getElementById('spin-btn').addEventListener('click', () => doSpin(false));
+      document.getElementById('spin-demo').addEventListener('click', () => doSpin(true));
+
+      // Рисуем колесо при инициализации
+      drawWheel();
+    }
+
     // Вызов функции инициализации админских вкладок
     setupAdminTabs();
 
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
       console.log('GSK LAND loaded successfully');
+      
+      // Перерисовываем колесо при изменении размера окна
+      window.addEventListener('resize', function() {
+        if (!views.casino.classList.contains('hidden')) {
+          setTimeout(initCasino, 100);
+        }
+      });
     });
   </script>
-<!-- ======= НАЧАЛО: Раздел Казино (вставить перед </body>) ======= -->
-<style>
-  /* Казино (рулетка) — стили */
-  #view-casino { padding-top:12px }
-  .casino-card { padding:16px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02)); border:1px solid rgba(255,255,255,0.03); }
-  .wheel-wrap{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap}
-  .wheel { width:360px; height:360px; border-radius:50%; position:relative; overflow:visible; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
-  .wheel canvas{ width:100%; height:100%; transform: translateZ(0); }
-  .wheel-pointer{ position:absolute; top:-8px; left:50%; transform:translateX(-50%); width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:24px solid #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); z-index:50 }
-  .casino-controls{ max-width:360px }
-  .casino-controls input[type=number]{ width:100%; }
-  .casino-info{ margin-top:12px }
-  @media (max-width:900px){ .wheel{ width:280px;height:280px } }
-</style>
-<script>
-(function(){
-  try{
-    const nav = document.getElementById('nav');
-    if (nav && !document.querySelector('[data-view="casino"]')){
-      const btn = document.createElement('button');
-      btn.className = 'nav-btn';
-      btn.dataset.view = 'casino';
-      btn.innerText = 'Казино';
-      nav.appendChild(btn);
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('main section, main .col section').forEach(s => s.classList.add('hidden'));
-        document.getElementById('view-casino').classList.remove('hidden');
-      });
-    }
-  }catch(e){console.error('Casino: nav insert error',e)}
-
-  const canvas = document.getElementById('roulette-canvas');
-  const ctx = canvas.getContext('2d');
-  const wheelEl = document.getElementById('roulette-wheel');
-  const resultEl = document.getElementById('casino-result');
-  const spinBtn = document.getElementById('spin-btn');
-  const spinDemo = document.getElementById('spin-demo');
-  const costInput = document.getElementById('spin-cost');
-
-  const sectors = [
-    {label:'0x', mult:0},
-    {label:'0.5x', mult:0.5},
-    {label:'1x', mult:1},
-    {label:'1x', mult:1},
-    {label:'2x', mult:2},
-    {label:'0x', mult:0},
-    {label:'0.5x', mult:0.5},
-    {label:'1x', mult:1},
-    {label:'3x', mult:3},
-    {label:'1x', mult:1},
-    {label:'0x', mult:0},
-    {label:'2x', mult:2}
-  ];
-  const sectorCount = sectors.length;
-
-  function drawWheel(){
-    const w = canvas.width;
-    const h = canvas.height;
-    const cx = w/2; const cy = h/2; const r = Math.min(cx,cy)-10;
-    ctx.clearRect(0,0,w,h);
-    const angleStep = (Math.PI*2)/sectorCount;
-    for(let i=0;i<sectorCount;i++){
-      const start = -Math.PI/2 + i*angleStep;
-      const end = start + angleStep;
-      ctx.beginPath();
-      ctx.moveTo(cx,cy);
-      ctx.arc(cx,cy,r,start,end,false);
-      ctx.closePath();
-      ctx.fillStyle = (i%2===0)? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.02)';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-      ctx.stroke();
-      ctx.save();
-      ctx.translate(cx,cy);
-      const ang = start + angleStep/2;
-      ctx.rotate(ang);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = 'white';
-      ctx.font = '24px Inter, Arial';
-      ctx.fillText(sectors[i].label, r-20, 10);
-      ctx.restore();
-    }
-    ctx.beginPath(); ctx.arc(cx,cy,48,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
-    ctx.fillStyle='white'; ctx.font='20px Inter, Arial'; ctx.textAlign='center'; ctx.fillText('РУЛЕТКА',cx,cy+6);
-  }
-  drawWheel();
-
-  function chooseSectorBiased(){
-    const rand = Math.random();
-    if(rand < 0.30){
-      const zeros = sectors.map((s,i)=> s.mult===0?i:-1).filter(i=>i>=0);
-      return zeros[Math.floor(Math.random()*zeros.length)];
-    } else if(rand < 0.50){
-      const halfs = sectors.map((s,i)=> s.mult===0.5?i:-1).filter(i=>i>=0);
-      return halfs[Math.floor(Math.random()*halfs.length)];
-    } else if(rand < 0.75){
-      const ones = sectors.map((s,i)=> s.mult===1?i:-1).filter(i=>i>=0);
-      return ones[Math.floor(Math.random()*ones.length)];
-    } else if(rand < 0.90){
-      const twos = sectors.map((s,i)=> s.mult===2?i:-1).filter(i=>i>=0);
-      return twos[Math.floor(Math.random()*twos.length)];
-    } else {
-      const threes = sectors.map((s,i)=> s.mult===3?i:-1).filter(i=>i>=0);
-      return threes[Math.floor(Math.random()*threes.length)];
-    }
-  }
-
-  let spinning = false;
-
-  async function doSpin(isDemo=false){
-    if(spinning) return;
-    if(!window.currentUser){ alert('Войдите в систему'); return; } if(!window.currentUserDoc){ await refreshUserDoc(); }
-    let cost = parseInt(costInput.value) || 0;
-    if(cost < 1000) { cost = 1000; costInput.value = cost; }
-    if(cost > 50000) { cost = 50000; costInput.value = cost; }
-
-    if(!isDemo){
-      if(!window.currentUserDoc){ await refreshUserDoc(); }
-      if((window.currentUserDoc?.balance || 0) < cost){ alert('Недостаточно средств'); return; }
-    }
-
-    spinning = true;
-    spinBtn.disabled = true;
-    spinDemo.disabled = true;
-    resultEl.innerText = 'Крутим...';
-
-    if(!isDemo){
-      try{ await db.collection('users').doc(currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(-cost) }); }
-      catch(e){ console.error('Ошибка списания ставки',e); }
-    }
-
-    const chosenIndex = chooseSectorBiased();
-    const sectorAngle = 360 / sectorCount;
-    const randomSpins = 4 + Math.floor(Math.random()*3);
-    const offset = sectorAngle * chosenIndex + sectorAngle/2;
-    const targetDeg = randomSpins*360 + (360 - offset);
-
-    wheelEl.style.transition = 'transform 5s cubic-bezier(0.22, 0.61, 0.36, 1)';
-    wheelEl.style.transform = `rotate(${targetDeg}deg)`;
-
-    wheelEl.addEventListener('transitionend', async function handler(){
-      wheelEl.removeEventListener('transitionend', handler);
-      setTimeout(()=> {
-        wheelEl.style.transition = '';
-        wheelEl.style.transform = `rotate(${(360 - offset)}deg)`;
-      },50);
-
-      const sector = sectors[chosenIndex];
-      const mult = sector.mult;
-      let payout = 0;
-      if(mult > 0){
-        payout = Math.floor(cost * mult);
-        if(!isDemo){
-          try{ await db.collection('users').doc(currentUser.uid).update({ balance: firebase.firestore.FieldValue.increment(payout) }); } catch(e){ console.error('Ошибка выдачи выигрыша',e); }
-        }
-      }
-
-      await refreshUserDoc();
-      resultEl.innerHTML = `Результат: <strong>${sector.label}</strong> — множитель ${mult}x. ${payout>0?('Выигрыш: '+payout+' ₽'):'Проигрыш'} `;
-
-      spinBtn.disabled = false; spinDemo.disabled = false; spinning = false;
-    });
-  }
-
-  spinBtn.addEventListener('click', () => doSpin(false));
-  spinDemo.addEventListener('click', () => doSpin(true));
-
-  window.addEventListener('resize', drawWheel);
-
-  document.addEventListener('click', function(e){
-    if(e.target && e.target.dataset && e.target.dataset.view === 'casino'){
-      setTimeout(drawWheel,200);
-    }
-  });
-})();
-</script>
-<!-- ======= КОНЕЦ: Раздел Казино ======= -->
 </body>
 </html>
