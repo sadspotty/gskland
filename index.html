@@ -1995,13 +1995,12 @@
   .wheel-wrap{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap}
   .wheel { width:360px; height:360px; border-radius:50%; position:relative; overflow:visible; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
   .wheel canvas{ width:100%; height:100%; transform: translateZ(0); }
-  .wheel-pointer{ position:absolute; top:-8px; left:50%; transform:translateX(-50%); width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:24px solid #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); z-index:50 }
+  .wheel-pointer{ position:absolute; top:-8px; left:50%; transform:translateX(-50%); width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:24px solid #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); z-index:50 }
   .casino-controls{ max-width:360px }
   .casino-controls input[type=number]{ width:100%; }
   .casino-info{ margin-top:12px }
   @media (max-width:900px){ .wheel{ width:280px;height:280px } }
 </style>
-
 <script>
 (function(){
   try{
@@ -2101,7 +2100,7 @@
 
   async function doSpin(isDemo=false){
     if(spinning) return;
-    if(!window.currentUserDoc){ await refreshUserDoc(); if(!window.currentUserDoc){ alert('Войдите в систему'); return; } }
+    if(!window.currentUser){ alert('Войдите в систему'); return; } if(!window.currentUserDoc){ await refreshUserDoc(); }
     let cost = parseInt(costInput.value) || 0;
     if(cost < 1000) { cost = 1000; costInput.value = cost; }
     if(cost > 50000) { cost = 50000; costInput.value = cost; }
