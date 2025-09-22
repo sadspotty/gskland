@@ -300,7 +300,28 @@
 </div>
 </div>
 </section>
-</main>
+<section class="hidden" id="view-casino">
+<h2>Казино — Рулетка</h2>
+<div class="card casino-card">
+<div class="wheel-wrap">
+<div style="position:relative">
+<div class="wheel" id="roulette-wheel">
+<div aria-hidden="" class="wheel-pointer"></div>
+<canvas height="720" id="roulette-canvas" width="720"></canvas>
+</div>
+</div>
+<div class="casino-controls">
+<label>Стоимость прокрута (₽) — от 1000 до 50000</label>
+<input id="spin-cost" max="50000" min="1000" step="100" type="number" value="1000"/>
+<div style="margin-top:8px;display:flex;gap:8px">
+<button class="btn" id="spin-btn">Прокрутить</button>
+<button class="btn" id="spin-demo" style="background:rgba(200,60,60,0.9)">Быстрая проверка (demo)</button>
+</div>
+<div class="casino-info muted small" id="casino-result">Ставка не сделана</div>
+</div>
+</div>
+</div>
+</section></main>
 <aside class="col">
 <div class="card">
 <h3>Уведомления <span class="notification-badge hidden" id="notification-badge">0</span></h3>
@@ -1966,7 +1987,6 @@
       console.log('GSK LAND loaded successfully');
     });
   </script>
-
 <!-- ======= НАЧАЛО: Раздел Казино (вставить перед </body>) ======= -->
 <style>
   /* Казино (рулетка) — стили */
@@ -1981,28 +2001,7 @@
   .casino-info{ margin-top:12px }
   @media (max-width:900px){ .wheel{ width:280px;height:280px } }
 </style>
-<section class="hidden" id="view-casino">
-<h2>Казино — Рулетка</h2>
-<div class="card casino-card">
-<div class="wheel-wrap">
-<div style="position:relative">
-<div class="wheel" id="roulette-wheel">
-<div aria-hidden="" class="wheel-pointer"></div>
-<canvas height="720" id="roulette-canvas" width="720"></canvas>
-</div>
-</div>
-<div class="casino-controls">
-<label>Стоимость прокрута (₽) — от 1000 до 50000</label>
-<input id="spin-cost" max="50000" min="1000" step="100" type="number" value="1000"/>
-<div style="margin-top:8px;display:flex;gap:8px">
-<button class="btn" id="spin-btn">Прокрутить</button>
-<button class="btn" id="spin-demo" style="background:rgba(200,60,60,0.9)">Быстрая проверка (demo)</button>
-</div>
-<div class="casino-info muted small" id="casino-result">Ставка не сделана</div>
-</div>
-</div>
-</div>
-</section>
+
 <script>
 (function(){
   try{
@@ -2102,7 +2101,7 @@
 
   async function doSpin(isDemo=false){
     if(spinning) return;
-    if(!window.currentUser){ alert('Войдите в систему'); return; }
+    if(!window.currentUserDoc){ await refreshUserDoc(); if(!window.currentUserDoc){ alert('Войдите в систему'); return; } }
     let cost = parseInt(costInput.value) || 0;
     if(cost < 1000) { cost = 1000; costInput.value = cost; }
     if(cost > 50000) { cost = 50000; costInput.value = cost; }
