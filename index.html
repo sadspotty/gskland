@@ -22,14 +22,15 @@
     .app{max-width:1100px;margin:64px auto;padding:28px;backdrop-filter: blur(10px) saturate(120%); background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02)); border-radius:24px; border:1px solid var(--glass-border); box-shadow: 0 12px 40px rgba(2,6,23,0.7);}
     header{display:flex;align-items:center;justify-content:space-between;gap:12px}
     h1{margin:0;font-size:22px;letter-spacing:0.4px}
-    nav{display:flex;gap:8px;flex-wrap:wrap}
+    nav{display:flex;gap:8px}
     .nav-btn{padding:10px 14px;border-radius:12px;background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--glass-border);cursor:pointer;color:var(--text)}
     .nav-btn.active{box-shadow: inset 0 -2px 0 rgba(0,0,0,0.25);}
     .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
     .col{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03)); padding:18px;border-radius:var(--card-radius); border:1px solid var(--glass-border)}
-    .card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));border:1px solid var(--glass-border);margin-bottom:12px}
+    .card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));border:1px solid var(--glass-border);margin-bottom:12px}
     .btn{display:inline-block;padding:8px 12px;border-radius:10px;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:white;text-decoration:none;border:none;cursor:pointer}
     .muted{color:var(--muted);font-size:13px}
+    .hidden{display:none !important}
 
     /* Рулетка */
     .roulette-container {
@@ -52,6 +53,7 @@
       );
       transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
       margin: 0 auto;
+      position: relative;
     }
     .roulette-pointer {
       position: absolute;
@@ -64,6 +66,18 @@
       border-right: 15px solid transparent;
       border-top: 20px solid #fff;
       filter: drop-shadow(0 0 4px rgba(0,0,0,0.7));
+    }
+    .sector-label {
+      position: absolute;
+      width: 60px;
+      text-align: center;
+      left: 50%;
+      top: 50%;
+      transform-origin: 0 -120px;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 0 4px black;
     }
   </style>
 </head>
@@ -97,11 +111,19 @@
           </div>
         </section>
 
+        <!-- Новый раздел Казино -->
         <section id="view-casino" class="hidden">
           <h2>Казино — Рулетка 🎡</h2>
           <div class="card" style="text-align:center">
             <div class="roulette-container">
-              <div id="roulette-wheel"></div>
+              <div id="roulette-wheel">
+                <div class="sector-label" style="transform: rotate(30deg)">x2</div>
+                <div class="sector-label" style="transform: rotate(90deg)">x3</div>
+                <div class="sector-label" style="transform: rotate(150deg)">x0</div>
+                <div class="sector-label" style="transform: rotate(210deg)">x0.5</div>
+                <div class="sector-label" style="transform: rotate(270deg)">x5</div>
+                <div class="sector-label" style="transform: rotate(330deg)">x10</div>
+              </div>
               <div class="roulette-pointer"></div>
             </div>
             <div style="margin-top:12px">
@@ -151,7 +173,7 @@
         btn.classList.add('active');
         const view = btn.dataset.view;
         Object.values(views).forEach(v => v.classList.add('hidden'));
-        views[view].classList.remove('hidden');
+        if (views[view]) views[view].classList.remove('hidden');
       });
     });
 
@@ -169,12 +191,16 @@
 
     const rouletteWheel = document.getElementById("roulette-wheel");
     const rouletteResult = document.getElementById("roulette-result");
+    const rouletteSpinBtn = document.getElementById("roulette-spin");
 
-    document.getElementById("roulette-spin").addEventListener("click", async () => {
+    rouletteSpinBtn.addEventListener("click", async () => {
       if (!currentUser) return alert("Войдите в систему");
 
       const bet = 1000;
       if ((currentUserDoc.balance || 0) < bet) return alert("Недостаточно средств");
+
+      // Блокируем кнопку
+      rouletteSpinBtn.disabled = true;
 
       const sectors = [
         { angle: 30, multiplier: 2 },
@@ -205,6 +231,9 @@
 
         const snap = await db.collection('users').doc(currentUser.uid).get();
         if (snap.exists) currentUserDoc = snap.data();
+
+        // Разблокируем кнопку
+        rouletteSpinBtn.disabled = false;
       }, 4000);
     });
   </script>
