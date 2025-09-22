@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.3.0</title>
+<title>GSK LAND — бизнес-игра v1.3.1</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -110,15 +110,51 @@
     }
 
     /* Казино (рулетка) — стили */
-    .casino-card { padding:16px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02)); border:1px solid rgba(255,255,255,0.03); }
-    .wheel-wrap{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap}
-    .wheel { width:360px; height:360px; border-radius:50%; position:relative; overflow:visible; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
-    .wheel canvas{ width:100%; height:100%; transform: translateZ(0); }
-    .wheel-pointer{ position:absolute; top:-8px; left:50%; transform:translateX(-50%); width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:24px solid #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); z-index:50 }
-    .casino-controls{ max-width:360px }
-    .casino-controls input[type=number]{ width:100%; }
-    .casino-info{ margin-top:12px }
-    @media (max-width:900px){ .wheel{ width:280px;height:280px } }
+	.casino-card { padding:16px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02)); border:1px solid rgba(255,255,255,0.03); }
+	.wheel-wrap{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap;}
+	.wheel-container {
+	  position: relative;
+	  width: 360px;
+	  height: 360px;
+	  display: flex;
+	  justify-content: center;
+	  align-items: flex-start;
+	}
+	.wheel { 
+	  width:360px; 
+	  height:360px; 
+	  border-radius:50%; 
+	  position:relative; 
+	  overflow:hidden; 
+	  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+	  transform-origin: center center;
+	}
+	.wheel canvas{ 
+	  width:100%; 
+	  height:100%; 
+	  transform: translateZ(0);
+	}
+	.wheel-pointer{ 
+	  position: absolute;
+	  top: -5px;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  width: 0;
+	  height: 0;
+	  border-left: 15px solid transparent;
+	  border-right: 15px solid transparent;
+	  border-top: 25px solid #ff4757;
+	  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+	  z-index: 100;
+	  pointer-events: none;
+	}
+	.casino-controls{ max-width:360px; margin-top: 20px; }
+	.casino-controls input[type=number]{ width:100%; }
+	.casino-info{ margin-top:12px }
+	@media (max-width:900px){ 
+	  .wheel{ width:280px;height:280px } 
+	  .wheel-container { width: 280px; height: 280px; }
+	}
   </style>
 </head>
 <body>
@@ -271,26 +307,28 @@
 </div>
 </section>
 <section class="hidden" id="view-casino">
-<h2>Казино — Рулетка</h2>
-<div class="card casino-card">
-<div class="wheel-wrap">
-<div style="position:relative">
-<div class="wheel" id="roulette-wheel">
-<div aria-hidden="" class="wheel-pointer"></div>
-<canvas height="720" id="roulette-canvas" width="720"></canvas>
-</div>
-</div>
-<div class="casino-controls">
-<label>Стоимость прокрута (₽) — от 1000 до 50000</label>
-<input id="spin-cost" max="50000" min="1000" step="100" type="number" value="1000"/>
-<div style="margin-top:8px;display:flex;gap:8px">
-<button class="btn" id="spin-btn">Прокрутить</button>
-<button class="btn" id="spin-demo" style="background:rgba(200,60,60,0.9)">Быстрая проверка (demo)</button>
-</div>
-<div class="casino-info muted small" id="casino-result">Ставка не сделана</div>
-</div>
-</div>
-</div>
+  <h2>Казино — Рулетка</h2>
+  <div class="card casino-card">
+    <div class="wheel-wrap">
+      <div class="wheel-container">
+        <!-- Стрелочка ВНЕ вращающегося элемента -->
+        <div class="wheel-pointer"></div>
+        <!-- Вращающееся колесо -->
+        <div class="wheel" id="roulette-wheel">
+          <canvas height="720" id="roulette-canvas" width="720"></canvas>
+        </div>
+      </div>
+      <div class="casino-controls">
+        <label>Стоимость прокрута (₽) — от 1000 до 50000</label>
+        <input id="spin-cost" max="50000" min="1000" step="100" type="number" value="1000"/>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="btn" id="spin-btn">Прокрутить</button>
+          <button class="btn" id="spin-demo" style="background:rgba(200,60,60,0.9)">Быстрая проверка (demo)</button>
+        </div>
+        <div class="casino-info muted small" id="casino-result">Ставка не сделана</div>
+      </div>
+    </div>
+  </div>
 </section>
 <section class="hidden" id="view-admin">
 <h2>Админ панель</h2>
