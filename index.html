@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра 999</title>
+<title>GSK LAND — бизнес-игра v1.3.0</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -1971,181 +1971,190 @@
     }
 
     // Функция инициализации казино
-    function initCasino() {
-      const canvas = document.getElementById('roulette-canvas');
-      if (!canvas) return;
-      
-      const ctx = canvas.getContext('2d');
-      const wheelEl = document.getElementById('roulette-wheel');
-      const resultEl = document.getElementById('casino-result');
-      const spinBtn = document.getElementById('spin-btn');
-      const spinDemo = document.getElementById('spin-demo');
-      const costInput = document.getElementById('spin-cost');
+    // Функция инициализации казино
+	function initCasino() {
+	  const canvas = document.getElementById('roulette-canvas');
+	  if (!canvas) return;
+	  
+	  const ctx = canvas.getContext('2d');
+	  const wheelEl = document.getElementById('roulette-wheel');
+	  const resultEl = document.getElementById('casino-result');
+	  const spinBtn = document.getElementById('spin-btn');
+	  const spinDemo = document.getElementById('spin-demo');
+	  const costInput = document.getElementById('spin-cost');
 
-      const sectors = [
-        {label:'0x', mult:0},
-        {label:'0.5x', mult:0.5},
-        {label:'1x', mult:1},
-        {label:'1x', mult:1},
-        {label:'2x', mult:2},
-        {label:'0x', mult:0},
-        {label:'0.5x', mult:0.5},
-        {label:'1x', mult:1},
-        {label:'3x', mult:3},
-        {label:'1x', mult:1},
-        {label:'0x', mult:0},
-        {label:'2x', mult:2}
-      ];
-      const sectorCount = sectors.length;
+	  const sectors = [
+		{label:'0x', mult:0},
+		{label:'0.5x', mult:0.5},
+		{label:'1x', mult:1},
+		{label:'1x', mult:1},
+		{label:'2x', mult:2},
+		{label:'0x', mult:0},
+		{label:'0.5x', mult:0.5},
+		{label:'1x', mult:1},
+		{label:'3x', mult:3},
+		{label:'1x', mult:1},
+		{label:'0x', mult:0},
+		{label:'2x', mult:2}
+	  ];
+	  const sectorCount = sectors.length;
 
-      function drawWheel(){
-        const w = canvas.width;
-        const h = canvas.height;
-        const cx = w/2; const cy = h/2; const r = Math.min(cx,cy)-10;
-        ctx.clearRect(0,0,w,h);
-        const angleStep = (Math.PI*2)/sectorCount;
-        for(let i=0;i<sectorCount;i++){
-          const start = -Math.PI/2 + i*angleStep;
-          const end = start + angleStep;
-          ctx.beginPath();
-          ctx.moveTo(cx,cy);
-          ctx.arc(cx,cy,r,start,end,false);
-          ctx.closePath();
-          ctx.fillStyle = (i%2===0)? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.02)';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-          ctx.stroke();
-          ctx.save();
-          ctx.translate(cx,cy);
-          const ang = start + angleStep/2;
-          ctx.rotate(ang);
-          ctx.textAlign = 'right';
-          ctx.fillStyle = 'white';
-          ctx.font = '24px Inter, Arial';
-          ctx.fillText(sectors[i].label, r-20, 10);
-          ctx.restore();
-        }
-        ctx.beginPath(); ctx.arc(cx,cy,48,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
-        ctx.fillStyle='white'; ctx.font='20px Inter, Arial'; ctx.textAlign='center'; ctx.fillText('РУЛЕТКА',cx,cy+6);
-      }
+	  function drawWheel(){
+		const w = canvas.width;
+		const h = canvas.height;
+		const cx = w/2; const cy = h/2; const r = Math.min(cx,cy)-10;
+		ctx.clearRect(0,0,w,h);
+		const angleStep = (Math.PI*2)/sectorCount;
+		for(let i=0;i<sectorCount;i++){
+		  const start = -Math.PI/2 + i*angleStep;
+		  const end = start + angleStep;
+		  ctx.beginPath();
+		  ctx.moveTo(cx,cy);
+		  ctx.arc(cx,cy,r,start,end,false);
+		  ctx.closePath();
+		  ctx.fillStyle = (i%2===0)? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.02)';
+		  ctx.fill();
+		  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+		  ctx.stroke();
+		  ctx.save();
+		  ctx.translate(cx,cy);
+		  const ang = start + angleStep/2;
+		  ctx.rotate(ang);
+		  ctx.textAlign = 'right';
+		  ctx.fillStyle = 'white';
+		  ctx.font = '24px Inter, Arial';
+		  ctx.fillText(sectors[i].label, r-20, 10);
+		  ctx.restore();
+		}
+		ctx.beginPath(); 
+		ctx.arc(cx,cy,48,0,Math.PI*2); 
+		ctx.fillStyle='rgba(0,0,0,0.4)'; 
+		ctx.fill();
+		ctx.fillStyle='white'; 
+		ctx.font='20px Inter, Arial'; 
+		ctx.textAlign='center'; 
+		ctx.fillText('РУЛЕТКА',cx,cy+6);
+	  }
 
-      function chooseSectorBiased(){
-        const rand = Math.random();
-        if(rand < 0.30){
-          const zeros = sectors.map((s,i)=> s.mult===0?i:-1).filter(i=>i>=0);
-          return zeros[Math.floor(Math.random()*zeros.length)];
-        } else if(rand < 0.50){
-          const halfs = sectors.map((s,i)=> s.mult===0.5?i:-1).filter(i=>i>=0);
-          return halfs[Math.floor(Math.random()*halfs.length)];
-        } else if(rand < 0.75){
-          const ones = sectors.map((s,i)=> s.mult===1?i:-1).filter(i=>i>=0);
-          return ones[Math.floor(Math.random()*ones.length)];
-        } else if(rand < 0.90){
-          const twos = sectors.map((s,i)=> s.mult===2?i:-1).filter(i=>i>=0);
-          return twos[Math.floor(Math.random()*twos.length)];
-        } else {
-          const threes = sectors.map((s,i)=> s.mult===3?i:-1).filter(i=>i>=0);
-          return threes[Math.floor(Math.random()*threes.length)];
-        }
-      }
+	  function chooseSectorBiased(){
+		const rand = Math.random();
+		if(rand < 0.30){
+		  const zeros = sectors.map((s,i)=> s.mult===0?i:-1).filter(i=>i>=0);
+		  return zeros[Math.floor(Math.random()*zeros.length)];
+		} else if(rand < 0.50){
+		  const halfs = sectors.map((s,i)=> s.mult===0.5?i:-1).filter(i=>i>=0);
+		  return halfs[Math.floor(Math.random()*halfs.length)];
+		} else if(rand < 0.75){
+		  const ones = sectors.map((s,i)=> s.mult===1?i:-1).filter(i=>i>=0);
+		  return ones[Math.floor(Math.random()*ones.length)];
+		} else if(rand < 0.90){
+		  const twos = sectors.map((s,i)=> s.mult===2?i:-1).filter(i=>i>=0);
+		  return twos[Math.floor(Math.random()*twos.length)];
+		} else {
+		  const threes = sectors.map((s,i)=> s.mult===3?i:-1).filter(i=>i>=0);
+		  return threes[Math.floor(Math.random()*threes.length)];
+		}
+	  }
 
-      async function doSpin(isDemo=false){
-        if(spinning) return;
-        if(!currentUser){ alert('Войдите в систему'); return; }
-        
-        // Обновляем данные пользователя
-        if(!currentUserDoc){ 
-          await refreshUserDoc(); 
-        }
-        
-        let cost = parseInt(costInput.value) || 0;
-        if(cost < 1000) { cost = 1000; costInput.value = cost; }
-        if(cost > 50000) { cost = 50000; costInput.value = cost; }
+	  async function doSpin(isDemo=false){
+		if(spinning) return;
+		if(!currentUser){ alert('Войдите в систему'); return; }
+		
+		// Обновляем данные пользователя
+		if(!currentUserDoc){ 
+		  await refreshUserDoc(); 
+		}
+		
+		let cost = parseInt(costInput.value) || 0;
+		if(cost < 1000) { cost = 1000; costInput.value = cost; }
+		if(cost > 50000) { cost = 50000; costInput.value = cost; }
 
-        if(!isDemo){
-          if((currentUserDoc?.balance || 0) < cost){ 
-            alert('Недостаточно средств'); 
-            return; 
-          }
-        }
+		if(!isDemo){
+		  if((currentUserDoc?.balance || 0) < cost){ 
+			alert('Недостаточно средств'); 
+			return; 
+		  }
+		}
 
-        spinning = true;
-        spinBtn.disabled = true;
-        spinDemo.disabled = true;
-        resultEl.innerText = 'Крутим...';
+		spinning = true;
+		spinBtn.disabled = true;
+		spinDemo.disabled = true;
+		resultEl.innerText = 'Крутим...';
 
-        if(!isDemo){
-          try{ 
-            await db.collection('users').doc(currentUser.uid).update({ 
-              balance: firebase.firestore.FieldValue.increment(-cost) 
-            }); 
-            await refreshUserDoc(); // Обновляем данные после списания
-          }
-          catch(e){ 
-            console.error('Ошибка списания ставки',e); 
-            spinning = false;
-            spinBtn.disabled = false;
-            spinDemo.disabled = false;
-            return;
-          }
-        }
+		if(!isDemo){
+		  try{ 
+			await db.collection('users').doc(currentUser.uid).update({ 
+			  balance: firebase.firestore.FieldValue.increment(-cost) 
+			}); 
+			await refreshUserDoc(); // Обновляем данные после списания
+		  }
+		  catch(e){ 
+			console.error('Ошибка списания ставки',e); 
+			spinning = false;
+			spinBtn.disabled = false;
+			spinDemo.disabled = false;
+			return;
+		  }
+		}
 
-        const chosenIndex = chooseSectorBiased();
-        const sectorAngle = 360 / sectorCount;
-        const randomSpins = 4 + Math.floor(Math.random()*3);
-        const offset = sectorAngle * chosenIndex + sectorAngle/2;
-        const targetDeg = randomSpins*360 + (360 - offset);
+		const chosenIndex = chooseSectorBiased();
+		const sectorAngle = 360 / sectorCount;
+		const randomSpins = 4 + Math.floor(Math.random()*3);
+		const offset = sectorAngle * chosenIndex + sectorAngle/2;
+		const targetDeg = randomSpins*360 + (360 - offset);
 
-        wheelEl.style.transition = 'transform 5s cubic-bezier(0.22, 0.61, 0.36, 1)';
-        wheelEl.style.transform = `rotate(${targetDeg}deg)`;
+		// Сбрасываем текущее вращение
+		wheelEl.style.transition = 'none';
+		wheelEl.style.transform = 'rotate(0deg)';
+		
+		// Запускаем анимацию с небольшой задержкой
+		setTimeout(() => {
+		  wheelEl.style.transition = 'transform 5s cubic-bezier(0.22, 0.61, 0.36, 1)';
+		  wheelEl.style.transform = `rotate(${targetDeg}deg)`;
+		}, 50);
 
-        wheelEl.addEventListener('transitionend', async function handler(){
-          wheelEl.removeEventListener('transitionend', handler);
-          
-          // Сбрасываем анимацию
-          setTimeout(()=> {
-            const currentRotation = parseInt(wheelEl.style.transform.replace('rotate(', '').replace('deg)', '')) % 360;
-            wheelEl.style.transition = 'none';
-            wheelEl.style.transform = `rotate(${currentRotation}deg)`;
-          }, 100);
+		wheelEl.addEventListener('transitionend', async function handler(){
+		  wheelEl.removeEventListener('transitionend', handler);
+		  
+		  const sector = sectors[chosenIndex];
+		  const mult = sector.mult;
+		  let payout = 0;
+		  
+		  if(mult > 0){
+			payout = Math.floor(cost * mult);
+			if(!isDemo){
+			  try{ 
+				await db.collection('users').doc(currentUser.uid).update({ 
+				  balance: firebase.firestore.FieldValue.increment(payout) 
+				}); 
+			  } 
+			  catch(e){ 
+				console.error('Ошибка выдачи выигрыша',e); 
+			  }
+			}
+		  }
 
-          const sector = sectors[chosenIndex];
-          const mult = sector.mult;
-          let payout = 0;
-          
-          if(mult > 0){
-            payout = Math.floor(cost * mult);
-            if(!isDemo){
-              try{ 
-                await db.collection('users').doc(currentUser.uid).update({ 
-                  balance: firebase.firestore.FieldValue.increment(payout) 
-                }); 
-              } 
-              catch(e){ 
-                console.error('Ошибка выдачи выигрыша',e); 
-              }
-            }
-          }
+		  await refreshUserDoc();
+		  resultEl.innerHTML = `Результат: <strong>${sector.label}</strong> — множитель ${mult}x. ${payout>0?('Выигрыш: '+payout+' ₽'):'Проигрыш'} `;
 
-          await refreshUserDoc();
-          resultEl.innerHTML = `Результат: <strong>${sector.label}</strong> — множитель ${mult}x. ${payout>0?('Выигрыш: '+payout+' ₽'):'Проигрыш'} `;
+		  spinning = false;
+		  spinBtn.disabled = false; 
+		  spinDemo.disabled = false;
+		}, {once: true});
+	  }
 
-          spinning = false;
-          spinBtn.disabled = false; 
-          spinDemo.disabled = false;
-        }, {once: true});
-      }
+	  // Удаляем старые обработчики и добавляем новые
+	  const newSpinBtn = spinBtn.cloneNode(true);
+	  const newSpinDemo = spinDemo.cloneNode(true);
+	  spinBtn.parentNode.replaceChild(newSpinBtn, spinBtn);
+	  spinDemo.parentNode.replaceChild(newSpinDemo, spinDemo);
+	  
+	  document.getElementById('spin-btn').addEventListener('click', () => doSpin(false));
+	  document.getElementById('spin-demo').addEventListener('click', () => doSpin(true));
 
-      // Удаляем старые обработчики и добавляем новые
-      spinBtn.replaceWith(spinBtn.cloneNode(true));
-      spinDemo.replaceWith(spinDemo.cloneNode(true));
-      
-      document.getElementById('spin-btn').addEventListener('click', () => doSpin(false));
-      document.getElementById('spin-demo').addEventListener('click', () => doSpin(true));
-
-      // Рисуем колесо при инициализации
-      drawWheel();
-    }
+	  // Рисуем колесо при инициализации
+	  drawWheel();
+	}
 
     // Вызов функции инициализации админских вкладок
     setupAdminTabs();
