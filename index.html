@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.3.1</title>
+<title>GSK LAND — бизнес-игра v1.3.2</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -323,7 +323,6 @@
         <input id="spin-cost" max="50000" min="1000" step="100" type="number" value="1000"/>
         <div style="margin-top:8px;display:flex;gap:8px">
           <button class="btn" id="spin-btn">Прокрутить</button>
-   <!--       <button class="btn" id="spin-demo" style="background:rgba(200,60,60,0.9)">Быстрая проверка (demo)</button> -->
         </div>
         <div class="casino-info muted small" id="casino-result">Ставка не сделана</div>
       </div>
@@ -2009,7 +2008,6 @@
     }
 
     // Функция инициализации казино
-    // Функция инициализации казино
 	function initCasino() {
 	  const canvas = document.getElementById('roulette-canvas');
 	  if (!canvas) return;
@@ -2018,7 +2016,6 @@
 	  const wheelEl = document.getElementById('roulette-wheel');
 	  const resultEl = document.getElementById('casino-result');
 	  const spinBtn = document.getElementById('spin-btn');
-	  const spinDemo = document.getElementById('spin-demo');
 	  const costInput = document.getElementById('spin-cost');
 
 	  const sectors = [
@@ -2116,7 +2113,6 @@
 
 		spinning = true;
 		spinBtn.disabled = true;
-		spinDemo.disabled = true;
 		resultEl.innerText = 'Крутим...';
 
 		if(!isDemo){
@@ -2124,13 +2120,12 @@
 			await db.collection('users').doc(currentUser.uid).update({ 
 			  balance: firebase.firestore.FieldValue.increment(-cost) 
 			}); 
-			await refreshUserDoc(); // Обновляем данные после списания
+			await refreshUserDoc();
 		  }
 		  catch(e){ 
 			console.error('Ошибка списания ставки',e); 
 			spinning = false;
 			spinBtn.disabled = false;
-			spinDemo.disabled = false;
 			return;
 		  }
 		}
@@ -2176,19 +2171,15 @@
 		  resultEl.innerHTML = `Результат: <strong>${sector.label}</strong> — множитель ${mult}x. ${payout>0?('Выигрыш: '+payout+' ₽'):'Проигрыш'} `;
 
 		  spinning = false;
-		  spinBtn.disabled = false; 
-		  spinDemo.disabled = false;
+		  spinBtn.disabled = false;
 		}, {once: true});
 	  }
 
-	  // Удаляем старые обработчики и добавляем новые
+	  // Удаляем старый обработчик и добавляем новый
 	  const newSpinBtn = spinBtn.cloneNode(true);
-	  const newSpinDemo = spinDemo.cloneNode(true);
 	  spinBtn.parentNode.replaceChild(newSpinBtn, spinBtn);
-	  spinDemo.parentNode.replaceChild(newSpinDemo, spinDemo);
 	  
 	  document.getElementById('spin-btn').addEventListener('click', () => doSpin(false));
-	  document.getElementById('spin-demo').addEventListener('click', () => doSpin(true));
 
 	  // Рисуем колесо при инициализации
 	  drawWheel();
