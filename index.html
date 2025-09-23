@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.4.1</title>
+<title>GSK LAND — бизнес-игра v1.4.4</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -2072,6 +2072,7 @@
     // Функция инициализации казино
 	function initCasino() {
   const canvas = document.getElementById('roulette-canvas');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const slices = ["x2","x3","x0","x5","x10","x0","x2","x0"];
   const radius = canvas.width / 2;
