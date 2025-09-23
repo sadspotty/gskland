@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.3.2</title>
+<title>GSK LAND — бизнес-игра v1.3.3</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -155,7 +155,28 @@
 	  .wheel{ width:280px;height:280px } 
 	  .wheel-container { width: 280px; height: 280px; }
 	}
-  </style>
+  
+/* 📱 Мобильная адаптация */
+@media (max-width: 600px) {
+  body, html { margin: 0; padding: 0; }
+  .app { margin: 16px auto; padding: 16px; width: 100%; border-radius: 12px; }
+  header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  nav { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; overflow-x: auto; }
+  .nav-btn { flex: 1 1 auto; min-width: 100px; text-align: center; font-size: 15px; padding: 8px; }
+  h1 { font-size: 18px; text-align: left; }
+  .grid { grid-template-columns: 1fr; gap: 12px; }
+  aside { order: 2; }
+  main { order: 1; }
+  #hud { flex-direction: column; align-items: flex-start; gap: 6px; min-width: auto; width: calc(100% - 24px); left: 12px; transform: none; }
+  .wheel, .wheel-container { width: 220px !important; height: 220px !important; }
+  .clicker-btn { width: 100%; font-size: 16px; padding: 16px; }
+  input, select, textarea { font-size: 16px; padding: 12px; }
+  button.btn { width: 100%; margin-top: 6px; }
+  .flex { flex-wrap: wrap; gap: 6px; }
+  .admin-table, .admin-table th, .admin-table td { font-size: 12px; }
+}
+
+</style>
 </head>
 <body>
 <div class="hidden" id="hud">
