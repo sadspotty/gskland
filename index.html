@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.4.1</title>
+<title>GSK LAND — бизнес-игра v1.4.2</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -490,6 +490,7 @@
       promocodes: document.getElementById('view-promocodes'),
       news: document.getElementById('view-news'),
       casino: document.getElementById('view-casino'),
+      help: document.getElementById('view-help'),
       admin: document.getElementById('view-admin')
     };
 
@@ -1565,14 +1566,26 @@
     // Проверка заданий
     async function checkQuests() {
       if (!currentUser) return;
-      
+
       const dailyClicks = currentUserDoc.questProgress?.dailyClicks || 0;
-      
+      const casinoProgress = currentUserDoc.questProgress?.casinoSpins || 0;
+
+      let shouldRender = false;
+
       if (dailyClicks >= 100 && !currentUserDoc.achievements?.dailyQuest) {
+        shouldRender = true;
+      }
+      if (casinoProgress >= 5 && !currentUserDoc.achievements?.casinoQuestCompleted) {
+        shouldRender = true;
+      }
+
+      if (shouldRender) {
         await refreshUserDoc();
         await renderQuests();
       }
     }
+
+    
 
     // Добавление новостей
     document.getElementById('news-add').addEventListener('click', async () => {
@@ -2266,10 +2279,11 @@
 		if(!isDemo){
 		  try{ 
 			await db.collection('users').doc(currentUser.uid).update({ 
-			  balance: firebase.firestore.FieldValue.increment(-cost) 
+			  balance: firebase.firestore.FieldValue.increment(-cost),
+			  'questProgress.casinoSpins': firebase.firestore.FieldValue.increment(1)
 			}); 
 			await refreshUserDoc();
-		  }
+}
 		  catch(e){ 
 			console.error('Ошибка списания ставки',e); 
 			spinning = false;
