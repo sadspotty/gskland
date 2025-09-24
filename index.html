@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.4.0</title>
+<title>GSK LAND — бизнес-игра v1.4.1</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -253,6 +253,7 @@
 <button class="nav-btn" data-view="achievements">Достижения</button>
 <button class="nav-btn" data-view="promocodes">Промокоды</button>
 <button class="nav-btn" data-view="news">Новости</button>
+    <button class="nav-btn" data-view="help">Помощь</button>
 <button class="nav-btn" data-view="casino">Казино</button>
 <button class="nav-btn hidden" data-view="admin" id="nav-admin">Админ</button>
 </nav>
@@ -370,7 +371,16 @@
 <div style="margin-top:8px"><button class="btn" id="news-add">Опубликовать</button></div>
 </div>
 </section>
-<section class="hidden" id="view-casino">
+<section class="hidden" id="view-help">
+      <h2>Помощь</h2>
+      <div class="card">
+        <p><strong>ВНИМАНИЕ! ДОНАТ ПРОИЗВОДИТСЯ ИСКЛЮЧИТЕЛЬНО ЧЕРЕЗ ТЕХ.ПОДДЕРЖКУ! ВОТ ОФИЦИАЛЬНЫЕ РЕСУРСЫ:</strong></p>
+        <p>Тех.поддержка в Telegram: <a href="https://t.me/gskland" target="_blank">https://t.me/gskland</a></p>
+        <p>Тех.поддержка в VK: <a href="https://vk.com/gskland" target="_blank">https://vk.com/gskland</a></p>
+      </div>
+    </section>
+
+    <section class="hidden" id="view-casino">
   <h2>Казино — Рулетка</h2>
   <div class="card casino-card">
     <div class="wheel-wrap">
@@ -765,12 +775,14 @@
               username: user.displayName || '', 
               email: user.email || '', 
               balance: 10000,
+              diamonds: 50,
               codeword: document.getElementById('reg-codeword')?.value || '',
               totalClicks: 0,
               clickerAmount: 0,
-              achievements: { dailyQuest: false, thousandClicks: false },
-              questProgress: { dailyClicks: 0 },
+              achievements: { dailyQuest: false, thousandClicks: false, casinoQuestCompleted: false },
+              questProgress: { dailyClicks: 0, casinoSpins: 0 },
               usedPromocodes: [],
+              lastQuestReset: firebase.firestore.FieldValue.serverTimestamp(),
               createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             await userRef.set(newUserData);
@@ -779,6 +791,13 @@
 
           document.getElementById('user-info').classList.remove('hidden');
           document.getElementById('auth-forms').classList.add('hidden');
+          // Показать HUD и данные
+          document.getElementById('hud').classList.remove('hidden');
+          if(document.getElementById('hud-username')) document.getElementById('hud-username').innerText = currentUserDoc.username || (user.displayName || 'Игрок');
+          if(document.getElementById('hud-diamonds')) document.getElementById('hud-diamonds').innerText = String(currentUserDoc.diamonds || 0);
+          if(document.getElementById('display-diamonds')) document.getElementById('display-diamonds').innerText = String(currentUserDoc.diamonds || 0);
+          if(document.getElementById('display-name')) document.getElementById('display-name').innerText = currentUserDoc.username || (user.displayName || '');
+          if(document.getElementById('display-email')) document.getElementById('display-email').innerText = currentUserDoc.email || '';
           document.getElementById('display-name').innerText = currentUserDoc.username || user.displayName || 'Игрок';
           document.getElementById('display-email').innerText = user.email || '';
           document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
@@ -937,6 +956,8 @@
       }
       
       try {
+        const serverNow = await getServerTime();
+        const serverNowForBatch = await getServerTime();
         const snaps = await db.collection('businesses').where('ownerUid', '==', currentUser.uid).get();
         let totalIncome = 0;
         const batch = db.batch();
@@ -944,9 +965,8 @@
         
         snaps.forEach(doc => {
           const bizData = doc.data();
-          const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : new Date();
-          const now = new Date();
-          const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
+          const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : serverNowForBatch;
+          const hoursPassed = (serverNowForBatch - lastCollected) / (1000 * 60 * 60);
           const income = Math.floor(bizData.incomePerHour * hoursPassed);
           
           if (income > 0) {
@@ -989,8 +1009,7 @@
           if (userData.username && userData.balance !== undefined) {
             users.push({
               username: userData.username,
-              balance: userData.balance || 0,
-              email: userData.email || ''
+              balance: userData.balance || 0
             });
           }
         });
@@ -1007,7 +1026,7 @@
           div.innerHTML = `
             <strong>#${index + 1} ${user.username}</strong>
             <div class="muted small">Баланс: ${user.balance} ₽</div>
-            ${user.email ? `<div class="muted small">${user.email}</div>` : ''}
+            
           `;
           el.appendChild(div);
         });
@@ -1077,48 +1096,110 @@
     });
 
     // Задания
+    async function ensureDailyQuestsReset() {
+      if (!currentUser) return;
+      try {
+        const userRef = db.collection('users').doc(currentUser.uid);
+        const doc = await userRef.get();
+        const userData = doc.exists ? doc.data() : {};
+        const lastReset = userData.lastQuestReset;
+        const serverNow = await getServerTime();
+        const today = serverNow.toISOString().slice(0,10);
+        const last = lastReset ? lastReset.toDate().toISOString().slice(0,10) : null;
+        if (last !== today) {
+          await userRef.update({
+            'questProgress.dailyClicks': 0,
+            'questProgress.casinoSpins': 0,
+            'achievements.dailyQuest': false,
+            'achievements.casinoQuestCompleted': false,
+            lastQuestReset: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          await refreshUserDoc();
+        }
+      } catch (e) { console.error('ensureDailyQuestsReset error', e); }
+    }
+
     async function renderQuests() {
       const list = document.getElementById('quests-list');
       list.innerHTML = '';
-      
+
       if (!currentUser) {
         list.innerHTML = '<div class="muted">Войдите чтобы увидеть задания</div>';
         return;
       }
-      
-      const progress = currentUserDoc.questProgress?.dailyClicks || 0;
-      const completed = currentUserDoc.achievements?.dailyQuest || false;
-      
-      const questCard = document.createElement('div');
-      questCard.className = 'card';
-      questCard.innerHTML = `
+
+      await ensureDailyQuestsReset();
+      await refreshUserDoc();
+
+      const clicksProgress = currentUserDoc.questProgress?.dailyClicks || 0;
+      const clicksCompleted = currentUserDoc.achievements?.dailyQuest || false;
+      const casinoProgress = currentUserDoc.questProgress?.casinoSpins || 0;
+      const casinoCompleted = currentUserDoc.achievements?.casinoQuestCompleted || false;
+
+      const questCardClicks = document.createElement('div');
+      questCardClicks.className = 'card';
+      questCardClicks.innerHTML = `
         <h3>Ежедневное задание</h3>
         <p>Сделайте 100 кликов в разделе "Подработка"</p>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+          <div class="progress-fill" style="width: ${Math.min((clicksProgress/100)*100,100)}%"></div>
         </div>
-        <div class="muted small">Прогресс: ${progress}/100 кликов</div>
-        ${completed ? 
+        <div class="muted small">Прогресс: ${clicksProgress}/100 кликов</div>
+        ${clicksCompleted ? 
           '<div class="btn" style="background:rgba(15,180,139,0.9);">Задание выполнено!</div>' : 
-          (progress >= 100 ? 
-            '<button class="btn" id="claim-quest">Забрать награду (10,000 ₽)</button>' : 
+          (clicksProgress >= 100 ? 
+            '<button class="btn" id="claim-quest-clicks">Забрать награду (10,000 ₽)</button>' : 
             '<div class="muted">Задание еще не выполнено</div>'
           )
         }
       `;
-      
-      list.appendChild(questCard);
-      
-      if (progress >= 100 && !completed) {
-        document.getElementById('claim-quest').addEventListener('click', async () => {
+      list.appendChild(questCardClicks);
+
+      const questCardCasino = document.createElement('div');
+      questCardCasino.className = 'card';
+      questCardCasino.innerHTML = `
+        <h3>Ежедневное задание — Казино</h3>
+        <p>Сыграйте в казино 5 раз (прокрутите колесо 5 раз)</p>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${Math.min((casinoProgress/5)*100,100)}%"></div>
+        </div>
+        <div class="muted small">Прогресс: ${casinoProgress}/5 прокруток</div>
+        ${casinoCompleted ? 
+          '<div class="btn" style="background:rgba(15,180,139,0.9);">Задание выполнено!</div>' : 
+          (casinoProgress >= 5 ? 
+            '<button class="btn" id="claim-quest-casino">Забрать награду (2,500 ₽)</button>' : 
+            '<div class="muted">Задание еще не выполнено</div>'
+          )
+        }
+      `;
+      list.appendChild(questCardCasino);
+
+      if (clicksProgress >= 100 && !clicksCompleted) {
+        document.getElementById('claim-quest-clicks').addEventListener('click', async () => {
           try {
             const userRef = db.collection('users').doc(currentUser.uid);
             await userRef.update({
               balance: firebase.firestore.FieldValue.increment(10000),
               'achievements.dailyQuest': true
             });
-            
             alert('Награда получена: 10,000 ₽!');
+            await refreshUserDoc();
+            await renderQuests();
+          } catch (err) {
+            alert('Ошибка: ' + err.message);
+          }
+        });
+      }
+
+      if (casinoProgress >= 5 && !casinoCompleted) {
+        document.getElementById('claim-quest-casino').addEventListener('click', async () => {
+          try {
+            const userRef = db.collection('users').doc(currentUser.uid);
+            await userRef.update({
+              balance: firebase.firestore.FieldValue.increment(2500),
+              'achievements.casinoQuestCompleted': true
+            });
+            alert('Награда получена: 2,500 ₽!');
             await refreshUserDoc();
             await renderQuests();
           } catch (err) {
@@ -1212,26 +1293,7 @@
       
       try {
         const snaps = await db.collection('promocodes').get();
-        if (!snaps.empty) {
-          const availablePromos = document.createElement('div');
-          availablePromos.className = 'card';
-          availablePromos.innerHTML = '<h3>Доступные промокоды</h3>';
-          
-          snaps.forEach(doc => {
-            const promo = doc.data();
-            const used = currentUserDoc.usedPromocodes?.includes(doc.id) || false;
-            
-            const promoEl = document.createElement('div');
-            promoEl.className = `muted small ${used ? 'achievement-locked' : ''}`;
-            promoEl.innerHTML = `
-              <strong>${promo.code}</strong> - ${promo.amount} ₽
-              ${used ? '(использован)' : ''}
-            `;
-            availablePromos.appendChild(promoEl);
-          });
-          
-          list.appendChild(availablePromos);
-        }
+        // Скрываем список доступных промокодов от игроков по запросу
       } catch (error) {
         console.error('Ошибка загрузки промокодов:', error);
       }
@@ -1760,6 +1822,8 @@
           // Обновляем UI
           document.getElementById('balance').innerText = String(currentUserDoc.balance || 0);
           document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
+          if(document.getElementById('hud-diamonds')) document.getElementById('hud-diamonds').innerText = String(currentUserDoc.diamonds || 0);
+          if(document.getElementById('display-diamonds')) document.getElementById('display-diamonds').innerText = String(currentUserDoc.diamonds || 0);
         }
       } catch (error) {
         console.error('Ошибка обновления данных пользователя:', error);
@@ -1884,6 +1948,21 @@
       }
     }
 
+
+    // Получить серверное время Firestore (пишем временную запись и читаем серверный timestamp)
+    async function getServerTime() {
+      try {
+        const ref = db.collection('_serverTime').doc('_now');
+        await ref.set({ t: firebase.firestore.FieldValue.serverTimestamp() });
+        const snap = await ref.get();
+        const ts = snap.get('t');
+        return ts ? ts.toDate() : new Date();
+      } catch (e) {
+        console.error('getServerTime error', e);
+        return new Date();
+      }
+    }
+
     // Рендер моих бизнесов
     async function renderMyBusinesses() {
       const list = document.getElementById('my-list');
@@ -1906,8 +1985,8 @@
           const biz = doc.data();
           biz.id = doc.id;
           
-          const lastCollected = biz.lastCollectedAt ? biz.lastCollectedAt.toDate() : new Date();
-          const now = new Date();
+          const lastCollected = biz.lastCollectedAt ? biz.lastCollectedAt.toDate() : serverNow;
+          const now = serverNow;
           const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
           const pendingIncome = Math.floor(biz.incomePerHour * hoursPassed);
           
@@ -1953,9 +2032,9 @@
                 
                 if (bizData.ownerUid !== currentUser.uid) throw new Error('Вы не владелец этого бизнеса');
                 
-                const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : new Date();
-                const now = new Date();
-                const hoursPassed = (now - lastCollected) / (1000 * 60 * 60);
+                const serverNowForCollect = await getServerTime();
+                const lastCollected = bizData.lastCollectedAt ? bizData.lastCollectedAt.toDate() : serverNowForCollect;
+                const hoursPassed = (serverNowForCollect - lastCollected) / (1000 * 60 * 60);
                 const income = Math.floor(bizData.incomePerHour * hoursPassed);
                 
                 if (income <= 0) throw new Error('Нет накопленного дохода');
