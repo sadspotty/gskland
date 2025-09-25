@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.4.4</title>
+<title>GSK LAND — бизнес-игра v1.4.5</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -2650,22 +2650,15 @@
 
   const BIZ_CATEGORIES = ['Маленький','Средний','Крупный'];
 
-  // Add nav buttons
-  const nav = document.getElementById('nav');
-  if (nav && !document.querySelector('[data-view="education"]')) {
-    const btnEdu = document.createElement('button');
-    btnEdu.className='nav-btn';
-    btnEdu.dataset.view='education';
-    btnEdu.innerText = 'Образование';
-    nav.insertBefore(btnEdu, document.querySelector('[data-view="help"]'));
-    const btnCompany = document.createElement('button');
-    btnCompany.className='nav-btn';
-    btnCompany.dataset.view='company';
-    btnCompany.innerText = 'Моя компания';
-    nav.insertBefore(btnCompany, document.querySelector('[data-view="help"]'));
-    // Rebind nav click handlers (existing code binds initially; rebind to include new buttons)
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-      btn.removeEventListener('click', btn._augClick);
+  
+  // Enhancement: do NOT insert top-level nav buttons here.
+  // The app's top navigation is intentionally kept as in index1 (education appears only inside 'Карьера').
+  // Instead, ensure existing nav buttons call our renderers when clicked.
+  (function(){
+    const existingNavBtns = document.querySelectorAll('.nav-btn');
+    existingNavBtns.forEach(btn => {
+      // avoid double-binding
+      if (btn._augClick) return;
       btn._augClick = () => {
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -2675,22 +2668,24 @@
         views.forEach(v => v.classList.add('hidden'));
         const target = document.getElementById('view-' + view);
         if (target) target.classList.remove('hidden');
-        // call renderers
-        if (view === 'education') renderEducation();
-        if (view === 'company') renderMyCompany();
-        if (view === 'rating') if (typeof renderRating === 'function') renderRating();
-        if (view === 'clicker') if (typeof renderClicker === 'function') renderClicker();
-        if (view === 'quests') if (typeof renderQuests === 'function') renderQuests();
-        if (view === 'achievements') if (typeof renderAchievements === 'function') renderAchievements();
-        if (view === 'promocodes') if (typeof renderPromocodes === 'function') renderPromocodes();
-        if (view === 'news') if (typeof renderNews === 'function') renderNews();
-        if (view === 'casino') if (typeof initCasino === 'function') initCasino();
-        if (view === 'admin' && isAdminUser && isAdminUser(currentUserDoc, currentUser)) {
-          if (typeof renderAdminUsers === 'function') renderAdminUsers();
-        }
+        // call renderers for enhanced sections if they exist
+        if (view === 'education' && typeof renderEducation === 'function') renderEducation();
+        if (view === 'company' && typeof renderMyCompany === 'function') renderMyCompany();
+        if (view === 'rating' && typeof renderRating === 'function') renderRating();
+        if (view === 'clicker' && typeof renderClicker === 'function') renderClicker();
+        if (view === 'quests' && typeof renderQuests === 'function') renderQuests();
+        if (view === 'achievements' && typeof renderAchievements === 'function') renderAchievements();
+        if (view === 'promocodes' && typeof renderPromocodes === 'function') renderPromocodes();
+        if (view === 'news' && typeof renderNews === 'function') renderNews();
+        if (view === 'casino' && typeof initCasino === 'function') initCasino();
+        if (view === 'shop' && typeof renderShop === 'function') renderShop();
+        if (view === 'my' && typeof renderMyBusinesses === 'function') renderMyBusinesses();
+        if (view === 'admin' && typeof renderAdminUsers === 'function' && isAdminUser && isAdminUser(currentUserDoc, currentUser)) renderAdminUsers();
       };
       btn.addEventListener('click', btn._augClick);
     });
+  })();
+
   }
 
   // Create views if missing
