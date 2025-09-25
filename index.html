@@ -219,6 +219,11 @@
   color: inherit !important;
 }
 
+
+  .sub-nav { margin-top:8px; margin-left:12px; display:none; flex-direction:column; gap:6px; }
+  .sub-nav.show { display:flex; }
+  .sub-nav .nav-btn { background:rgba(255,255,255,0.03); font-size:14px; }
+
 </style>
 </head>
 <body>
@@ -243,20 +248,41 @@
 <h1>GSK LAND — бизнес-игра</h1>
 <div class="muted small">Стань успешным предпринимателем!</div>
 </div>
+
 <nav id="nav">
-<button class="nav-btn active" data-view="home">Главная</button>
-<button class="nav-btn" data-view="shop">Магазин</button>
-<button class="nav-btn" data-view="my">Мои бизнесы</button>
-<button class="nav-btn" data-view="rating">Рейтинг</button>
-<button class="nav-btn" data-view="clicker">Подработка</button>
-<button class="nav-btn" data-view="quests">Задания</button>
-<button class="nav-btn" data-view="achievements">Достижения</button>
-<button class="nav-btn" data-view="promocodes">Промокоды</button>
-<button class="nav-btn" data-view="news">Новости</button>
+  <button class="nav-btn active" data-view="home">Главная</button>
+
+  <button class="nav-btn" data-view="businesses">Бизнесы</button>
+  <div id="sub-businesses" class="sub-nav hidden">
+    <button class="nav-btn" data-view="shop">Магазин</button>
+    <button class="nav-btn" data-view="my">Мои бизнесы</button>
+    <button class="nav-btn" data-view="company">Моя компания</button>
+  </div>
+
+  <button class="nav-btn" data-view="career">Карьера</button>
+  <div id="sub-career" class="sub-nav hidden">
+    <button class="nav-btn" data-view="clicker">Подработка</button>
+    <button class="nav-btn" data-view="education">Образование</button>
+    <button class="nav-btn" data-view="rating">Рейтинг</button>
+  </div>
+
+  <button class="nav-btn" data-view="entertainment">Развлечения</button>
+  <div id="sub-entertainment" class="sub-nav hidden">
+    <button class="nav-btn" data-view="quests">Задания</button>
+    <button class="nav-btn" data-view="achievements">Достижения</button>
+    <button class="nav-btn" data-view="casino">Казино</button>
+  </div>
+
+  <button class="nav-btn" data-view="other">Прочее</button>
+  <div id="sub-other" class="sub-nav hidden">
+    <button class="nav-btn" data-view="news">Новости</button>
+    <button class="nav-btn" data-view="promocodes">Промокоды</button>
     <button class="nav-btn" data-view="help">Помощь</button>
-<button class="nav-btn" data-view="casino">Казино</button>
-<button class="nav-btn hidden" data-view="admin" id="nav-admin">Админ</button>
+  </div>
+
+  <button class="nav-btn hidden" data-view="admin" id="nav-admin">Админ</button>
 </nav>
+
 </header>
 <div class="grid">
 <main class="col" id="main">
@@ -460,9 +486,45 @@
 <footer>GSK LAND</footer>
 </div>
 <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js">
+// Поддержка раскрывающихся меню
+document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    const sub = document.getElementById('sub-' + view);
+    if (sub) {
+      sub.classList.toggle('show');
+    }
+  });
+});
+
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js">
+// Поддержка раскрывающихся меню
+document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    const sub = document.getElementById('sub-' + view);
+    if (sub) {
+      sub.classList.toggle('show');
+    }
+  });
+});
+
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js">
+// Поддержка раскрывающихся меню
+document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    const sub = document.getElementById('sub-' + view);
+    if (sub) {
+      sub.classList.toggle('show');
+    }
+  });
+});
+
+</script>
 <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAZPTcPsHVAw1RiuOUhM9IXZTSWJdRAW-c",
@@ -2436,7 +2498,19 @@
         }
       });
     });
-  </script>
+  
+// Поддержка раскрывающихся меню
+document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    const sub = document.getElementById('sub-' + view);
+    if (sub) {
+      sub.classList.toggle('show');
+    }
+  });
+});
+
+</script>
 
 <button class="theme-toggle" id="theme-toggle">🌙/☀️</button>
 <script>
@@ -2456,243 +2530,486 @@
     }
   });
 
-// === ДОБАВЛЕНО: Образование, Моя компания, Категории бизнесов ===
-
-// Уровни образования
-const EDUCATION_LEVELS = [
-  {level:1, key:'school', title:'Школа', price:50000},
-  {level:2, key:'college', title:'Колледж', price:150000},
-  {level:3, key:'bachelor', title:'Бакалавриат', price:500000},
-  {level:4, key:'master', title:'Магистратура', price:800000},
-  {level:5, key:'phd_candidate', title:'Аспирантура', price:1700000},
-  {level:6, key:'doctor', title:'Докторантура', price:4000000}
-];
-
-// Уровни компаний
-const COMPANY_LEVELS = [
-  {key:'self', title:'Самозанятый', price:300000, reqEdu:1},   // после Школы
-  {key:'ip', title:'ИП', price:3000000, reqEdu:4},             // после Магистратуры
-  {key:'ooo', title:'ООО', price:10000000, reqEdu:5}           // после Аспирантуры
-];
-
-const BIZ_CATEGORIES = ['Маленький','Средний','Крупный'];
-
-// ======= Рендер Образования =======
-async function renderEducation(){
-  const area = document.getElementById('education-area');
-  if (!area) return;
-  if (!currentUser) {
-    area.innerHTML = '<div class="muted">Войдите, чтобы управлять образованием</div>';
-    return;
-  }
-  const snap = await db.collection('users').doc(currentUser.uid).get();
-  currentUserDoc = snap.data();
-  const userLevel = currentUserDoc.educationLevel || 0;
-  area.innerHTML = '';
-  EDUCATION_LEVELS.forEach(l => {
-    const completed = userLevel >= l.level;
-    const needPrev = userLevel === l.level-1;
-    let action = '';
-    if (completed) {
-      action = '<div class="btn" style="background:rgba(15,180,139,0.9)">Окончено</div>';
-    } else if (needPrev) {
-      action = `<button class="btn edu-buy" data-level="${l.level}">Купить</button>`;
-    } else {
-      action = '<div class="muted">Недоступно (нужно закончить предыдущий уровень)</div>';
-    }
-    const el = document.createElement('div');
-    el.className = 'card';
-    el.innerHTML = `<strong>${l.level} уровень — ${l.title}</strong>
-      <div class="muted small">Стоимость: ${l.price.toLocaleString()} ₽</div>
-      <div style="margin-top:8px">${action}</div>`;
-    area.appendChild(el);
-  });
-
-  area.querySelectorAll('.edu-buy').forEach(btn => {
-    btn.addEventListener('click', async e => {
-      const level = parseInt(e.target.dataset.level);
-      const lvlObj = EDUCATION_LEVELS.find(x=>x.level===level);
-      if (!lvlObj) return;
-      if (!confirm(`Вы уверены, что хотите купить образование: ${lvlObj.title} за ${lvlObj.price.toLocaleString()} ₽?`)) return;
-      try {
-        await db.runTransaction(async tx => {
-          const ref = db.collection('users').doc(currentUser.uid);
-          const ud = (await tx.get(ref)).data();
-          const cur = ud.educationLevel || 0;
-          if (cur !== level-1) throw new Error('Нельзя пропустить уровень');
-          if (ud.balance < lvlObj.price) throw new Error('Недостаточно средств');
-          tx.update(ref, {
-            balance: firebase.firestore.FieldValue.increment(-lvlObj.price),
-            educationLevel: level
-          });
-        });
-        alert('Образование получено: ' + lvlObj.title);
-        renderEducation();
-      } catch(e){ alert('Ошибка: ' + e.message); }
-    });
-  });
-}
-
-// ======= Рендер Моей Компании =======
-async function renderMyCompany(){
-  const area = document.getElementById('company-area');
-  if (!area) return;
-  if (!currentUser) { area.innerHTML = '<div class="muted">Войдите, чтобы открыть компанию</div>'; return; }
-  const snap = await db.collection('users').doc(currentUser.uid).get();
-  currentUserDoc = snap.data();
-  const comp = currentUserDoc.company;
-  area.innerHTML = '';
-
-  if (comp){
-    area.innerHTML = `<div class="card">
-      <strong>Ваша компания: ${comp.name}</strong>
-      <div class="muted small">Форма: ${comp.levelTitle}</div>
-      <div class="muted small">Категория: ${comp.category || '—'}</div>
-      <div style="margin-top:8px">
-        <button class="btn rename-company">Переименовать</button>
-        <button class="btn" id="company-close" style="background:rgba(200,60,60,0.9)">Закрыть</button>
-      </div>
-    </div>`;
-    area.querySelector('.rename-company').onclick = async ()=>{
-      const newName = prompt('Новое название', comp.name);
-      if (!newName) return;
-      await db.collection('users').doc(currentUser.uid).update({'company.name': newName});
-      renderMyCompany();
-    };
-    area.querySelector('#company-close').onclick = async ()=>{
-      if (confirm('Точно закрыть компанию?')){
-        await db.collection('users').doc(currentUser.uid).update({company: firebase.firestore.FieldValue.delete()});
-        renderMyCompany();
-      }
-    };
-  } else {
-    let options = '';
-    COMPANY_LEVELS.forEach(c=>{
-      const edu = EDUCATION_LEVELS.find(x=>x.level===c.reqEdu);
-      options += `<option value="${c.key}">${c.title} — ${c.price.toLocaleString()} ₽ (требуется: ${edu.title})</option>`;
-    });
-    area.innerHTML = `<div class="card">
-      <h3>Создать компанию</h3>
-      <input id="company-name" placeholder="Название компании"/>
-      <select id="company-level">${options}</select>
-      <div style="margin-top:8px"><button class="btn" id="create-company">Создать</button></div>
-    </div>`;
-    area.querySelector('#create-company').onclick = async ()=>{
-      const name = document.getElementById('company-name').value.trim();
-      const lvlKey = document.getElementById('company-level').value;
-      const lvl = COMPANY_LEVELS.find(x=>x.key===lvlKey);
-      if (!name) { alert('Введите название'); return; }
-      const eduLevel = currentUserDoc.educationLevel || 0;
-      if (eduLevel < lvl.reqEdu) {
-        const needEdu = EDUCATION_LEVELS.find(x=>x.level===lvl.reqEdu).title;
-        alert(`Недостаточный уровень образования. Нужно: ${needEdu}`);
-        return;
-      }
-      if (currentUserDoc.balance < lvl.price) { alert('Недостаточно средств'); return; }
-      if (!confirm(`Создать компанию "${name}" (${lvl.title}) за ${lvl.price.toLocaleString()} ₽?`)) return;
-      await db.collection('users').doc(currentUser.uid).update({
-        balance: firebase.firestore.FieldValue.increment(-lvl.price),
-        company: {name, level:lvl.key, levelTitle:lvl.title}
-      });
-      renderMyCompany();
-    };
-  }
-}
-
-// ======= Модификация бизнеса с категориями =======
-async function ensureBizCategories(){
-  const snaps = await db.collection('businesses').get();
-  snaps.forEach(doc=>{
-    if (!doc.data().category){
-      doc.ref.update({category:'Крупный'});
+// Поддержка раскрывающихся меню
+document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    const sub = document.getElementById('sub-' + view);
+    if (sub) {
+      sub.classList.toggle('show');
     }
   });
-}
-
-</script>
-
-<script>
-// === ГРУППИРОВКА РАЗДЕЛОВ ПО ВКЛАДКАМ (ВАРИАНТ 2) ===
-document.addEventListener('DOMContentLoaded', () => {
-  const nav = document.getElementById('nav');
-  if (!nav) return;
-
-  // очистим старые кнопки (кроме админа)
-  const keepAdmin = Array.from(nav.querySelectorAll('button')).find(b=>b.dataset.view==='admin');
-  nav.innerHTML = '';
-
-  function createGroup(title, id, tabs){
-    const btn = document.createElement('button');
-    btn.className = 'nav-btn';
-    btn.dataset.view = id;
-    btn.innerText = title;
-    nav.appendChild(btn);
-
-    // создать секцию-группу
-    const sec = document.createElement('section');
-    sec.id = 'view-'+id;
-    sec.className = 'hidden';
-    sec.innerHTML = `
-      <h2>${title}</h2>
-      <div class="tabs" id="tabs-${id}"></div>
-      <div class="tab-content" id="tab-content-${id}"></div>
-    `;
-    document.getElementById('main').appendChild(sec);
-
-    const tabsDiv = sec.querySelector('#tabs-'+id);
-    const contentDiv = sec.querySelector('#tab-content-'+id);
-
-    tabs.forEach(t=>{
-      const tBtn = document.createElement('button');
-      tBtn.className = 'tab-btn';
-      tBtn.innerText = t.label;
-      tabsDiv.appendChild(tBtn);
-      tBtn.addEventListener('click', ()=>{
-        tabsDiv.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
-        tBtn.classList.add('active');
-        // показать оригинальный section внутри
-        contentDiv.innerHTML = '';
-        const origSec = document.getElementById('view-'+t.view);
-        if (origSec){
-          contentDiv.appendChild(origSec);
-          origSec.classList.remove('hidden');
-        }
-        // вызвать рендер при необходимости
-        if (typeof window['render'+t.render] === 'function') window['render'+t.render]();
-      });
-    });
-    // автозапуск первой вкладки
-    tabsDiv.querySelector('.tab-btn').click();
-  }
-
-  createGroup('Бизнесы','bizgroup',[
-    {label:'Магазин', view:'shop', render:'Shop'},
-    {label:'Мои бизнесы', view:'my', render:'MyBusinesses'},
-    {label:'Моя компания', view:'company', render:'MyCompany'}
-  ]);
-
-  createGroup('Карьера','career',[
-    {label:'Подработка', view:'clicker', render:'Clicker'},
-    {label:'Образование', view:'education', render:'Education'},
-    {label:'Рейтинг', view:'rating', render:'Rating'}
-  ]);
-
-  createGroup('Развлечения','fun',[
-    {label:'Задания', view:'quests', render:'Quests'},
-    {label:'Достижения', view:'achievements', render:'Achievements'},
-    {label:'Казино', view:'casino', render:'Casino'}
-  ]);
-
-  createGroup('Прочее','other',[
-    {label:'Новости', view:'news', render:'News'},
-    {label:'Промокоды', view:'promocodes', render:'Promocodes'},
-    {label:'Помощь', view:'help', render:'Help'}
-  ]);
-
-  if (keepAdmin){
-    nav.appendChild(keepAdmin);
-  }
 });
+
 </script>
+
+
+<!-- BEGIN AUGMENTATION: Education, My Company, Business Categories -->
+<script>
+(async function(){
+  // Safety checks
+  if (typeof db === 'undefined') return;
+  console.log('Loading augmentation for Education, Company, Categories');
+
+  // Education data
+  const EDUCATION_LEVELS = [
+    {level:1, key:'school', title:'Школа', price:50000},
+    {level:2, key:'college', title:'Колледж', price:150000},
+    {level:3, key:'bachelor', title:'Бакалавриат', price:500000},
+    {level:4, key:'master', title:'Магистратура', price:800000},
+    {level:5, key:'phd_candidate', title:'Аспирантура', price:1700000},
+    {level:6, key:'doctor', title:'Докторантура', price:4000000}
+  ];
+
+  const COMPANY_LEVELS = [
+    {key:'self', title:'Самозанятый', price:300000},
+    {key:'ip', title:'ИП', price:3000000},
+    {key:'ooo', title:'ООО', price:10000000}
+  ];
+
+  const BIZ_CATEGORIES = ['Маленький','Средний','Крупный'];
+
+  // Add nav buttons
+  const nav = document.getElementById('nav');
+  if (nav && !document.querySelector('[data-view="education"]')) {
+    const btnEdu = document.createElement('button');
+    btnEdu.className='nav-btn';
+    btnEdu.dataset.view='education';
+    btnEdu.innerText = 'Образование';
+    nav.insertBefore(btnEdu, document.querySelector('[data-view="help"]'));
+    const btnCompany = document.createElement('button');
+    btnCompany.className='nav-btn';
+    btnCompany.dataset.view='company';
+    btnCompany.innerText = 'Моя компания';
+    nav.insertBefore(btnCompany, document.querySelector('[data-view="help"]'));
+    // Rebind nav click handlers (existing code binds initially; rebind to include new buttons)
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.removeEventListener('click', btn._augClick);
+      btn._augClick = () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.view;
+        // hide all known views
+        const views = document.querySelectorAll('section');
+        views.forEach(v => v.classList.add('hidden'));
+        const target = document.getElementById('view-' + view);
+        if (target) target.classList.remove('hidden');
+        // call renderers
+        if (view === 'education') renderEducation();
+        if (view === 'company') renderMyCompany();
+        if (view === 'rating') if (typeof renderRating === 'function') renderRating();
+        if (view === 'clicker') if (typeof renderClicker === 'function') renderClicker();
+        if (view === 'quests') if (typeof renderQuests === 'function') renderQuests();
+        if (view === 'achievements') if (typeof renderAchievements === 'function') renderAchievements();
+        if (view === 'promocodes') if (typeof renderPromocodes === 'function') renderPromocodes();
+        if (view === 'news') if (typeof renderNews === 'function') renderNews();
+        if (view === 'casino') if (typeof initCasino === 'function') initCasino();
+        if (view === 'admin' && isAdminUser && isAdminUser(currentUserDoc, currentUser)) {
+          if (typeof renderAdminUsers === 'function') renderAdminUsers();
+        }
+      };
+      btn.addEventListener('click', btn._augClick);
+    });
+  }
+
+  // Create views if missing
+  const main = document.getElementById('main');
+  function ensureView(id, title, innerHTML){
+    if (!document.getElementById('view-'+id)) {
+      const section = document.createElement('section');
+      section.className='hidden';
+      section.id = 'view-'+id;
+      section.innerHTML = `<h2>${title}</h2>` + (innerHTML || '');
+      main.appendChild(section);
+    }
+  }
+
+  ensureView('education','Образование',`
+    <div class="card">
+      <div id="education-area"></div>
+    </div>
+  `);
+
+  ensureView('company','Моя компания',`
+    <div class="card">
+      <div id="company-area"></div>
+    </div>
+  `);
+
+  // RENDERERS
+  async function refreshUserLocal(){
+    if (!currentUser) return;
+    const ref = db.collection('users').doc(currentUser.uid);
+    const snap = await ref.get();
+    currentUserDoc = snap.exists ? snap.data() : currentUserDoc;
+    // update HUD balance
+    if (document.getElementById('hud-balance')) document.getElementById('hud-balance').innerText = String(currentUserDoc.balance || 0);
+  }
+
+  window.renderEducation = async function renderEducation(){
+    const area = document.getElementById('education-area');
+    if (!area) return;
+    if (!currentUser) {
+      area.innerHTML = '<div class="muted">Войдите, чтобы управлять образованием</div>';
+      return;
+    }
+    await refreshUserLocal();
+    const userLevel = currentUserDoc.educationLevel || 0;
+    area.innerHTML = '';
+    EDUCATION_LEVELS.forEach(l => {
+      const completed = userLevel >= l.level;
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.innerHTML = `<strong>${l.level} уровень — ${l.title}</strong> <div class="muted small">Стоимость: ${l.price.toLocaleString()} ₽</div>
+        <div style="margin-top:8px">${completed ? '<div class="btn" style="background:rgba(15,180,139,0.9)">Окончено</div>' : (userLevel === l.level-1 ? '<button class="btn upgrade-edu" data-level="'+l.level+'">Оплатить и получить</button>' : '<div class="muted">Для доступа нужно завершить предыдущие уровни</div>')}</div>`;
+      area.appendChild(el);
+    });
+    // attach listeners
+    area.querySelectorAll('.upgrade-edu').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const level = parseInt(e.target.dataset.level);
+        const lvlObj = EDUCATION_LEVELS.find(x=>x.level===level);
+        if (!lvlObj) return;
+        if (!confirm('Купить ' + lvlObj.title + ' за ' + lvlObj.price.toLocaleString() + ' ₽?')) return;
+        try {
+          const userRef = db.collection('users').doc(currentUser.uid);
+          await db.runTransaction(async tx => {
+            const ud = (await tx.get(userRef)).data();
+            if (!ud) throw new Error('Пользователь не найден');
+            const cur = ud.educationLevel || 0;
+            if (cur !== level-1) throw new Error('Нельзя пропускать уровни. Текущий уровень: '+cur);
+            if ((ud.balance||0) < lvlObj.price) throw new Error('Недостаточно средств');
+            tx.update(userRef, {
+              balance: firebase.firestore.FieldValue.increment(-lvlObj.price),
+              educationLevel: level,
+              educationAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          });
+          alert('Образование обновлено: ' + lvlObj.title);
+          await refreshUserLocal();
+          renderEducation();
+        } catch (err) {
+          alert('Ошибка: ' + (err.message||err));
+        }
+      });
+    });
+  };
+
+  // My Company
+  window.renderMyCompany = async function renderMyCompany(){
+    const area = document.getElementById('company-area');
+    if (!area) return;
+    if (!currentUser) {
+      area.innerHTML = '<div class="muted">Войдите, чтобы открыть компанию</div>';
+      return;
+    }
+    await refreshUserLocal();
+    const comp = currentUserDoc.company || null;
+    area.innerHTML = '';
+    if (comp && comp.name) {
+      // show company card and management actions
+      area.innerHTML = `
+        <div class="card">
+          <strong>Ваша компания: ${comp.name}</strong>
+          <div class="muted small">Форма: ${comp.levelTitle || comp.level}</div>
+          <div class="muted small">Категория: ${comp.category || '—'}</div>
+          <div style="margin-top:8px" class="flex">
+            <button class="btn rename-company">Переименовать</button>
+            <button class="btn" id="company-close" style="background:rgba(200,60,60,0.9)">Закрыть компанию</button>
+          </div>
+        </div>
+      `;
+      area.querySelector('.rename-company').addEventListener('click', async () => {
+        const newName = prompt('Новое название компании', comp.name);
+        if (!newName) return;
+        try {
+          await db.collection('users').doc(currentUser.uid).update({'company.name': newName});
+          alert('Название изменено');
+          await refreshUserLocal();
+          renderMyCompany();
+        } catch (e) { alert('Ошибка: '+e.message); }
+      });
+      area.querySelector('#company-close').addEventListener('click', async () => {
+        if (!confirm('Закрыть компанию?')) return;
+        try {
+          await db.collection('users').doc(currentUser.uid).update({company: firebase.firestore.FieldValue.delete()});
+          alert('Компания закрыта');
+          await refreshUserLocal();
+          renderMyCompany();
+        } catch (e) { alert('Ошибка: '+e.message); }
+      });
+    } else {
+      // show form to create company
+      const minLevelInfo = COMPANY_LEVELS.map(c=>{
+        return `<option value="${c.key}" data-price="${c.price}">${c.title} — ${c.price.toLocaleString()} ₽</option>`;
+      }).join('');
+      area.innerHTML = `
+        <div class="card">
+          <h3>Создать компанию</h3>
+          <input id="company-name-input" placeholder="Название компании"/>
+          <select id="company-level-select" style="margin-top:8px">${minLevelInfo}</select>
+          <div class="muted small" style="margin-top:6px">Требования к образованию: Самозанятый — окончание Школы; ИП — окончание Магистратуры; ООО — окончание Аспирантуры</div>
+          <div style="margin-top:8px"><button class="btn" id="create-company-btn">Создать</button></div>
+        </div>
+      `;
+      document.getElementById('create-company-btn').addEventListener('click', async () => {
+        const name = document.getElementById('company-name-input').value.trim();
+        const lvlKey = document.getElementById('company-level-select').value;
+        if (!name) { alert('Введите название компании'); return; }
+        const lvlObj = COMPANY_LEVELS.find(x=>x.key===lvlKey);
+        if (!lvlObj) return;
+        // check education prereq
+        const ed = currentUserDoc.educationLevel || 0;
+        const mapping = { 'self':1, 'ip':4, 'ooo':5 }; // required education levels
+        const required = mapping[lvlKey];
+        if (ed < required) {
+          alert('Недостаточный уровень образования. Требуется: ' + EDUCATION_LEVELS.find(x=>x.level===required).title);
+          return;
+        }
+        if ((currentUserDoc.balance||0) < lvlObj.price) { alert('Недостаточно средств'); return; }
+        try {
+          await db.runTransaction(async tx => {
+            const uRef = db.collection('users').doc(currentUser.uid);
+            const uDoc = await tx.get(uRef);
+            if (!uDoc.exists) throw new Error('Пользователь не найден');
+            const u = uDoc.data();
+            if ((u.balance||0) < lvlObj.price) throw new Error('Недостаточно средств');
+            // set company object
+            tx.update(uRef, {
+              balance: firebase.firestore.FieldValue.increment(-lvlObj.price),
+              company: {
+                name: name,
+                level: lvlObj.key,
+                levelTitle: lvlObj.title,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              }
+            });
+          });
+          alert('Компания создана!');
+          await refreshUserLocal();
+          renderMyCompany();
+        } catch (err) {
+          alert('Ошибка: ' + (err.message||err));
+        }
+      });
+    }
+  };
+
+  // Admin: extend create business form to include category select, and create listener that creates business with category
+  function enhanceAdminCreateBiz(){
+    const adminBizCard = document.querySelector('#admin-businesses .card');
+    if (!adminBizCard) return;
+    if (!document.getElementById('admin-biz-category')) {
+      const sel = document.createElement('select');
+      sel.id = 'admin-biz-category';
+      sel.style.marginTop = '8px';
+      sel.innerHTML = `<option value="">(авто) Крупный (по умолчанию)</option>` + BIZ_CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('');
+      const iconInput = document.getElementById('admin-biz-icon');
+      iconInput.insertAdjacentElement('afterend', sel);
+    }
+    // create handler
+    document.getElementById('admin-create-biz').addEventListener('click', async () => {
+      if (!currentUser || !isAdminUser(currentUserDoc, currentUser)) { alert('Только админ'); return; }
+      const name = document.getElementById('admin-biz-name').value.trim();
+      const price = parseInt(document.getElementById('admin-biz-price').value);
+      const income = parseInt(document.getElementById('admin-biz-income').value);
+      const icon = document.getElementById('admin-biz-icon').value.trim();
+      const category = document.getElementById('admin-biz-category').value || 'Крупный';
+      if (!name || isNaN(price) || isNaN(income)) { alert('Заполните поля'); return; }
+      try {
+        await db.collection('businesses').add({
+          name: name,
+          price: price,
+          incomePerHour: income,
+          icon: icon || '',
+          category: category,
+          ownerUid: null,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert('Бизнес создан');
+        document.getElementById('admin-biz-name').value=''; document.getElementById('admin-biz-price').value=''; document.getElementById('admin-biz-income').value=''; document.getElementById('admin-biz-icon').value='';
+        if (typeof renderShop === 'function') renderShop();
+      } catch (e) { alert('Ошибка: '+e.message); }
+    });
+  }
+
+  // Helper to ensure businesses without category are set to 'Крупный' when rendered or in DB
+  async function ensureBizCategories(){
+    try {
+      const snaps = await db.collection('businesses').where('category','==', '').get();
+      snaps.forEach(doc => {
+        doc.ref.update({category: 'Крупный'});
+      });
+      // also fix docs missing category by scanning small batch
+      const allSnaps = await db.collection('businesses').get();
+      allSnaps.forEach(doc => {
+        const d = doc.data();
+        if (!d.category) doc.ref.update({category: 'Крупный'});
+      });
+    } catch (e) { console.warn('ensureBizCategories error', e); }
+  }
+
+  // Augmented renderShop and renderMyBusinesses that include category in cards
+  window.renderShop = async function renderShopAugmented(){
+    const el = document.getElementById('shop-list');
+    if (!el) return;
+    el.innerHTML = '<div class="muted">Загрузка...</div>';
+    try {
+      await ensureBizCategories();
+      const snaps = await db.collection('businesses').get();
+      el.innerHTML = '';
+      snaps.forEach(doc => {
+        const b = doc.data();
+        const card = document.createElement('div');
+        card.className='biz-card';
+        const owner = b.ownerUid ? '<div class="muted small">Владелец: занят</div>' : '<div class="muted small">Владелец: свободен</div>';
+        const category = b.category || 'Крупный';
+        card.innerHTML = `<strong>${b.name}</strong>
+          <div class="muted small">Цена: ${b.price?.toLocaleString?.()||b.price} ₽ • Доход/ч: ${b.incomePerHour || 0} ₽</div>
+          <div class="muted small">Категория: ${category}</div>
+          ${owner}
+          <div style="margin-top:8px" class="flex">
+            ${b.ownerUid ? '' : `<button class="btn buy-biz" data-id="${doc.id}">Купить</button>`}
+          </div>`;
+        el.appendChild(card);
+      });
+      // Attach buy handlers (keep existing logic if exists)
+      document.querySelectorAll('.buy-biz').forEach(btn=>{
+        btn.addEventListener('click', async (e)=>{
+          if (!currentUser) { alert('Войдите'); return; }
+          const id = e.target.dataset.id;
+          try {
+            await db.runTransaction(async tx=>{
+              const bRef = db.collection('businesses').doc(id);
+              const bDoc = await tx.get(bRef);
+              if (!bDoc.exists) throw new Error('Бизнес не найден');
+              const bData = bDoc.data();
+              if (bData.ownerUid) throw new Error('Уже приобретен');
+              const price = bData.price || 0;
+              const uRef = db.collection('users').doc(currentUser.uid);
+              const uDoc = await tx.get(uRef);
+              const u = uDoc.data();
+              if ((u.balance||0) < price) throw new Error('Недостаточно средств');
+              tx.update(uRef, { balance: firebase.firestore.FieldValue.increment(-price) });
+              tx.update(bRef, { ownerUid: currentUser.uid, lastCollectedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            });
+            alert('Бизнес успешно куплен');
+            await refreshUserLocal();
+            if (typeof renderShop === 'function') renderShop();
+            if (typeof renderMyBusinesses === 'function') renderMyBusinesses();
+          } catch (err) {
+            alert('Ошибка покупки: '+(err.message||err));
+          }
+        });
+      });
+    } catch (e) {
+      el.innerHTML = '<div class="muted">Ошибка загрузки</div>';
+      console.error(e);
+    }
+  };
+
+  window.renderMyBusinesses = async function renderMyBusinessesAugmented(){
+    const list = document.getElementById('my-list');
+    list.innerHTML = '<div class="muted">Загрузка...</div>';
+    if (!currentUser) { list.innerHTML = '<div class="muted">Войдите</div>'; return; }
+    try {
+      const snaps = await db.collection('businesses').where('ownerUid','==', currentUser.uid).get();
+      list.innerHTML = '';
+      if (snaps.empty) { list.innerHTML = '<div class="muted">У вас нет бизнесов</div>'; return; }
+      snaps.forEach(doc=>{
+        const b = doc.data();
+        const pendingIncome = 0; // keep simple, original calculate when rendering (server time needed)
+        const el = document.createElement('div');
+        el.className='card';
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <strong>${b.name}</strong>
+              <div class="muted small">Цена: ${b.price?.toLocaleString?.()||b.price} ₽ • Доход/ч: ${b.incomePerHour || 0} ₽</div>
+              <div class="muted small">Категория: ${b.category || 'Крупный'}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="muted small">Накоплено: ${pendingIncome} ₽</div>
+              <div class="flex" style="margin-top:8px">
+                <button class="btn collect-btn" data-id="${doc.id}">Собрать</button>
+                <button class="btn sell-gov" data-id="${doc.id}" style="background:rgba(200,60,60,0.9);margin-left:6px">Продать гос.</button>
+                <button class="btn sell-player" data-id="${doc.id}" style="background:rgba(120,120,120,0.9);margin-left:6px">Продать игроку</button>
+              </div>
+            </div>
+          </div>
+        `;
+        list.appendChild(el);
+      });
+      // reattach handlers similar to original
+      document.querySelectorAll('.sell-player').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          currentSellBizId = e.target.dataset.id;
+          document.getElementById('sell-modal').classList.remove('hidden');
+        });
+      });
+      // collect and sell-gov handlers are present in the original file; we don't override them here.
+    } catch (e) {
+      list.innerHTML = '<div class="muted">Ошибка загрузки</div>';
+      console.error(e);
+    }
+  };
+
+  // Ensure new deals include bizCategory: listen for new deals and patch
+  db.collection('deals').onSnapshot(async snap=>{
+    snap.docChanges().forEach(async change=>{
+      if (change.type === 'added') {
+        const d = change.doc.data();
+        if (!d.bizCategory && d.bizId) {
+          try {
+            const bDoc = await db.collection('businesses').doc(d.bizId).get();
+            const cat = bDoc.exists ? (bDoc.data().category || 'Крупный') : 'Крупный';
+            await change.doc.ref.update({ bizCategory: cat });
+            console.log('Patched deal bizCategory', change.doc.id, cat);
+          } catch (e) { console.warn('deal patch error', e); }
+        }
+      }
+    });
+  });
+
+  // call enhancements on load
+  document.addEventListener('DOMContentLoaded', () => {
+    enhanceAdminCreateBiz();
+    // expose functions to global scope if needed
+    window.renderEducation = window.renderEducation;
+    window.renderMyCompany = window.renderMyCompany;
+    // replace existing renderShop/renderMyBusinesses if present
+    try { if (typeof renderShop === 'function') window._orig_renderShop = renderShop; } catch(e){}
+    try { if (typeof renderMyBusinesses === 'function') window._orig_renderMyBusinesses = renderMyBusinesses; } catch(e){}
+    // override
+    window.renderShop = window.renderShop;
+    window.renderMyBusinesses = window.renderMyBusinesses;
+  });
+
+  // Also call when auth changes
+  if (typeof auth !== 'undefined') {
+    auth.onAuthStateChanged((u)=>{
+      setTimeout(() => {
+        try { if (document.querySelector('[data-view="shop"].active')) renderShop(); } catch(e){}
+      }, 500);
+    });
+  }
+
+})();
+
+// Поддержка раскрывающихся меню
+document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    const sub = document.getElementById('sub-' + view);
+    if (sub) {
+      sub.classList.toggle('show');
+    }
+  });
+});
+
+</script>
+<!-- END AUGMENTATION -->
+
 </body>
 </html>
