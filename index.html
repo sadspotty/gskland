@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.4.8</title>
+<title>GSK LAND — бизнес-игра v1.4.4</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -310,6 +310,42 @@
 </ol>
 </div>
 </section>
+
+<section class="hidden" id="view-businesses">
+  <h2>Бизнесы</h2>
+  <div class="admin-tabs category-tabs" data-category="businesses">
+    <button class="admin-tab active" data-tab="shop">Магазин</button>
+    <button class="admin-tab" data-tab="my">Мои бизнесы</button>
+    <button class="admin-tab" data-tab="company">Моя компания</button>
+  </div>
+</section>
+
+<section class="hidden" id="view-career">
+  <h2>Карьера</h2>
+  <div class="admin-tabs category-tabs" data-category="career">
+    <button class="admin-tab active" data-tab="clicker">Подработка</button>
+    <button class="admin-tab" data-tab="education">Образование</button>
+    <button class="admin-tab" data-tab="rating">Рейтинг</button>
+  </div>
+</section>
+
+<section class="hidden" id="view-entertainment">
+  <h2>Развлечения</h2>
+  <div class="admin-tabs category-tabs" data-category="entertainment">
+    <button class="admin-tab active" data-tab="quests">Задания</button>
+    <button class="admin-tab" data-tab="achievements">Достижения</button>
+    <button class="admin-tab" data-tab="casino">Казино</button>
+  </div>
+</section>
+
+<section class="hidden" id="view-other">
+  <h2>Прочее</h2>
+  <div class="admin-tabs category-tabs" data-category="other">
+    <button class="admin-tab active" data-tab="news">Новости</button>
+    <button class="admin-tab" data-tab="promocodes">Промокоды</button>
+    <button class="admin-tab" data-tab="help">Помощь</button>
+  </div>
+</section>
 <section class="hidden" id="view-shop">
 <h2>Магазин бизнесов</h2>
 <div class="shop-grid" id="shop-list" style="margin-top:12px"></div>
@@ -400,54 +436,23 @@
   </div>
 </section>
 
-<section class="hidden" id="view-businesses">
-  <h2>Бизнесы</h2>
-  <div class="admin-tabs">
-    <button class="admin-tab active" data-tab="shop">Магазин</button>
-    <button class="admin-tab" data-tab="my">Мои бизнесы</button>
-    <button class="admin-tab" data-tab="company">Моя компания</button>
-  </div>
-  <div class="admin-tab-content" id="businesses-shop"></div>
-  <div class="admin-tab-content hidden" id="businesses-my"></div>
-  <div class="admin-tab-content hidden" id="businesses-company"></div>
+<section class="hidden" id="view-education">
+<h2>Образование</h2>
+
+<div class="card">
+  <p class="muted">Раздел "Образование" пока пуст — здесь будут курсы и прокачка навыков.</p>
+</div>
+
 </section>
 
-<section class="hidden" id="view-career">
-  <h2>Карьера</h2>
-  <div class="admin-tabs">
-    <button class="admin-tab active" data-tab="clicker">Подработка</button>
-    <button class="admin-tab" data-tab="education">Образование</button>
-    <button class="admin-tab" data-tab="rating">Рейтинг</button>
-  </div>
-  <div class="admin-tab-content" id="career-clicker"></div>
-  <div class="admin-tab-content hidden" id="career-education"></div>
-  <div class="admin-tab-content hidden" id="career-rating"></div>
-</section>
+<section class="hidden" id="view-company">
+<h2>Моя компания</h2>
 
-<section class="hidden" id="view-entertainment">
-  <h2>Развлечения</h2>
-  <div class="admin-tabs">
-    <button class="admin-tab active" data-tab="quests">Задания</button>
-    <button class="admin-tab" data-tab="achievements">Достижения</button>
-    <button class="admin-tab" data-tab="casino">Казино</button>
-  </div>
-  <div class="admin-tab-content" id="entertainment-quests"></div>
-  <div class="admin-tab-content hidden" id="entertainment-achievements"></div>
-  <div class="admin-tab-content hidden" id="entertainment-casino"></div>
-</section>
+<div class="card">
+  <p class="muted">Здесь будет ваша компания — объединение бизнесов, акции и статистика.</p>
+</div>
 
-<section class="hidden" id="view-other">
-  <h2>Прочее</h2>
-  <div class="admin-tabs">
-    <button class="admin-tab active" data-tab="news">Новости</button>
-    <button class="admin-tab" data-tab="promocodes">Промокоды</button>
-    <button class="admin-tab" data-tab="help">Помощь</button>
-  </div>
-  <div class="admin-tab-content" id="other-news"></div>
-  <div class="admin-tab-content hidden" id="other-promocodes"></div>
-  <div class="admin-tab-content hidden" id="other-help"></div>
 </section>
-
 <section class="hidden" id="view-admin">
 <h2>Админ панель</h2>
 <div class="admin-tabs">
@@ -505,99 +510,9 @@
 <footer>GSK LAND</footer>
 </div>
 <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js">
-
-// Система табов для новых разделов (как в админке)
-function setupTabs(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (!section) return;
-  const tabs = section.querySelectorAll('.admin-tab');
-  const contents = section.querySelectorAll('.admin-tab-content');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.add('hidden'));
-      tab.classList.add('active');
-      const view = tab.dataset.tab;
-      const content = section.querySelector(`#${sectionId}-${view}`);
-      if (content) content.classList.remove('hidden');
-      // Показываем нужный оригинальный view внутрь контейнера
-      const orig = document.getElementById('view-' + view);
-      if (orig) {
-        content.innerHTML = '';
-        content.appendChild(orig);
-        orig.classList.remove('hidden');
-      }
-    });
-  });
-}
-
-// Инициализация табов
-['businesses','career','entertainment','other'].forEach(setupTabs);
-
-</script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js">
-
-// Система табов для новых разделов (как в админке)
-function setupTabs(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (!section) return;
-  const tabs = section.querySelectorAll('.admin-tab');
-  const contents = section.querySelectorAll('.admin-tab-content');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.add('hidden'));
-      tab.classList.add('active');
-      const view = tab.dataset.tab;
-      const content = section.querySelector(`#${sectionId}-${view}`);
-      if (content) content.classList.remove('hidden');
-      // Показываем нужный оригинальный view внутрь контейнера
-      const orig = document.getElementById('view-' + view);
-      if (orig) {
-        content.innerHTML = '';
-        content.appendChild(orig);
-        orig.classList.remove('hidden');
-      }
-    });
-  });
-}
-
-// Инициализация табов
-['businesses','career','entertainment','other'].forEach(setupTabs);
-
-</script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js">
-
-// Система табов для новых разделов (как в админке)
-function setupTabs(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (!section) return;
-  const tabs = section.querySelectorAll('.admin-tab');
-  const contents = section.querySelectorAll('.admin-tab-content');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.add('hidden'));
-      tab.classList.add('active');
-      const view = tab.dataset.tab;
-      const content = section.querySelector(`#${sectionId}-${view}`);
-      if (content) content.classList.remove('hidden');
-      // Показываем нужный оригинальный view внутрь контейнера
-      const orig = document.getElementById('view-' + view);
-      if (orig) {
-        content.innerHTML = '';
-        content.appendChild(orig);
-        orig.classList.remove('hidden');
-      }
-    });
-  });
-}
-
-// Инициализация табов
-['businesses','career','entertainment','other'].forEach(setupTabs);
-
-</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAZPTcPsHVAw1RiuOUhM9IXZTSWJdRAW-c",
@@ -613,6 +528,7 @@ function setupTabs(sectionId) {
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    
     const navButtons = document.querySelectorAll('.nav-btn');
     const views = {
       home: document.getElementById('view-home'),
@@ -629,32 +545,148 @@ function setupTabs(sectionId) {
       admin: document.getElementById('view-admin')
     };
 
-    let currentSellBizId = null;
-    let dealsListener = null;
-    let currentUser = null;
-    let currentUserDoc = null;
-    let spinning = false;
+    // category names
+    const topCategories = new Set(['businesses','career','entertainment','other']);
 
+    // views that we may move between sections (store originals)
+    const movableViewIds = ['shop','my','rating','clicker','quests','achievements','promocodes','news','help','casino','company','education'];
+
+    const originalPositions = {};
+    movableViewIds.forEach(id => {
+      const el = document.getElementById('view-' + id);
+      if (el) {
+        originalPositions[id] = { parent: el.parentNode, nextSibling: el.nextSibling };
+      }
+    });
+
+    function hideAllTopSections() {
+      // hide all main-level view-* sections (but keep category containers for manual control)
+      document.querySelectorAll('main > section[id^=\"view-\"]').forEach(s => s.classList.add('hidden'));
+    }
+
+    function restoreAllMovedViews() {
+      for (const id in originalPositions) {
+        const pos = originalPositions[id];
+        const el = document.getElementById('view-' + id);
+        if (!el) continue;
+        if (pos.parent) {
+          // restore to original position (insertBefore handles null nextSibling as append)
+          pos.parent.insertBefore(el, pos.nextSibling);
+          el.classList.add('hidden');
+        }
+      }
+    }
+
+    function showAtomicView(view) {
+      // show a single existing view (like shop, clicker, etc.)
+      restoreAllMovedViews();
+      hideAllTopSections();
+      const el = document.getElementById('view-' + view);
+      if (el) el.classList.remove('hidden');
+
+      // update nav active state for top-level buttons
+      document.querySelectorAll('#nav .nav-btn').forEach(b => b.classList.remove('active'));
+      // try to find a top-level button that maps to this view (rare)
+      let parentBtn = document.querySelector('#nav .nav-btn[data-view=\"' + view + '\"]');
+      if (parentBtn) parentBtn.classList.add('active');
+      // but if not found, set Home as active? we'll leave none active in that case.
+
+      // call initializer for specific views
+      if (view === 'rating') renderRating();
+      if (view === 'clicker') renderClicker();
+      if (view === 'quests') renderQuests();
+      if (view === 'achievements') renderAchievements();
+      if (view === 'promocodes') renderPromocodes();
+      if (view === 'news') renderNews();
+      if (view === 'casino') initCasino();
+      if (view === 'shop') renderShop();
+      if (view === 'my') renderMyBusinesses();
+      if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) renderAdminUsers();
+    }
+
+    function openCategory(category) {
+      // Restore moved views to avoid accidental duplicates
+      restoreAllMovedViews();
+      hideAllTopSections();
+      // Show the category container itself
+      const section = document.getElementById('view-' + category);
+      if (!section) return;
+      section.classList.remove('hidden');
+
+      // mark top nav active
+      document.querySelectorAll('#nav .nav-btn').forEach(b => b.classList.remove('active'));
+      const topBtn = document.querySelector('#nav .nav-btn[data-view=\"' + category + '\"]');
+      if (topBtn) topBtn.classList.add('active');
+
+      // determine active tab inside the category (admin-tab with .active or first)
+      const tabs = section.querySelectorAll('.admin-tab');
+      let activeTab = section.querySelector('.admin-tab.active');
+      if (!activeTab) activeTab = tabs[0];
+      if (!activeTab) return;
+      const viewToShow = activeTab.dataset.tab;
+      showViewInsideCategory(section, viewToShow);
+    }
+
+    function showViewInsideCategory(section, viewId) {
+      // Move the desired view right after the category section (so it appears under the tabbar)
+      const target = document.getElementById('view-' + viewId);
+      if (!target) return;
+      // hide everything first
+      document.querySelectorAll('main > section[id^=\"view-\"]').forEach(s => s.classList.add('hidden'));
+      // ensure the category section is visible
+      section.classList.remove('hidden');
+      // insert the target view immediately after the category section
+      section.parentNode.insertBefore(target, section.nextSibling);
+      // hide all managed views, then show target
+      movableViewIds.forEach(id => {
+        const el = document.getElementById('view-' + id);
+        if (el) el.classList.add('hidden');
+      });
+      target.classList.remove('hidden');
+
+      // call renderer for this view
+      if (viewId === 'rating') renderRating();
+      if (viewId === 'clicker') renderClicker();
+      if (viewId === 'quests') renderQuests();
+      if (viewId === 'achievements') renderAchievements();
+      if (viewId === 'promocodes') renderPromocodes();
+      if (viewId === 'news') renderNews();
+      if (viewId === 'casino') initCasino();
+      if (viewId === 'shop') renderShop();
+      if (viewId === 'my') renderMyBusinesses();
+    }
+
+    // Attach nav listeners: top-level (home, categories, admin)
     navButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
         const view = btn.dataset.view;
-        Object.values(views).forEach(v => v.classList.add('hidden'));
-        views[view].classList.remove('hidden');
-
-        if (view === 'rating') renderRating();
-        if (view === 'clicker') renderClicker();
-        if (view === 'quests') renderQuests();
-        if (view === 'achievements') renderAchievements();
-        if (view === 'promocodes') renderPromocodes();
-        if (view === 'news') renderNews();
-        if (view === 'casino') initCasino();
-        if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) {
-          renderAdminUsers();
+        if (!view) return;
+        if (topCategories.has(view)) {
+          openCategory(view);
+        } else {
+          showAtomicView(view);
         }
       });
     });
+
+    // Attach tab listeners inside each category container (like admin-tabs)
+    document.querySelectorAll('.category-tabs').forEach(tabsWrapper => {
+      tabsWrapper.querySelectorAll('.admin-tab').forEach(tabBtn => {
+        tabBtn.addEventListener('click', () => {
+          // mark active in this group
+          const parentSection = tabsWrapper.closest('section[id^=\"view-\"]');
+          parentSection.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+          tabBtn.classList.add('active');
+          // show the corresponding original view under the category
+          showViewInsideCategory(parentSection, tabBtn.dataset.tab);
+        });
+      });
+    });
+
+    // make sure Home shows correctly by default
+    // (original code marked home active initially)
+    // showAtomicView('home');
+
 
     function isAdminUser(userDoc, user) {
       if (!user) return false;
@@ -2571,37 +2603,7 @@ function setupTabs(sectionId) {
         }
       });
     });
-  
-
-// Система табов для новых разделов (как в админке)
-function setupTabs(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (!section) return;
-  const tabs = section.querySelectorAll('.admin-tab');
-  const contents = section.querySelectorAll('.admin-tab-content');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.add('hidden'));
-      tab.classList.add('active');
-      const view = tab.dataset.tab;
-      const content = section.querySelector(`#${sectionId}-${view}`);
-      if (content) content.classList.remove('hidden');
-      // Показываем нужный оригинальный view внутрь контейнера
-      const orig = document.getElementById('view-' + view);
-      if (orig) {
-        content.innerHTML = '';
-        content.appendChild(orig);
-        orig.classList.remove('hidden');
-      }
-    });
-  });
-}
-
-// Инициализация табов
-['businesses','career','entertainment','other'].forEach(setupTabs);
-
-</script>
+  </script>
 
 <button class="theme-toggle" id="theme-toggle">🌙/☀️</button>
 <script>
@@ -2620,36 +2622,6 @@ function setupTabs(sectionId) {
       localStorage.setItem('theme','light');
     }
   });
-
-
-// Система табов для новых разделов (как в админке)
-function setupTabs(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (!section) return;
-  const tabs = section.querySelectorAll('.admin-tab');
-  const contents = section.querySelectorAll('.admin-tab-content');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.add('hidden'));
-      tab.classList.add('active');
-      const view = tab.dataset.tab;
-      const content = section.querySelector(`#${sectionId}-${view}`);
-      if (content) content.classList.remove('hidden');
-      // Показываем нужный оригинальный view внутрь контейнера
-      const orig = document.getElementById('view-' + view);
-      if (orig) {
-        content.innerHTML = '';
-        content.appendChild(orig);
-        orig.classList.remove('hidden');
-      }
-    });
-  });
-}
-
-// Инициализация табов
-['businesses','career','entertainment','other'].forEach(setupTabs);
-
 </script>
 
 
@@ -3105,36 +3077,6 @@ function setupTabs(sectionId) {
   }
 
 })();
-
-
-// Система табов для новых разделов (как в админке)
-function setupTabs(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (!section) return;
-  const tabs = section.querySelectorAll('.admin-tab');
-  const contents = section.querySelectorAll('.admin-tab-content');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      contents.forEach(c => c.classList.add('hidden'));
-      tab.classList.add('active');
-      const view = tab.dataset.tab;
-      const content = section.querySelector(`#${sectionId}-${view}`);
-      if (content) content.classList.remove('hidden');
-      // Показываем нужный оригинальный view внутрь контейнера
-      const orig = document.getElementById('view-' + view);
-      if (orig) {
-        content.innerHTML = '';
-        content.appendChild(orig);
-        orig.classList.remove('hidden');
-      }
-    });
-  });
-}
-
-// Инициализация табов
-['businesses','career','entertainment','other'].forEach(setupTabs);
-
 </script>
 <!-- END AUGMENTATION -->
 
