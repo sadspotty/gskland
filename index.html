@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.4.4</title>
+<title>GSK LAND — бизнес-игра v1.4.8</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -219,11 +219,6 @@
   color: inherit !important;
 }
 
-
-  .sub-nav { margin-top:8px; margin-left:12px; display:none; flex-direction:column; gap:6px; }
-  .sub-nav.show { display:flex; }
-  .sub-nav .nav-btn { background:rgba(255,255,255,0.03); font-size:14px; }
-
 </style>
 </head>
 <body>
@@ -251,35 +246,10 @@
 
 <nav id="nav">
   <button class="nav-btn active" data-view="home">Главная</button>
-
   <button class="nav-btn" data-view="businesses">Бизнесы</button>
-  <div id="sub-businesses" class="sub-nav hidden">
-    <button class="nav-btn" data-view="shop">Магазин</button>
-    <button class="nav-btn" data-view="my">Мои бизнесы</button>
-    <button class="nav-btn" data-view="company">Моя компания</button>
-  </div>
-
   <button class="nav-btn" data-view="career">Карьера</button>
-  <div id="sub-career" class="sub-nav hidden">
-    <button class="nav-btn" data-view="clicker">Подработка</button>
-    <button class="nav-btn" data-view="education">Образование</button>
-    <button class="nav-btn" data-view="rating">Рейтинг</button>
-  </div>
-
   <button class="nav-btn" data-view="entertainment">Развлечения</button>
-  <div id="sub-entertainment" class="sub-nav hidden">
-    <button class="nav-btn" data-view="quests">Задания</button>
-    <button class="nav-btn" data-view="achievements">Достижения</button>
-    <button class="nav-btn" data-view="casino">Казино</button>
-  </div>
-
   <button class="nav-btn" data-view="other">Прочее</button>
-  <div id="sub-other" class="sub-nav hidden">
-    <button class="nav-btn" data-view="news">Новости</button>
-    <button class="nav-btn" data-view="promocodes">Промокоды</button>
-    <button class="nav-btn" data-view="help">Помощь</button>
-  </div>
-
   <button class="nav-btn hidden" data-view="admin" id="nav-admin">Админ</button>
 </nav>
 
@@ -429,6 +399,55 @@
     </div>
   </div>
 </section>
+
+<section class="hidden" id="view-businesses">
+  <h2>Бизнесы</h2>
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="shop">Магазин</button>
+    <button class="admin-tab" data-tab="my">Мои бизнесы</button>
+    <button class="admin-tab" data-tab="company">Моя компания</button>
+  </div>
+  <div class="admin-tab-content" id="businesses-shop"></div>
+  <div class="admin-tab-content hidden" id="businesses-my"></div>
+  <div class="admin-tab-content hidden" id="businesses-company"></div>
+</section>
+
+<section class="hidden" id="view-career">
+  <h2>Карьера</h2>
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="clicker">Подработка</button>
+    <button class="admin-tab" data-tab="education">Образование</button>
+    <button class="admin-tab" data-tab="rating">Рейтинг</button>
+  </div>
+  <div class="admin-tab-content" id="career-clicker"></div>
+  <div class="admin-tab-content hidden" id="career-education"></div>
+  <div class="admin-tab-content hidden" id="career-rating"></div>
+</section>
+
+<section class="hidden" id="view-entertainment">
+  <h2>Развлечения</h2>
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="quests">Задания</button>
+    <button class="admin-tab" data-tab="achievements">Достижения</button>
+    <button class="admin-tab" data-tab="casino">Казино</button>
+  </div>
+  <div class="admin-tab-content" id="entertainment-quests"></div>
+  <div class="admin-tab-content hidden" id="entertainment-achievements"></div>
+  <div class="admin-tab-content hidden" id="entertainment-casino"></div>
+</section>
+
+<section class="hidden" id="view-other">
+  <h2>Прочее</h2>
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="news">Новости</button>
+    <button class="admin-tab" data-tab="promocodes">Промокоды</button>
+    <button class="admin-tab" data-tab="help">Помощь</button>
+  </div>
+  <div class="admin-tab-content" id="other-news"></div>
+  <div class="admin-tab-content hidden" id="other-promocodes"></div>
+  <div class="admin-tab-content hidden" id="other-help"></div>
+</section>
+
 <section class="hidden" id="view-admin">
 <h2>Админ панель</h2>
 <div class="admin-tabs">
@@ -487,42 +506,96 @@
 </div>
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js">
-// Поддержка раскрывающихся меню
-document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const view = btn.dataset.view;
-    const sub = document.getElementById('sub-' + view);
-    if (sub) {
-      sub.classList.toggle('show');
-    }
+
+// Система табов для новых разделов (как в админке)
+function setupTabs(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  const tabs = section.querySelectorAll('.admin-tab');
+  const contents = section.querySelectorAll('.admin-tab-content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.add('hidden'));
+      tab.classList.add('active');
+      const view = tab.dataset.tab;
+      const content = section.querySelector(`#${sectionId}-${view}`);
+      if (content) content.classList.remove('hidden');
+      // Показываем нужный оригинальный view внутрь контейнера
+      const orig = document.getElementById('view-' + view);
+      if (orig) {
+        content.innerHTML = '';
+        content.appendChild(orig);
+        orig.classList.remove('hidden');
+      }
+    });
   });
-});
+}
+
+// Инициализация табов
+['businesses','career','entertainment','other'].forEach(setupTabs);
 
 </script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js">
-// Поддержка раскрывающихся меню
-document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const view = btn.dataset.view;
-    const sub = document.getElementById('sub-' + view);
-    if (sub) {
-      sub.classList.toggle('show');
-    }
+
+// Система табов для новых разделов (как в админке)
+function setupTabs(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  const tabs = section.querySelectorAll('.admin-tab');
+  const contents = section.querySelectorAll('.admin-tab-content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.add('hidden'));
+      tab.classList.add('active');
+      const view = tab.dataset.tab;
+      const content = section.querySelector(`#${sectionId}-${view}`);
+      if (content) content.classList.remove('hidden');
+      // Показываем нужный оригинальный view внутрь контейнера
+      const orig = document.getElementById('view-' + view);
+      if (orig) {
+        content.innerHTML = '';
+        content.appendChild(orig);
+        orig.classList.remove('hidden');
+      }
+    });
   });
-});
+}
+
+// Инициализация табов
+['businesses','career','entertainment','other'].forEach(setupTabs);
 
 </script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js">
-// Поддержка раскрывающихся меню
-document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const view = btn.dataset.view;
-    const sub = document.getElementById('sub-' + view);
-    if (sub) {
-      sub.classList.toggle('show');
-    }
+
+// Система табов для новых разделов (как в админке)
+function setupTabs(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  const tabs = section.querySelectorAll('.admin-tab');
+  const contents = section.querySelectorAll('.admin-tab-content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.add('hidden'));
+      tab.classList.add('active');
+      const view = tab.dataset.tab;
+      const content = section.querySelector(`#${sectionId}-${view}`);
+      if (content) content.classList.remove('hidden');
+      // Показываем нужный оригинальный view внутрь контейнера
+      const orig = document.getElementById('view-' + view);
+      if (orig) {
+        content.innerHTML = '';
+        content.appendChild(orig);
+        orig.classList.remove('hidden');
+      }
+    });
   });
-});
+}
+
+// Инициализация табов
+['businesses','career','entertainment','other'].forEach(setupTabs);
 
 </script>
 <script>
@@ -2499,16 +2572,34 @@ document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
       });
     });
   
-// Поддержка раскрывающихся меню
-document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const view = btn.dataset.view;
-    const sub = document.getElementById('sub-' + view);
-    if (sub) {
-      sub.classList.toggle('show');
-    }
+
+// Система табов для новых разделов (как в админке)
+function setupTabs(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  const tabs = section.querySelectorAll('.admin-tab');
+  const contents = section.querySelectorAll('.admin-tab-content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.add('hidden'));
+      tab.classList.add('active');
+      const view = tab.dataset.tab;
+      const content = section.querySelector(`#${sectionId}-${view}`);
+      if (content) content.classList.remove('hidden');
+      // Показываем нужный оригинальный view внутрь контейнера
+      const orig = document.getElementById('view-' + view);
+      if (orig) {
+        content.innerHTML = '';
+        content.appendChild(orig);
+        orig.classList.remove('hidden');
+      }
+    });
   });
-});
+}
+
+// Инициализация табов
+['businesses','career','entertainment','other'].forEach(setupTabs);
 
 </script>
 
@@ -2530,16 +2621,34 @@ document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
     }
   });
 
-// Поддержка раскрывающихся меню
-document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const view = btn.dataset.view;
-    const sub = document.getElementById('sub-' + view);
-    if (sub) {
-      sub.classList.toggle('show');
-    }
+
+// Система табов для новых разделов (как в админке)
+function setupTabs(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  const tabs = section.querySelectorAll('.admin-tab');
+  const contents = section.querySelectorAll('.admin-tab-content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.add('hidden'));
+      tab.classList.add('active');
+      const view = tab.dataset.tab;
+      const content = section.querySelector(`#${sectionId}-${view}`);
+      if (content) content.classList.remove('hidden');
+      // Показываем нужный оригинальный view внутрь контейнера
+      const orig = document.getElementById('view-' + view);
+      if (orig) {
+        content.innerHTML = '';
+        content.appendChild(orig);
+        orig.classList.remove('hidden');
+      }
+    });
   });
-});
+}
+
+// Инициализация табов
+['businesses','career','entertainment','other'].forEach(setupTabs);
 
 </script>
 
@@ -2997,16 +3106,34 @@ document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
 
 })();
 
-// Поддержка раскрывающихся меню
-document.querySelectorAll('#nav > .nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const view = btn.dataset.view;
-    const sub = document.getElementById('sub-' + view);
-    if (sub) {
-      sub.classList.toggle('show');
-    }
+
+// Система табов для новых разделов (как в админке)
+function setupTabs(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  const tabs = section.querySelectorAll('.admin-tab');
+  const contents = section.querySelectorAll('.admin-tab-content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.add('hidden'));
+      tab.classList.add('active');
+      const view = tab.dataset.tab;
+      const content = section.querySelector(`#${sectionId}-${view}`);
+      if (content) content.classList.remove('hidden');
+      // Показываем нужный оригинальный view внутрь контейнера
+      const orig = document.getElementById('view-' + view);
+      if (orig) {
+        content.innerHTML = '';
+        content.appendChild(orig);
+        orig.classList.remove('hidden');
+      }
+    });
   });
-});
+}
+
+// Инициализация табов
+['businesses','career','entertainment','other'].forEach(setupTabs);
 
 </script>
 <!-- END AUGMENTATION -->
