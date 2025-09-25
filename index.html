@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>GSK LAND — бизнес-игра v1.4.4</title>
+<title>GSK LAND — бизнес-игра v1.4.9</title>
 <meta content="GSK LAND — бизнес-игра. Магазин, мои бизнесы, рейтинг, админ-панель." name="description"/>
 <style>
     /* Emerald - dark liquid glass theme */
@@ -528,7 +528,6 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    
     const navButtons = document.querySelectorAll('.nav-btn');
     const views = {
       home: document.getElementById('view-home'),
@@ -545,148 +544,32 @@
       admin: document.getElementById('view-admin')
     };
 
-    // category names
-    const topCategories = new Set(['businesses','career','entertainment','other']);
+    let currentSellBizId = null;
+    let dealsListener = null;
+    let currentUser = null;
+    let currentUserDoc = null;
+    let spinning = false;
 
-    // views that we may move between sections (store originals)
-    const movableViewIds = ['shop','my','rating','clicker','quests','achievements','promocodes','news','help','casino','company','education'];
-
-    const originalPositions = {};
-    movableViewIds.forEach(id => {
-      const el = document.getElementById('view-' + id);
-      if (el) {
-        originalPositions[id] = { parent: el.parentNode, nextSibling: el.nextSibling };
-      }
-    });
-
-    function hideAllTopSections() {
-      // hide all main-level view-* sections (but keep category containers for manual control)
-      document.querySelectorAll('main > section[id^=\"view-\"]').forEach(s => s.classList.add('hidden'));
-    }
-
-    function restoreAllMovedViews() {
-      for (const id in originalPositions) {
-        const pos = originalPositions[id];
-        const el = document.getElementById('view-' + id);
-        if (!el) continue;
-        if (pos.parent) {
-          // restore to original position (insertBefore handles null nextSibling as append)
-          pos.parent.insertBefore(el, pos.nextSibling);
-          el.classList.add('hidden');
-        }
-      }
-    }
-
-    function showAtomicView(view) {
-      // show a single existing view (like shop, clicker, etc.)
-      restoreAllMovedViews();
-      hideAllTopSections();
-      const el = document.getElementById('view-' + view);
-      if (el) el.classList.remove('hidden');
-
-      // update nav active state for top-level buttons
-      document.querySelectorAll('#nav .nav-btn').forEach(b => b.classList.remove('active'));
-      // try to find a top-level button that maps to this view (rare)
-      let parentBtn = document.querySelector('#nav .nav-btn[data-view=\"' + view + '\"]');
-      if (parentBtn) parentBtn.classList.add('active');
-      // but if not found, set Home as active? we'll leave none active in that case.
-
-      // call initializer for specific views
-      if (view === 'rating') renderRating();
-      if (view === 'clicker') renderClicker();
-      if (view === 'quests') renderQuests();
-      if (view === 'achievements') renderAchievements();
-      if (view === 'promocodes') renderPromocodes();
-      if (view === 'news') renderNews();
-      if (view === 'casino') initCasino();
-      if (view === 'shop') renderShop();
-      if (view === 'my') renderMyBusinesses();
-      if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) renderAdminUsers();
-    }
-
-    function openCategory(category) {
-      // Restore moved views to avoid accidental duplicates
-      restoreAllMovedViews();
-      hideAllTopSections();
-      // Show the category container itself
-      const section = document.getElementById('view-' + category);
-      if (!section) return;
-      section.classList.remove('hidden');
-
-      // mark top nav active
-      document.querySelectorAll('#nav .nav-btn').forEach(b => b.classList.remove('active'));
-      const topBtn = document.querySelector('#nav .nav-btn[data-view=\"' + category + '\"]');
-      if (topBtn) topBtn.classList.add('active');
-
-      // determine active tab inside the category (admin-tab with .active or first)
-      const tabs = section.querySelectorAll('.admin-tab');
-      let activeTab = section.querySelector('.admin-tab.active');
-      if (!activeTab) activeTab = tabs[0];
-      if (!activeTab) return;
-      const viewToShow = activeTab.dataset.tab;
-      showViewInsideCategory(section, viewToShow);
-    }
-
-    function showViewInsideCategory(section, viewId) {
-      // Move the desired view right after the category section (so it appears under the tabbar)
-      const target = document.getElementById('view-' + viewId);
-      if (!target) return;
-      // hide everything first
-      document.querySelectorAll('main > section[id^=\"view-\"]').forEach(s => s.classList.add('hidden'));
-      // ensure the category section is visible
-      section.classList.remove('hidden');
-      // insert the target view immediately after the category section
-      section.parentNode.insertBefore(target, section.nextSibling);
-      // hide all managed views, then show target
-      movableViewIds.forEach(id => {
-        const el = document.getElementById('view-' + id);
-        if (el) el.classList.add('hidden');
-      });
-      target.classList.remove('hidden');
-
-      // call renderer for this view
-      if (viewId === 'rating') renderRating();
-      if (viewId === 'clicker') renderClicker();
-      if (viewId === 'quests') renderQuests();
-      if (viewId === 'achievements') renderAchievements();
-      if (viewId === 'promocodes') renderPromocodes();
-      if (viewId === 'news') renderNews();
-      if (viewId === 'casino') initCasino();
-      if (viewId === 'shop') renderShop();
-      if (viewId === 'my') renderMyBusinesses();
-    }
-
-    // Attach nav listeners: top-level (home, categories, admin)
     navButtons.forEach(btn => {
       btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
         const view = btn.dataset.view;
-        if (!view) return;
-        if (topCategories.has(view)) {
-          openCategory(view);
-        } else {
-          showAtomicView(view);
+        Object.values(views).forEach(v => v.classList.add('hidden'));
+        views[view].classList.remove('hidden');
+
+        if (view === 'rating') renderRating();
+        if (view === 'clicker') renderClicker();
+        if (view === 'quests') renderQuests();
+        if (view === 'achievements') renderAchievements();
+        if (view === 'promocodes') renderPromocodes();
+        if (view === 'news') renderNews();
+        if (view === 'casino') initCasino();
+        if (view === 'admin' && isAdminUser(currentUserDoc, currentUser)) {
+          renderAdminUsers();
         }
       });
     });
-
-    // Attach tab listeners inside each category container (like admin-tabs)
-    document.querySelectorAll('.category-tabs').forEach(tabsWrapper => {
-      tabsWrapper.querySelectorAll('.admin-tab').forEach(tabBtn => {
-        tabBtn.addEventListener('click', () => {
-          // mark active in this group
-          const parentSection = tabsWrapper.closest('section[id^=\"view-\"]');
-          parentSection.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-          tabBtn.classList.add('active');
-          // show the corresponding original view under the category
-          showViewInsideCategory(parentSection, tabBtn.dataset.tab);
-        });
-      });
-    });
-
-    // make sure Home shows correctly by default
-    // (original code marked home active initially)
-    // showAtomicView('home');
-
 
     function isAdminUser(userDoc, user) {
       if (!user) return false;
